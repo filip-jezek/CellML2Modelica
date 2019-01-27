@@ -1,0 +1,5456 @@
+def model CardiovascularSystem as
+    def import using "Units.cellml" for
+        unit m3 using unit m3;
+        unit m3_per_s using unit m3_per_s;
+        unit m3_per_s2 using unit m3_per_s2;
+        unit m6_per_J using unit m6_per_J;
+        unit per_m using unit per_m;
+        unit per_m3 using unit per_m3;
+        unit J_per_m3 using unit J_per_m3;
+        unit J_s_per_m6 using unit J_s_per_m6;
+        unit J_s2_per_m6 using unit J_s2_per_m6;
+        unit J_s2_per_m5 using unit J_s2_per_m5;
+        unit J_s2_per_m9 using unit J_s2_per_m9;
+        unit J_per_s using unit J_per_s;
+        unit J_per_m6 using unit J_per_m6;
+        unit J_s_per_m3 using unit J_s_per_m3;
+        unit UnitValve using unit UnitValve;
+        unit s2 using unit s2;
+        unit s_per_m3 using unit s_per_m3;
+    enddef;
+
+    def import using "Parameters.cellml" for
+        comp Parameters_Systemic using comp Parameters_Systemic;
+        comp Parameters_Pulmonary using comp Parameters_Pulmonary;
+
+        //        comp Parameters_Coronary using comp Parameters_Coronary;
+
+        comp Parameters_Heart using comp Parameters_Heart;
+    enddef;
+
+    def comp environment as
+        var time: second {pub: out};
+    enddef;
+
+    //------------ Systemic Circulation ------------//
+
+    def comp Systemic as
+        var t: second {pub: in, priv: out};
+
+        // Constitutive Parameters
+
+        var C_svl: m6_per_J {priv: in};
+        var C_svn: m6_per_J {priv: in};
+        var C_svc: m6_per_J {priv: in};
+        var C_ivl: m6_per_J {priv: in};
+        var C_ivn: m6_per_J {priv: in};
+        var C_ivc: m6_per_J {priv: in};
+        var R_svl: J_s_per_m6 {priv: in};
+        var R_svn: J_s_per_m6 {priv: in};
+        var R_svc: J_s_per_m6 {priv: in};
+        var R_ivl: J_s_per_m6 {priv: in};
+        var R_ivn: J_s_per_m6 {priv: in};
+        var R_ivc: J_s_per_m6 {priv: in};
+        var I_svl: J_s2_per_m6 {priv: in};
+        var I_svn: J_s2_per_m6 {priv: in};
+        var I_svc: J_s2_per_m6 {priv: in};
+        var I_ivl: J_s2_per_m6 {priv: in};
+        var I_ivn: J_s2_per_m6 {priv: in};
+        var I_ivc: J_s2_per_m6 {priv: in};
+
+        // State Variables
+
+        var u_sas: J_per_m3 {pub: out};
+        var u_root: J_per_m3 {pub: out, priv: in};
+        var v_sas: m3_per_s {priv: out};
+
+        //        var v_coronary: m3_per_s {pub: in};
+
+        //
+
+        var v_aov: m3_per_s {pub: in};
+        var u_ra: J_per_m3 {pub: in};
+        var u_svl: J_per_m3 {init: 100, priv: out};
+        var u_svn: J_per_m3 {init: 0.0, priv: out};
+        var u_svc: J_per_m3 {init: 0.0, priv: out};
+        var u_ivl: J_per_m3 {init: 100, priv: out};
+        var u_ivn: J_per_m3 {init: 0.0, priv: out};
+        var u_ivc: J_per_m3 {init: 0.0, priv: out};
+        var v_svl: m3_per_s {init: 0.0, priv: out};
+        var v_svn: m3_per_s {init: 0.0, priv: out};
+        var v_svc: m3_per_s {init: 0.0, priv: out};
+        var v_ivl: m3_per_s {init: 0.0, priv: out};
+        var v_ivn: m3_per_s {init: 0.0, priv: out};
+        var v_ivc: m3_per_s {init: 0.0, priv: out};
+        var v_sup_venacava: m3_per_s {pub: out};
+        var v_inf_venacava: m3_per_s {pub: out};
+        var v_chest: m3_per_s {pub: out};
+        var v_trunk: m3_per_s {pub: out};
+        var v_kidneys: m3_per_s {pub: out};
+        var v_intestines: m3_per_s {pub: out};
+        var v_legs: m3_per_s {pub: out};
+        var v_arms: m3_per_s {pub: out};
+        var v_head: m3_per_s {pub: out};
+        var v_posterior_intercostal_T1_R98: m3_per_s {priv: in};
+        var v_posterior_intercostal_T1_L102: m3_per_s {priv: in};
+        var v_posterior_intercostal_T2_R106: m3_per_s {priv: in};
+        var v_posterior_intercostal_T2_L110: m3_per_s {priv: in};
+        var v_left_gastric_T3_C120: m3_per_s {priv: in};
+        var v_dorsal_pancreatic_T1_C124: m3_per_s {priv: in};
+        var v_splenic_T2_C126: m3_per_s {priv: in};
+        var v_hepatic_artery_proper_left_branch_C132: m3_per_s {priv: in};
+        var v_hepatic_artery_proper_right_branch_C134: m3_per_s {priv: in};
+        var v_middle_colic_T8_C140: m3_per_s {priv: in};
+        var v_jejunal_3_T10_C144: m3_per_s {priv: in};
+        var v_jejunal_6_T11_C148: m3_per_s {priv: in};
+        var v_ileocolic_T9_C152: m3_per_s {priv: in};
+        var v_ileal_4_T12_C156: m3_per_s {priv: in};
+        var v_ileal_6_T13_C160: m3_per_s {priv: in};
+        var v_superior_mesenteric_T4_C162: m3_per_s {priv: in};
+        var v_inferior_segmental_T5_L170: m3_per_s {priv: in};
+        var v_superior_segmental_T4_L172: m3_per_s {priv: in};
+        var v_renal_posterior_branch_T3_L174: m3_per_s {priv: in};
+        var v_superior_segmental_T4_R182: m3_per_s {priv: in};
+        var v_inferior_segmental_T5_R184: m3_per_s {priv: in};
+        var v_renal_posterior_branch_T3_R186: m3_per_s {priv: in};
+        var v_inferior_mesenteric_T5_C190: m3_per_s {priv: in};
+        var v_internal_iliac_T1_R218: m3_per_s {priv: in};
+        var v_profundus_T2_R224: m3_per_s {priv: in};
+        var v_anterior_tibial_T3_R230: m3_per_s {priv: in};
+        var v_posterior_tibial_T4_R236: m3_per_s {priv: in};
+        var v_internal_iliac_T1_L196: m3_per_s {priv: in};
+        var v_profundus_T2_L202: m3_per_s {priv: in};
+        var v_anterior_tibial_T3_L208: m3_per_s {priv: in};
+        var v_posterior_tibial_T4_L214: m3_per_s {priv: in};
+        var v_posterior_interosseous_T3_R40: m3_per_s {priv: in};
+        var v_ulnar_T2_R42: m3_per_s {priv: in};
+        var v_radial_T1_R44: m3_per_s {priv: in};
+        var v_posterior_interosseous_T3_L88: m3_per_s {priv: in};
+        var v_ulnar_T2_L90: m3_per_s {priv: in};
+        var v_radial_T1_L92: m3_per_s {priv: in};
+        var v_external_carotid_T2_R26: m3_per_s {priv: in};
+        var v_external_carotid_T2_L62: m3_per_s {priv: in};
+        var v_internal_carotid_R8_C: m3_per_s {priv: in};
+        var v_internal_carotid_L50_C: m3_per_s {priv: in};
+        var v_vertebral_R272: m3_per_s {priv: in};
+        var v_vertebral_L2: m3_per_s {priv: in};
+
+        // Constitutive Relations
+
+        u_sas = u_root;
+        v_sas = v_aov;
+
+        //        v_sas = v_aov+v_coronary;
+
+        //        ode(u_svl, t) = (v_sup_venacava-v_svl)/C_svl;
+
+        ode(u_svn, t) = (v_svl-v_svn)/C_svn;
+        ode(u_svc, t) = (v_svn-v_svc)/C_svc;
+
+        //        ode(u_ivl, t) = (v_inf_venacava-v_ivl)/C_ivl;
+
+        ode(u_ivn, t) = (v_ivl-v_ivn)/C_ivn;
+        ode(u_ivc, t) = (v_ivn-v_ivc)/C_ivc;
+        ode(v_svl, t) = (u_svl-u_svn-v_svl*R_svl)/I_svl;
+        ode(v_svn, t) = (u_svn-u_svc-v_svn*R_svn)/I_svn;
+        ode(v_svc, t) = (u_svc-u_ra-v_svc*R_svc)/I_svc;
+        ode(v_ivl, t) = (u_ivl-u_ivn-v_ivl*R_ivl)/I_ivl;
+        ode(v_ivn, t) = (u_ivn-u_ivc-v_ivn*R_ivn)/I_ivn;
+        ode(v_ivc, t) = (u_ivc-u_ra-v_ivc*R_ivc)/I_ivc;
+
+        // Conservation Laws
+
+        v_chest = v_posterior_intercostal_T1_R98+v_posterior_intercostal_T1_L102+v_posterior_intercostal_T2_R106+v_posterior_intercostal_T2_L110;
+        v_trunk = v_left_gastric_T3_C120+v_dorsal_pancreatic_T1_C124+v_splenic_T2_C126+v_hepatic_artery_proper_left_branch_C132+v_hepatic_artery_proper_right_branch_C134;
+        v_intestines = v_middle_colic_T8_C140+v_jejunal_3_T10_C144+v_jejunal_6_T11_C148+v_ileocolic_T9_C152+v_ileal_4_T12_C156+v_ileal_6_T13_C160+v_superior_mesenteric_T4_C162+v_inferior_mesenteric_T5_C190;
+        v_kidneys = v_inferior_segmental_T5_L170+v_superior_segmental_T4_L172+v_renal_posterior_branch_T3_L174+v_superior_segmental_T4_R182+v_inferior_segmental_T5_R184+v_renal_posterior_branch_T3_R186;
+        v_legs = v_internal_iliac_T1_R218+v_profundus_T2_R224+v_anterior_tibial_T3_R230+v_posterior_tibial_T4_R236+v_internal_iliac_T1_L196+v_profundus_T2_L202+v_anterior_tibial_T3_L208+v_posterior_tibial_T4_L214;
+        v_arms = v_posterior_interosseous_T3_R40+v_ulnar_T2_R42+v_radial_T1_R44+v_posterior_interosseous_T3_L88+v_ulnar_T2_L90+v_radial_T1_L92;
+        v_head = v_external_carotid_T2_R26+v_external_carotid_T2_L62+v_internal_carotid_R8_C+v_internal_carotid_L50_C+v_vertebral_R272+v_vertebral_L2;
+        v_sup_venacava = v_arms+v_head;
+        v_inf_venacava = v_chest+v_trunk+v_intestines+v_kidneys+v_legs;
+    enddef;
+
+    //------------ Pulmonary Circulation ------------//
+
+    def comp Pulmonary as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var C_pas: m6_per_J {priv: in};
+        var C_pat: m6_per_J {priv: in};
+        var C_par: m6_per_J {priv: in};
+        var C_pcp: m6_per_J {priv: in};
+        var C_pvn: m6_per_J {priv: in};
+        var C_pvc: m6_per_J {priv: in};
+        var R_pas: J_s_per_m6 {priv: in};
+        var R_pat: J_s_per_m6 {priv: in};
+        var R_par: J_s_per_m6 {priv: in};
+        var R_pcp: J_s_per_m6 {priv: in};
+        var R_psh: J_s_per_m6 {priv: in};
+        var R_pvn: J_s_per_m6 {priv: in};
+        var I_pas: J_s2_per_m6 {priv: in};
+        var I_pat: J_s2_per_m6 {priv: in};
+        var I_par: J_s2_per_m6 {priv: in};
+        var I_pcp: J_s2_per_m6 {priv: in};
+        var I_pvn: J_s2_per_m6 {priv: in};
+        var I_psh: J_s2_per_m6 {priv: in};
+
+        // State Variables
+
+        var u_pas: J_per_m3 {init: 4000.0, pub: out};
+        var u_pat: J_per_m3 {init: 0.0, pub: out};
+        var u_par: J_per_m3 {init: 0.0, pub: out};
+        var u_pcp: J_per_m3 {init: 0.0, pub: out};
+        var u_pvn: J_per_m3 {init: 0.0, pub: out};
+        var u_la: J_per_m3 {pub: in};
+        var v_pas: m3_per_s {init: 0.0, pub: out};
+        var v_pat: m3_per_s {init: 0.0, pub: out};
+        var v_par: m3_per_s {init: 0.0, pub: out};
+        var v_pcp: m3_per_s {init: 0.0, pub: out};
+        var v_psh: m3_per_s {init: 0.0, pub: out};
+        var v_pvn: m3_per_s {init: 0.0, pub: out};
+        var v_puv: m3_per_s {pub: in};
+
+        // Constitutive Relations
+
+        ode(u_pas, t) = (v_puv-v_pas)/C_pas;
+        ode(u_pat, t) = (v_pas-v_pat)/C_pat;
+        ode(u_par, t) = (v_pat-v_psh-v_par)/C_par;
+        ode(u_pcp, t) = (v_par-v_pcp)/C_pcp;
+        ode(u_pvn, t) = (v_pcp+v_psh-v_pvn)/C_pvn;
+        ode(v_pas, t) = (u_pas-u_pat-v_pas*R_pas)/I_pas;
+        ode(v_pat, t) = (u_pat-u_par-v_pat*R_pat)/I_pat;
+        ode(v_par, t) = (u_par-u_pcp-v_par*R_par)/I_par;
+        ode(v_pcp, t) = (u_pcp-u_pvn-v_pcp*R_pcp)/I_pcp;
+        ode(v_pvn, t) = (u_pvn-u_la-v_pvn*R_pvn)/I_pvn;
+        ode(v_psh, t) = (u_par-u_pvn-v_psh*R_psh)/I_psh;
+    enddef;
+
+    //------------ Coronary ------------//
+
+    //    def comp Coronary as
+    //        var t: second {pub: in};
+
+    //        // Constitutive Parameters
+
+    //        var C_corepi: m6_per_J {priv: in};
+    //        var C_corint: m6_per_J {priv: in};
+    //        var C_corcap: m6_per_J {priv: in};
+    //        var C_corvns: m6_per_J {priv: in};
+    //        var R_corepi: J_s_per_m6 {priv: in};
+    //        var R_corint: J_s_per_m6 {priv: in};
+    //        var R_corcap: J_s_per_m6 {priv: in};
+    //        var R_corvns: J_s_per_m6 {priv: in};
+    //        var I_corepi: J_s2_per_m6 {priv: in};
+    //        var I_corint: J_s2_per_m6 {priv: in};
+    //        var I_corcap: J_s2_per_m6 {priv: in};
+    //        var I_corvns: J_s2_per_m6 {priv: in};
+
+    //        // State Variables
+
+    //        var u_sas: J_per_m3 {pub: in};
+    //        var u_ra: J_per_m3 {pub: in};
+    //        var u_corepi: J_per_m3 {init: 0.0, pub: out};
+    //        var u_corint: J_per_m3 {init: 0.0, pub: out};
+    //        var u_corcap: J_per_m3 {init: 0.0, pub: out};
+    //        var u_corvns: J_per_m3 {init: 0.0, pub: out};
+    //        var v_corepi: m3_per_s {init: 0.0, pub: out};
+    //        var v_corint: m3_per_s {init: 0.0, pub: out};
+    //        var v_corcap: m3_per_s {init: 0.0, pub: out};
+    //        var v_corvns_in: m3_per_s {init: 0.0, pub: out};
+    //        var v_corvns_out: m3_per_s {init: 0.0, pub: out};
+
+    //        // Constitutive Relations
+
+    //        ode(v_corepi, t) = (u_sas-u_corepi-v_corepi*R_corepi)/I_corepi;
+    //        ode(v_corint, t) = (u_corepi-u_corint-v_corint*R_corint)/I_corint;
+    //        ode(v_corcap, t) = (u_corint-u_corcap-v_corcap*R_corcap)/I_corcap;
+    //        ode(v_corvns_in, t) = (u_corcap-u_corvns-v_corvns_in*R_corvns/2{dimensionless})/(I_corvns/2{dimensionless});
+    //        ode(v_corvns_out, t) = (u_corvns-u_ra-v_corvns_out*R_corvns/2{dimensionless})/(I_corvns/2{dimensionless});
+    //        ode(u_corepi, t) = (v_corepi-v_corint)/C_corepi;
+    //        ode(u_corint, t) = (v_corint-v_corcap)/C_corint;
+    //        ode(u_corcap, t) = (v_corcap-v_corvns_in)/C_corcap;
+    //        ode(u_corvns, t) = (v_corvns_in-v_corvns_out)/C_corvns;
+    //    enddef;
+
+    //------------ Heart ------------//
+
+    //    def comp Heart as
+    //        var t: second {pub: in};
+
+    //        // Constitutive Parameters
+
+    //        var T: second {priv: in};
+    //        var T_sys_0: second {priv: in};
+    //        var k_sys: s2 {priv: in};
+    //        var T_sys: second;
+    //        var phi: dimensionless;
+    //        var uu: dimensionless;
+    //        var xi: dimensionless {init: 0.0};
+    //        var C_la: m6_per_J {priv: in};
+    //        var C_ra: m6_per_J {priv: in};
+    //        var R_la: J_s_per_m6 {priv: in};
+    //        var R_ra: J_s_per_m6 {priv: in};
+    //        var R_lv: J_s_per_m6;
+    //        var R_rv: J_s_per_m6;
+    //        var E_max_lv: J_per_m6 {priv: in};
+    //        var E_max_rv: J_per_m6 {priv: in};
+    //        var k_E_lv: per_m3 {priv: in};
+    //        var k_E_rv: per_m3 {priv: in};
+    //        var k_R_lv: s_per_m3 {priv: in};
+    //        var k_R_rv: s_per_m3 {priv: in};
+    //        var u_0_lv: J_per_m3 {priv: in};
+    //        var u_0_rv: J_per_m3 {priv: in};
+    //        var q_0_lv: m3 {priv: in};
+    //        var q_0_rv: m3 {priv: in};
+
+    //        // State Variables
+
+    //        var u_sas: J_per_m3 {pub: in};
+    //        var u_la: J_per_m3 {init: 0.0, pub: out};
+    //        var u_ra: J_per_m3 {init: 0.0, pub: out};
+    //        var u_par: J_per_m3 {pub: in};
+    //        var u_lv: J_per_m3 {pub: out};
+    //        var u_rv: J_per_m3 {pub: out};
+    //        var u_max_lv: J_per_m3;
+    //        var u_max_rv: J_per_m3;
+    //        var q_rv: m3 {init: 172.0e-6};
+    //        var q_lv: m3 {init: 136.0e-6};
+    //        var q_ra: m3 {init: 67.0e-6};
+    //        var q_la: m3 {init: 71.0e-6};
+    //        var v_miv: m3_per_s {pub: out};
+    //        var v_aov: m3_per_s {pub: out};
+    //        var v_trv: m3_per_s {pub: out};
+    //        var v_puv: m3_per_s {pub: out};
+    //        var v_sup_venacava: m3_per_s {pub: in};
+    //        var v_inf_venacava: m3_per_s {pub: in};
+
+    //        //        var v_coronary_sinus: m3_per_s {pub: in};
+
+    //        var v_pvn: m3_per_s {pub: in};
+
+    //        // Blood Flow
+
+    //        v_miv = sel
+    //            case u_la > u_lv:
+    //                (u_la-u_lv)/R_la;
+    //            case u_la <= u_lv:
+    //                0{m3_per_s};
+    //        endsel;
+
+    //        v_aov = sel
+    //            case u_max_lv > u_sas:
+    //                (u_max_lv-u_sas)/R_lv;
+    //            case u_max_lv <= u_sas:
+    //                0{m3_per_s};
+    //        endsel;
+
+    //        v_trv = sel
+    //            case u_ra > u_rv:
+    //                (u_ra-u_rv)/R_ra;
+    //            case u_ra <= u_rv:
+    //                0{m3_per_s};
+    //        endsel;
+
+    //        v_puv = sel
+    //            case u_max_rv >= u_par:
+    //                (u_max_rv-u_par)/R_rv;
+    //            case u_max_rv < u_par:
+    //                0{m3_per_s};
+    //        endsel;
+
+    //        // Pressure of the Atria
+
+    //        ode(u_la, t) = (v_pvn-v_miv)/C_la;
+    //        ode(u_ra, t) = (v_sup_venacava+v_inf_venacava-v_trv)/C_ra;
+
+    //        // Blood Volume of the Ventricles
+
+    //        ode(q_lv, t) = v_miv-v_aov;
+    //        ode(q_rv, t) = v_trv-v_puv;
+    //        ode(q_la, t) = v_pvn-v_miv;
+    //        ode(q_ra, t) = v_sup_venacava+v_inf_venacava-v_trv;
+
+    //        // Isometric pressure of the Ventricles
+
+    //        u_max_lv = phi*E_max_lv*(q_lv-q_0_lv)+(1{dimensionless}-phi)*u_0_lv*(exp(k_E_lv*q_lv)-1{dimensionless});
+    //        u_max_rv = phi*E_max_rv*(q_rv-q_0_rv)+(1{dimensionless}-phi)*u_0_rv*(exp(k_E_rv*q_rv)-1{dimensionless});
+
+    //        // Viscous Resistance of the Ventricles
+
+    //        R_lv = k_R_lv*u_max_lv;
+    //        R_rv = k_R_rv*u_max_rv;
+
+    //        // Instantaneous Pressure of the Ventricles
+
+    //        u_lv = u_max_lv-R_lv*v_aov;
+    //        u_rv = u_max_rv-R_rv*v_puv;
+
+    //        // Ventricle Activation Function
+
+    //        phi = sel
+    //            case (uu >= 0{dimensionless}) and (uu <= T_sys/T):
+    //                sqr(sin(pi*T*uu/T_sys));
+    //            case (uu > T_sys/T) and (uu <= 1{dimensionless}):
+    //                0{dimensionless};
+    //        endsel;
+
+    //        // Fraction of Cardiac Cycle
+
+    //        uu = xi-floor(xi);
+    //        ode(xi, t) = 1{dimensionless}/T;
+
+    //        // Systole Duration
+
+    //        T_sys = T_sys_0-k_sys/T;
+    //    enddef;
+
+    def comp Heart as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mt: second;
+        var e_a: dimensionless;
+        var e_v: dimensionless;
+        var T: second {priv: in};
+        var t_ac: dimensionless {priv: in};
+        var t_ar: dimensionless {priv: in};
+        var T_ac: dimensionless {priv: in};
+        var T_ar: dimensionless {priv: in};
+        var T_vc: dimensionless {priv: in};
+        var T_vr: dimensionless {priv: in};
+        var R_trv: J_s_per_m6 {priv: in};
+        var R_puv: J_s_per_m6 {priv: in};
+        var R_miv: J_s_per_m6 {priv: in};
+        var R_aov: J_s_per_m6 {priv: in};
+        var B_trv: J_s2_per_m9 {priv: in};
+        var B_puv: J_s2_per_m9 {priv: in};
+        var B_miv: J_s2_per_m9 {priv: in};
+        var B_aov: J_s2_per_m9 {priv: in};
+        var L_trv: J_s2_per_m6 {priv: in};
+        var L_puv: J_s2_per_m6 {priv: in};
+        var L_miv: J_s2_per_m6 {priv: in};
+        var L_aov: J_s2_per_m6 {priv: in};
+        var E_lv_A: J_per_m6 {priv: in};
+        var E_lv_B: J_per_m6 {priv: in};
+        var E_la_A: J_per_m6 {priv: in};
+        var E_la_B: J_per_m6 {priv: in};
+        var E_rv_A: J_per_m6 {priv: in};
+        var E_rv_B: J_per_m6 {priv: in};
+        var E_ra_A: J_per_m6 {priv: in};
+        var E_ra_B: J_per_m6 {priv: in};
+        var q_ra_0: m3 {priv: in};
+        var q_rv_0: m3 {priv: in};
+        var q_la_0: m3 {priv: in};
+        var q_lv_0: m3 {priv: in};
+
+        // State Variables
+
+        var u_ra: J_per_m3 {pub: out};
+        var u_rv: J_per_m3;
+        var u_la: J_per_m3 {pub: out};
+        var u_lv: J_per_m3;
+        var u_sas: J_per_m3 {pub: in};
+        var u_par: J_per_m3 {pub: in};
+        var v_trv: m3_per_s {init: 0};
+        var v_puv: m3_per_s {init: 0, pub: out};
+        var v_miv: m3_per_s {init: 0};
+        var v_aov: m3_per_s {init: 0, pub: out};
+        var v_sup_venacava: m3_per_s {pub: in};
+        var v_inf_venacava: m3_per_s {pub: in};
+        var v_pvn: m3_per_s {pub: in};
+        var q_ra: m3 {init: 20.0e-6};
+        var q_rv: m3 {init: 500.0e-6};
+        var q_la: m3 {init: 20.0e-6};
+        var q_lv: m3 {init: 500.0e-6};
+
+        // Elastance Functions
+
+        mt = t-T*floor(t/T);
+
+        e_a = sel
+            case (mt >= 0{second}) and (mt <= (t_ar+T_ar)*T-T):
+                0.5{dimensionless}*(1{dimensionless}+cos(pi*(mt+T-t_ar*T)/(T_ar*T)));
+            case (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T):
+                0{dimensionless};
+            case (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T):
+                0.5{dimensionless}*(1{dimensionless}-cos(pi*(mt-t_ac*T)/(T_ac*T)));
+            case (mt > (t_ac+T_ac)*T) and (mt <= T):
+                0.5{dimensionless}*(1{dimensionless}+cos(pi*(mt-t_ar*T)/(T_ar*T)));
+        endsel;
+
+        e_v = sel
+            case (mt >= 0{second}) and (mt <= T_vc*T):
+                0.5{dimensionless}*(1{dimensionless}-cos(pi*mt/(T_vc*T)));
+            case (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T):
+                0.5{dimensionless}*(1{dimensionless}+cos(pi*(mt-T_vc*T)/(T_vr*T)));
+            case (mt > (T_vc+T_vr)*T) and (mt < T):
+                0{dimensionless};
+        endsel;
+
+        // Constitutive Relations
+
+        ode(v_trv, t) = sel
+            case u_ra >= u_rv:
+                (u_ra-u_rv-(R_trv+B_trv*abs(v_trv))*v_trv)/L_trv;
+            case u_ra < u_rv:
+                -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv;
+        endsel;
+
+        ode(v_puv, t) = sel
+            case u_rv >= u_par:
+                (u_rv-u_par-(R_puv+B_puv*abs(v_puv))*v_puv)/L_puv;
+            case u_rv < u_par:
+                -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv;
+        endsel;
+
+        ode(v_miv, t) = sel
+            case u_la >= u_lv:
+                (u_la-u_lv-(R_miv+B_miv*abs(v_miv))*v_miv)/L_miv;
+            case u_la < u_lv:
+                -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv;
+        endsel;
+
+        ode(v_aov, t) = sel
+            case u_lv >= u_sas:
+                (u_lv-u_sas-(R_aov+B_aov*abs(v_aov))*v_aov)/L_aov;
+            case u_lv < u_sas:
+                -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov;
+        endsel;
+
+        u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0);
+        u_rv = (e_v*E_rv_A+E_rv_B)*(q_rv-q_rv_0);
+        u_la = (e_a*E_la_A+E_la_B)*(q_la-q_la_0);
+        u_lv = (e_v*E_lv_A+E_lv_B)*(q_lv-q_lv_0);
+
+        // Conservation Laws
+
+        ode(q_ra, t) = v_sup_venacava+v_inf_venacava-v_trv;
+        ode(q_rv, t) = v_trv-v_puv;
+        ode(q_la, t) = v_pvn-v_miv;
+        ode(q_lv, t) = v_miv-v_aov;
+    enddef;
+
+    //------------ Mapping ------------//
+
+    def map between Heart and Systemic for
+        vars v_sup_venacava and v_sup_venacava;
+        vars v_inf_venacava and v_inf_venacava;
+        vars u_ra and u_ra;
+        vars u_sas and u_sas;
+        vars v_aov and v_aov;
+    enddef;
+
+    def map between Heart and Pulmonary for
+        vars u_par and u_pas;
+        vars v_pvn and v_pvn;
+        vars u_la and u_la;
+        vars v_puv and v_puv;
+    enddef;
+
+    //    def map between Heart and Coronary for
+    //        vars v_coronary_sinus and v_corvns_out;
+    //        vars u_ra and u_ra;
+    //    enddef;
+
+    //    def map between Systemic and Coronary for
+    //        vars v_coronary and v_corepi;
+    //        vars u_sas and u_sas;
+    //    enddef;
+
+    //    def map between Parameters_Coronary and Coronary for
+    //        vars C_corepi and C_corepi;
+    //        vars C_corint and C_corint;
+    //        vars C_corcap and C_corcap;
+    //        vars C_corvns and C_corvns;
+    //        vars R_corepi and R_corepi;
+    //        vars R_corint and R_corint;
+    //        vars R_corcap and R_corcap;
+    //        vars R_corvns and R_corvns;
+    //        vars I_corepi and I_corepi;
+    //        vars I_corint and I_corint;
+    //        vars I_corcap and I_corcap;
+    //        vars I_corvns and I_corvns;
+    //    enddef;
+
+    //    def map between environment and Coronary for
+    //        vars time and t;
+    //    enddef;
+
+    def map between Parameters_Systemic and Systemic for
+        vars C_svl and C_svl;
+        vars C_svn and C_svn;
+        vars C_svc and C_svc;
+        vars C_ivl and C_ivl;
+        vars C_ivn and C_ivn;
+        vars C_ivc and C_ivc;
+        vars R_svl and R_svl;
+        vars R_svn and R_svn;
+        vars R_svc and R_svc;
+        vars R_ivl and R_ivl;
+        vars R_ivn and R_ivn;
+        vars R_ivc and R_ivc;
+        vars I_svl and I_svl;
+        vars I_svn and I_svn;
+        vars I_svc and I_svc;
+        vars I_ivl and I_ivl;
+        vars I_ivn and I_ivn;
+        vars I_ivc and I_ivc;
+    enddef;
+
+    def map between Parameters_Pulmonary and Pulmonary for
+        vars C_pas and C_pas;
+        vars C_pat and C_pat;
+        vars C_par and C_par;
+        vars C_pcp and C_pcp;
+        vars C_pvn and C_pvn;
+        vars C_pvc and C_pvc;
+        vars R_pas and R_pas;
+        vars R_pat and R_pat;
+        vars R_par and R_par;
+        vars R_pcp and R_pcp;
+        vars R_psh and R_psh;
+        vars R_pvn and R_pvn;
+        vars I_pas and I_pas;
+        vars I_pat and I_pat;
+        vars I_par and I_par;
+        vars I_pcp and I_pcp;
+        vars I_pvn and I_pvn;
+        vars I_psh and I_psh;
+    enddef;
+
+    //    def map between Parameters_Heart and Heart for
+    //        vars T and T;
+    //        vars T_sys_0 and T_sys_0;
+    //        vars k_sys and k_sys;
+    //        vars C_la and C_la;
+    //        vars C_ra and C_ra;
+    //        vars R_la and R_la;
+    //        vars R_ra and R_ra;
+    //        vars E_max_lv and E_max_lv;
+    //        vars E_max_rv and E_max_rv;
+    //        vars k_E_lv and k_E_lv;
+    //        vars k_E_rv and k_E_rv;
+    //        vars k_R_lv and k_R_lv;
+    //        vars k_R_rv and k_R_rv;
+    //        vars u_0_lv and u_0_lv;
+    //        vars u_0_rv and u_0_rv;
+    //        vars q_0_rv and q_0_rv;
+    //        vars q_0_lv and q_0_lv;
+    //    enddef;
+
+    def map between Parameters_Heart and Heart for
+        vars T and T;
+        vars t_ac and t_ac;
+        vars t_ar and t_ar;
+        vars T_ac and T_ac;
+        vars T_ar and T_ar;
+        vars T_vc and T_vc;
+        vars T_vr and T_vr;
+        vars R_trv and R_trv;
+        vars R_puv and R_puv;
+        vars R_miv and R_miv;
+        vars R_aov and R_aov;
+        vars B_trv and B_trv;
+        vars B_puv and B_puv;
+        vars B_miv and B_miv;
+        vars B_aov and B_aov;
+        vars L_trv and L_trv;
+        vars L_puv and L_puv;
+        vars L_miv and L_miv;
+        vars L_aov and L_aov;
+        vars E_lv_A and E_lv_A;
+        vars E_lv_B and E_lv_B;
+        vars E_la_A and E_la_A;
+        vars E_la_B and E_la_B;
+        vars E_rv_A and E_rv_A;
+        vars E_rv_B and E_rv_B;
+        vars E_ra_A and E_ra_A;
+        vars E_ra_B and E_ra_B;
+        vars q_ra_0 and q_ra_0;
+        vars q_rv_0 and q_rv_0;
+        vars q_la_0 and q_la_0;
+        vars q_lv_0 and q_lv_0;
+    enddef;
+
+    def map between environment and Heart for
+        vars time and t;
+    enddef;
+
+    def map between environment and Systemic for
+        vars time and t;
+    enddef;
+
+    def map between environment and Pulmonary for
+        vars time and t;
+    enddef;
+
+    // Terminal 
+
+    def map between Systemic and posterior_intercostal_T1_R98_module for
+        vars u_ivl and u_out;
+        vars v_posterior_intercostal_T1_R98 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_intercostal_T1_L102_module for
+        vars u_ivl and u_out;
+        vars v_posterior_intercostal_T1_L102 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_intercostal_T2_R106_module for
+        vars u_ivl and u_out;
+        vars v_posterior_intercostal_T2_R106 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_intercostal_T2_L110_module for
+        vars u_ivl and u_out;
+        vars v_posterior_intercostal_T2_L110 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and left_gastric_T3_C120_module for
+        vars u_ivl and u_out;
+        vars v_left_gastric_T3_C120 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and dorsal_pancreatic_T1_C124_module for
+        vars u_ivl and u_out;
+        vars v_dorsal_pancreatic_T1_C124 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and splenic_T2_C126_module for
+        vars u_ivl and u_out;
+        vars v_splenic_T2_C126 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and hepatic_artery_proper_left_branch_C132_module for
+        vars u_ivl and u_out;
+        vars v_hepatic_artery_proper_left_branch_C132 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and hepatic_artery_proper_right_branch_C134_module for
+        vars u_ivl and u_out;
+        vars v_hepatic_artery_proper_right_branch_C134 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and middle_colic_T8_C140_module for
+        vars u_ivl and u_out;
+        vars v_middle_colic_T8_C140 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and jejunal_3_T10_C144_module for
+        vars u_ivl and u_out;
+        vars v_jejunal_3_T10_C144 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and jejunal_6_T11_C148_module for
+        vars u_ivl and u_out;
+        vars v_jejunal_6_T11_C148 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ileocolic_T9_C152_module for
+        vars u_ivl and u_out;
+        vars v_ileocolic_T9_C152 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ileal_4_T12_C156_module for
+        vars u_ivl and u_out;
+        vars v_ileal_4_T12_C156 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ileal_6_T13_C160_module for
+        vars u_ivl and u_out;
+        vars v_ileal_6_T13_C160 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C162_module for
+        vars u_ivl and u_out;
+        vars v_superior_mesenteric_T4_C162 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and inferior_segmental_T5_L170_module for
+        vars u_ivl and u_out;
+        vars v_inferior_segmental_T5_L170 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_segmental_T4_L172_module for
+        vars u_ivl and u_out;
+        vars v_superior_segmental_T4_L172 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and renal_posterior_branch_T3_L174_module for
+        vars u_ivl and u_out;
+        vars v_renal_posterior_branch_T3_L174 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_segmental_T4_R182_module for
+        vars u_ivl and u_out;
+        vars v_superior_segmental_T4_R182 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and inferior_segmental_T5_R184_module for
+        vars u_ivl and u_out;
+        vars v_inferior_segmental_T5_R184 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and renal_posterior_branch_T3_R186_module for
+        vars u_ivl and u_out;
+        vars v_renal_posterior_branch_T3_R186 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and inferior_mesenteric_T5_C190_module for
+        vars u_ivl and u_out;
+        vars v_inferior_mesenteric_T5_C190 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_iliac_T1_R218_module for
+        vars u_ivl and u_out;
+        vars v_internal_iliac_T1_R218 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and profundus_T2_R224_module for
+        vars u_ivl and u_out;
+        vars v_profundus_T2_R224 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and anterior_tibial_T3_R230_module for
+        vars u_ivl and u_out;
+        vars v_anterior_tibial_T3_R230 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_tibial_T4_R236_module for
+        vars u_ivl and u_out;
+        vars v_posterior_tibial_T4_R236 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_iliac_T1_L196_module for
+        vars u_ivl and u_out;
+        vars v_internal_iliac_T1_L196 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and profundus_T2_L202_module for
+        vars u_ivl and u_out;
+        vars v_profundus_T2_L202 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and anterior_tibial_T3_L208_module for
+        vars u_ivl and u_out;
+        vars v_anterior_tibial_T3_L208 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_tibial_T4_L214_module for
+        vars u_ivl and u_out;
+        vars v_posterior_tibial_T4_L214 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_interosseous_T3_R40_module for
+        vars u_svl and u_out;
+        vars v_posterior_interosseous_T3_R40 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ulnar_T2_R42_module for
+        vars u_svl and u_out;
+        vars v_ulnar_T2_R42 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and radial_T1_R44_module for
+        vars u_svl and u_out;
+        vars v_radial_T1_R44 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and posterior_interosseous_T3_L88_module for
+        vars u_svl and u_out;
+        vars v_posterior_interosseous_T3_L88 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ulnar_T2_L90_module for
+        vars u_svl and u_out;
+        vars v_ulnar_T2_L90 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and radial_T1_L92_module for
+        vars u_svl and u_out;
+        vars v_radial_T1_L92 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and external_carotid_T2_R26_module for
+        vars u_svl and u_out;
+        vars v_external_carotid_T2_R26 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and external_carotid_T2_L62_module for
+        vars u_svl and u_out;
+        vars v_external_carotid_T2_L62 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_carotid_R8_C_module for
+        vars u_svl and u_out;
+        vars v_internal_carotid_R8_C and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_carotid_L50_C_module for
+        vars u_svl and u_out;
+        vars v_internal_carotid_L50_C and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and vertebral_R272_module for
+        vars u_svl and u_out;
+        vars v_vertebral_R272 and v_T;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and vertebral_L2_module for
+        vars u_svl and u_out;
+        vars v_vertebral_L2 and v_T;
+        vars t and t;
+    enddef;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////// Importing Vessels //////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Aorta
+
+    def import using "BG_Modules.cellml" for
+        comp ascending_aorta_A_module using comp vv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ascending_aorta_B_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ascending_aorta_C_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ascending_aorta_D_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp aortic_arch_C2_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp brachiocephalic_trunk_C4_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp aortic_arch_C46_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp aortic_arch_C64_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp aortic_arch_C94_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp thoracic_aorta_C96_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp thoracic_aorta_C100_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp thoracic_aorta_C104_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp thoracic_aorta_C108_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp thoracic_aorta_C112_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp abdominal_aorta_C114_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp abdominal_aorta_C136_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp abdominal_aorta_C164_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp abdominal_aorta_C176_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp abdominal_aorta_C188_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp abdominal_aorta_C192_module using comp pv_jII_type;
+    enddef;
+
+    // Trunk
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_intercostal_T1_R98_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_intercostal_T1_L102_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_intercostal_T2_R106_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_intercostal_T2_L110_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp celiac_trunk_C116_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp splenic_T2_C118_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp left_gastric_T3_C120_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp splenic_T2_C122_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp dorsal_pancreatic_T1_C124_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp splenic_T2_C126_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_hepatic_C128_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp hepatic_artery_proper_C130_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp hepatic_artery_proper_left_branch_C132_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp hepatic_artery_proper_right_branch_C134_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C138_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp middle_colic_T8_C140_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C142_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp jejunal_3_T10_C144_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C146_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp jejunal_6_T11_C148_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C150_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ileocolic_T9_C152_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C154_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ileal_4_T12_C156_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C158_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ileal_6_T13_C160_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_mesenteric_T4_C162_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp renal_L166_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp renal_anterior_branch_L168_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp inferior_segmental_T5_L170_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_segmental_T4_L172_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp renal_posterior_branch_T3_L174_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp renal_R178_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp renal_anterior_branch_R180_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp superior_segmental_T4_R182_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp inferior_segmental_T5_R184_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp renal_posterior_branch_T3_R186_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp inferior_mesenteric_T5_C190_module using comp pp_BC_type;
+    enddef;
+
+    // Lower Limbs
+
+    def import using "BG_Modules.cellml" for
+        comp common_iliac_R216_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_iliac_T1_R218_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp external_iliac_R220_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp femoral_R222_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp profundus_T2_R224_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp femoral_R226_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp popliteal_R228_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp anterior_tibial_T3_R230_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp popliteal_R232_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp tibiofibular_trunk_R234_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_tibial_T4_R236_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_iliac_L194_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_iliac_T1_L196_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp external_iliac_L198_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp femoral_L200_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp profundus_T2_L202_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp femoral_L204_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp popliteal_L206_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp anterior_tibial_T3_L208_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp popliteal_L210_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp tibiofibular_trunk_L212_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_tibial_T4_L214_module using comp pp_BC_type;
+    enddef;
+
+    // Upper Limbs
+
+    def import using "BG_Modules.cellml" for
+        comp subclavian_R28_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp subclavian_R30_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp axillary_R32_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp brachial_R34_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ulnar_T2_R36_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_interosseous_R38_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_interosseous_T3_R40_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ulnar_T2_R42_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp radial_T1_R44_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp subclavian_L66_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp subclavian_L78_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp axillary_L80_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp brachial_L82_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ulnar_T2_L84_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_interosseous_L86_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp posterior_interosseous_T3_L88_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp ulnar_T2_L90_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp radial_T1_L92_module using comp pp_BC_type;
+    enddef;
+
+    // Head
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_R6_A_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_R6_B_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_R6_C_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_carotid_R8_A_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_carotid_R8_B_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_carotid_R8_C_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp external_carotid_T2_R26_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_L48_A_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_L48_B_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_L48_C_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp common_carotid_L48_D_module using comp pv_jII_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_carotid_L50_A_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_carotid_L50_B_module using comp pv_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp internal_carotid_L50_C_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp external_carotid_T2_L62_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp vertebral_L2_module using comp pp_BC_type;
+    enddef;
+
+    def import using "BG_Modules.cellml" for
+        comp vertebral_R272_module using comp pp_BC_type;
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////// Vessels Output ////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Aorta
+
+    def comp ascending_aorta_A as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ascending_aorta_B as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ascending_aorta_C as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ascending_aorta_D as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp aortic_arch_C2 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp brachiocephalic_trunk_C4 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp aortic_arch_C46 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp aortic_arch_C64 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp aortic_arch_C94 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp thoracic_aorta_C96 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp thoracic_aorta_C100 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp thoracic_aorta_C104 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp thoracic_aorta_C108 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp thoracic_aorta_C112 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp abdominal_aorta_C114 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp abdominal_aorta_C136 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp abdominal_aorta_C164 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp abdominal_aorta_C176 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp abdominal_aorta_C188 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp abdominal_aorta_C192 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    // Trunk
+
+    def comp posterior_intercostal_T1_R98 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_intercostal_T1_L102 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_intercostal_T2_R106 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_intercostal_T2_L110 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp celiac_trunk_C116 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp splenic_T2_C118 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp left_gastric_T3_C120 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp splenic_T2_C122 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp dorsal_pancreatic_T1_C124 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp splenic_T2_C126 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_hepatic_C128 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp hepatic_artery_proper_C130 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp hepatic_artery_proper_left_branch_C132 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp hepatic_artery_proper_right_branch_C134 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C138 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp middle_colic_T8_C140 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C142 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp jejunal_3_T10_C144 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C146 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp jejunal_6_T11_C148 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C150 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ileocolic_T9_C152 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C154 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ileal_4_T12_C156 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C158 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ileal_6_T13_C160 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_mesenteric_T4_C162 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp renal_L166 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp renal_anterior_branch_L168 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp inferior_segmental_T5_L170 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_segmental_T4_L172 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp renal_posterior_branch_T3_L174 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp renal_R178 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp renal_anterior_branch_R180 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp superior_segmental_T4_R182 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp inferior_segmental_T5_R184 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp renal_posterior_branch_T3_R186 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp inferior_mesenteric_T5_C190 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    // Lower Limbs
+
+    def comp common_iliac_R216 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_iliac_T1_R218 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp external_iliac_R220 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp femoral_R222 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp profundus_T2_R224 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp femoral_R226 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp popliteal_R228 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp anterior_tibial_T3_R230 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp popliteal_R232 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp tibiofibular_trunk_R234 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_tibial_T4_R236 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_iliac_L194 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_iliac_T1_L196 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp external_iliac_L198 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp femoral_L200 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp profundus_T2_L202 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp femoral_L204 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp popliteal_L206 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp anterior_tibial_T3_L208 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp popliteal_L210 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp tibiofibular_trunk_L212 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_tibial_T4_L214 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    // Upper Limbs
+
+    def comp subclavian_R28 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp subclavian_R30 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp axillary_R32 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp brachial_R34 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ulnar_T2_R36 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_interosseous_R38 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_interosseous_T3_R40 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ulnar_T2_R42 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp radial_T1_R44 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp subclavian_L66 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp subclavian_L78 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp axillary_L80 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp brachial_L82 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ulnar_T2_L84 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_interosseous_L86 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp posterior_interosseous_T3_L88 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp ulnar_T2_L90 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp radial_T1_L92 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    // Head
+
+    def comp common_carotid_R6_A as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_carotid_R6_B as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_carotid_R6_C as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_carotid_R8_A as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_carotid_R8_B as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_carotid_R8_C as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp external_carotid_T2_R26 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_carotid_L48_A as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_carotid_L48_B as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_carotid_L48_C as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp common_carotid_L48_D as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_carotid_L50_A as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_carotid_L50_B as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp internal_carotid_L50_C as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp external_carotid_T2_L62 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp vertebral_L2 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    def comp vertebral_R272 as
+        var u: J_per_m3 {pub: in};
+        var v: m3_per_s {pub: in};
+        var E: J_per_m3 {pub: in};
+        var r: metre {pub: in};
+        var h: metre {pub: in};
+        var l: metre {pub: in};
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////// Vessels Mapping ///////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Junctions
+
+    def map between aortic_arch_C2_module and brachiocephalic_trunk_C4_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between aortic_arch_C2_module and aortic_arch_C46_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between brachiocephalic_trunk_C4_module and common_carotid_R6_A_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between brachiocephalic_trunk_C4_module and subclavian_R28_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between aortic_arch_C46_module and aortic_arch_C64_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between aortic_arch_C46_module and common_carotid_L48_A_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between aortic_arch_C64_module and aortic_arch_C94_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between aortic_arch_C64_module and subclavian_L66_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C96_module and thoracic_aorta_C100_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C96_module and posterior_intercostal_T1_R98_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C100_module and thoracic_aorta_C104_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C100_module and posterior_intercostal_T1_L102_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C104_module and thoracic_aorta_C108_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C104_module and posterior_intercostal_T2_R106_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C108_module and thoracic_aorta_C112_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between thoracic_aorta_C108_module and posterior_intercostal_T2_L110_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C114_module and abdominal_aorta_C136_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C114_module and celiac_trunk_C116_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C136_module and abdominal_aorta_C164_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C136_module and superior_mesenteric_T4_C138_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C164_module and abdominal_aorta_C176_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C164_module and renal_L166_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C176_module and abdominal_aorta_C188_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C176_module and renal_R178_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C188_module and abdominal_aorta_C192_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C188_module and inferior_mesenteric_T5_C190_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C192_module and common_iliac_R216_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between abdominal_aorta_C192_module and common_iliac_L194_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_iliac_R216_module and internal_iliac_T1_R218_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_iliac_R216_module and external_iliac_R220_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between femoral_R222_module and profundus_T2_R224_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between femoral_R222_module and femoral_R226_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between popliteal_R228_module and anterior_tibial_T3_R230_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between popliteal_R228_module and popliteal_R232_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_iliac_L194_module and internal_iliac_T1_L196_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_iliac_L194_module and external_iliac_L198_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between femoral_L200_module and profundus_T2_L202_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between femoral_L200_module and femoral_L204_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between popliteal_L206_module and anterior_tibial_T3_L208_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between popliteal_L206_module and popliteal_L210_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between subclavian_R28_module and subclavian_R30_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between subclavian_R28_module and vertebral_R272_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between brachial_R34_module and ulnar_T2_R36_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between brachial_R34_module and radial_T1_R44_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ulnar_T2_R36_module and common_interosseous_R38_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ulnar_T2_R36_module and ulnar_T2_R42_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between subclavian_L66_module and subclavian_L78_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between subclavian_L66_module and vertebral_L2_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between brachial_L82_module and ulnar_T2_L84_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between brachial_L82_module and radial_T1_L92_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ulnar_T2_L84_module and common_interosseous_L86_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ulnar_T2_L84_module and ulnar_T2_L90_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_R6_C_module and internal_carotid_R8_A_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_R6_C_module and external_carotid_T2_R26_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_L48_D_module and internal_carotid_L50_A_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_L48_D_module and external_carotid_T2_L62_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between celiac_trunk_C116_module and splenic_T2_C118_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between celiac_trunk_C116_module and left_gastric_T3_C120_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between splenic_T2_C118_module and splenic_T2_C122_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between splenic_T2_C118_module and dorsal_pancreatic_T1_C124_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between splenic_T2_C122_module and splenic_T2_C126_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between splenic_T2_C122_module and common_hepatic_C128_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between hepatic_artery_proper_C130_module and hepatic_artery_proper_left_branch_C132_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between hepatic_artery_proper_C130_module and hepatic_artery_proper_right_branch_C134_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C138_module and middle_colic_T8_C140_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C138_module and superior_mesenteric_T4_C142_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C142_module and jejunal_3_T10_C144_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C142_module and superior_mesenteric_T4_C146_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C146_module and jejunal_6_T11_C148_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C146_module and superior_mesenteric_T4_C150_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C150_module and ileocolic_T9_C152_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C150_module and superior_mesenteric_T4_C154_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C154_module and ileal_4_T12_C156_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C154_module and superior_mesenteric_T4_C158_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C158_module and ileal_6_T13_C160_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between superior_mesenteric_T4_C158_module and superior_mesenteric_T4_C162_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_L166_module and renal_anterior_branch_L168_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_L166_module and renal_posterior_branch_T3_L174_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_anterior_branch_L168_module and inferior_segmental_T5_L170_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_anterior_branch_L168_module and superior_segmental_T4_L172_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_R178_module and renal_anterior_branch_R180_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_R178_module and renal_posterior_branch_T3_R186_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_anterior_branch_R180_module and superior_segmental_T4_R182_module for
+        vars v_out_1 and v;
+        vars u and u_in;
+    enddef;
+
+    def map between renal_anterior_branch_R180_module and inferior_segmental_T5_R184_module for
+        vars v_out_2 and v;
+        vars u and u_in;
+    enddef;
+
+    // Aorta & Trunk
+
+    def map between ascending_aorta_A_module and ascending_aorta_B_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ascending_aorta_B_module and ascending_aorta_C_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ascending_aorta_C_module and ascending_aorta_D_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between ascending_aorta_D_module and aortic_arch_C2_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between aortic_arch_C94_module and thoracic_aorta_C96_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between thoracic_aorta_C112_module and abdominal_aorta_C114_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_hepatic_C128_module and hepatic_artery_proper_C130_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between external_iliac_R220_module and femoral_R222_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    // Lower Limb
+
+    def map between femoral_R226_module and popliteal_R228_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between popliteal_R232_module and tibiofibular_trunk_R234_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between tibiofibular_trunk_R234_module and posterior_tibial_T4_R236_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between external_iliac_L198_module and femoral_L200_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between femoral_L204_module and popliteal_L206_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between popliteal_L210_module and tibiofibular_trunk_L212_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between tibiofibular_trunk_L212_module and posterior_tibial_T4_L214_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    // Upper Limb
+
+    def map between subclavian_R30_module and axillary_R32_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between axillary_R32_module and brachial_R34_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_interosseous_R38_module and posterior_interosseous_T3_R40_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between subclavian_L78_module and axillary_L80_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between axillary_L80_module and brachial_L82_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_interosseous_L86_module and posterior_interosseous_T3_L88_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    // Head
+
+    def map between common_carotid_R6_A_module and common_carotid_R6_B_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_R6_B_module and common_carotid_R6_C_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between internal_carotid_R8_A_module and internal_carotid_R8_B_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between internal_carotid_R8_B_module and internal_carotid_R8_C_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_L48_A_module and common_carotid_L48_B_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_L48_B_module and common_carotid_L48_C_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between common_carotid_L48_C_module and common_carotid_L48_D_module for
+        vars v_out and v;
+        vars u and u_in;
+    enddef;
+
+    def map between internal_carotid_L50_A_module and internal_carotid_L50_B_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    def map between internal_carotid_L50_B_module and internal_carotid_L50_C_module for
+        vars u and u_in;
+        vars v_out and v;
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////// Output Mapping ////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Aorta
+
+    def map between ascending_aorta_A and ascending_aorta_A_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ascending_aorta_B and ascending_aorta_B_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ascending_aorta_C and ascending_aorta_C_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ascending_aorta_D and ascending_aorta_D_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between aortic_arch_C2 and aortic_arch_C2_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between brachiocephalic_trunk_C4 and brachiocephalic_trunk_C4_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between aortic_arch_C46 and aortic_arch_C46_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between aortic_arch_C64 and aortic_arch_C64_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between aortic_arch_C94 and aortic_arch_C94_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between thoracic_aorta_C96 and thoracic_aorta_C96_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between thoracic_aorta_C100 and thoracic_aorta_C100_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between thoracic_aorta_C104 and thoracic_aorta_C104_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between thoracic_aorta_C108 and thoracic_aorta_C108_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between thoracic_aorta_C112 and thoracic_aorta_C112_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between abdominal_aorta_C114 and abdominal_aorta_C114_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between abdominal_aorta_C136 and abdominal_aorta_C136_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between abdominal_aorta_C164 and abdominal_aorta_C164_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between abdominal_aorta_C176 and abdominal_aorta_C176_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between abdominal_aorta_C188 and abdominal_aorta_C188_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between abdominal_aorta_C192 and abdominal_aorta_C192_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    // Trunk
+
+    def map between posterior_intercostal_T1_R98 and posterior_intercostal_T1_R98_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_intercostal_T1_L102 and posterior_intercostal_T1_L102_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_intercostal_T2_R106 and posterior_intercostal_T2_R106_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_intercostal_T2_L110 and posterior_intercostal_T2_L110_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between celiac_trunk_C116 and celiac_trunk_C116_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between splenic_T2_C118 and splenic_T2_C118_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between left_gastric_T3_C120 and left_gastric_T3_C120_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between splenic_T2_C122 and splenic_T2_C122_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between dorsal_pancreatic_T1_C124 and dorsal_pancreatic_T1_C124_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between splenic_T2_C126 and splenic_T2_C126_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_hepatic_C128 and common_hepatic_C128_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between hepatic_artery_proper_C130 and hepatic_artery_proper_C130_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between hepatic_artery_proper_left_branch_C132 and hepatic_artery_proper_left_branch_C132_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between hepatic_artery_proper_right_branch_C134 and hepatic_artery_proper_right_branch_C134_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C138 and superior_mesenteric_T4_C138_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between middle_colic_T8_C140 and middle_colic_T8_C140_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C142 and superior_mesenteric_T4_C142_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between jejunal_3_T10_C144 and jejunal_3_T10_C144_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C146 and superior_mesenteric_T4_C146_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between jejunal_6_T11_C148 and jejunal_6_T11_C148_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C150 and superior_mesenteric_T4_C150_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ileocolic_T9_C152 and ileocolic_T9_C152_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C154 and superior_mesenteric_T4_C154_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ileal_4_T12_C156 and ileal_4_T12_C156_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C158 and superior_mesenteric_T4_C158_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ileal_6_T13_C160 and ileal_6_T13_C160_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_mesenteric_T4_C162 and superior_mesenteric_T4_C162_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between renal_L166 and renal_L166_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between renal_anterior_branch_L168 and renal_anterior_branch_L168_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between inferior_segmental_T5_L170 and inferior_segmental_T5_L170_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_segmental_T4_L172 and superior_segmental_T4_L172_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between renal_posterior_branch_T3_L174 and renal_posterior_branch_T3_L174_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between renal_R178 and renal_R178_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between renal_anterior_branch_R180 and renal_anterior_branch_R180_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between superior_segmental_T4_R182 and superior_segmental_T4_R182_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between inferior_segmental_T5_R184 and inferior_segmental_T5_R184_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between renal_posterior_branch_T3_R186 and renal_posterior_branch_T3_R186_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between inferior_mesenteric_T5_C190 and inferior_mesenteric_T5_C190_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    // Lower Limbs
+
+    def map between common_iliac_R216 and common_iliac_R216_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_iliac_T1_R218 and internal_iliac_T1_R218_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between external_iliac_R220 and external_iliac_R220_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between femoral_R222 and femoral_R222_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between profundus_T2_R224 and profundus_T2_R224_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between femoral_R226 and femoral_R226_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between popliteal_R228 and popliteal_R228_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between anterior_tibial_T3_R230 and anterior_tibial_T3_R230_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between popliteal_R232 and popliteal_R232_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between tibiofibular_trunk_R234 and tibiofibular_trunk_R234_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_tibial_T4_R236 and posterior_tibial_T4_R236_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_iliac_L194 and common_iliac_L194_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_iliac_T1_L196 and internal_iliac_T1_L196_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between external_iliac_L198 and external_iliac_L198_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between femoral_L200 and femoral_L200_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between profundus_T2_L202 and profundus_T2_L202_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between femoral_L204 and femoral_L204_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between popliteal_L206 and popliteal_L206_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between anterior_tibial_T3_L208 and anterior_tibial_T3_L208_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between popliteal_L210 and popliteal_L210_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between tibiofibular_trunk_L212 and tibiofibular_trunk_L212_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_tibial_T4_L214 and posterior_tibial_T4_L214_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    // Upper Limbs
+
+    def map between subclavian_R28 and subclavian_R28_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between subclavian_R30 and subclavian_R30_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between axillary_R32 and axillary_R32_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between brachial_R34 and brachial_R34_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ulnar_T2_R36 and ulnar_T2_R36_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_interosseous_R38 and common_interosseous_R38_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_interosseous_T3_R40 and posterior_interosseous_T3_R40_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ulnar_T2_R42 and ulnar_T2_R42_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between radial_T1_R44 and radial_T1_R44_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between subclavian_L66 and subclavian_L66_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between subclavian_L78 and subclavian_L78_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between axillary_L80 and axillary_L80_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between brachial_L82 and brachial_L82_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ulnar_T2_L84 and ulnar_T2_L84_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_interosseous_L86 and common_interosseous_L86_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between posterior_interosseous_T3_L88 and posterior_interosseous_T3_L88_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between ulnar_T2_L90 and ulnar_T2_L90_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between radial_T1_L92 and radial_T1_L92_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    // Head
+
+    def map between common_carotid_R6_A and common_carotid_R6_A_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_carotid_R6_B and common_carotid_R6_B_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_carotid_R6_C and common_carotid_R6_C_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_carotid_R8_A and internal_carotid_R8_A_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_carotid_R8_B and internal_carotid_R8_B_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_carotid_R8_C and internal_carotid_R8_C_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between external_carotid_T2_R26 and external_carotid_T2_R26_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_carotid_L48_A and common_carotid_L48_A_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_carotid_L48_B and common_carotid_L48_B_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_carotid_L48_C and common_carotid_L48_C_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between common_carotid_L48_D and common_carotid_L48_D_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_carotid_L50_A and internal_carotid_L50_A_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_carotid_L50_B and internal_carotid_L50_B_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between internal_carotid_L50_C and internal_carotid_L50_C_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between external_carotid_T2_L62 and external_carotid_T2_L62_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between vertebral_L2 and vertebral_L2_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    def map between vertebral_R272 and vertebral_R272_module for
+        vars u and u;
+        vars v and v;
+        vars E and E_m;
+        vars r and radius;
+        vars h and thickness;
+        vars l and length;
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////// Parameters Mapping //////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Aorta
+
+    def map between Parameters_Systemic and ascending_aorta_A_module for
+        vars l_ascending_aorta_A and l;
+        vars E_ascending_aorta_A and E;
+        vars r_ascending_aorta_A and r;
+    enddef;
+
+    def map between Parameters_Systemic and ascending_aorta_B_module for
+        vars l_ascending_aorta_B and l;
+        vars E_ascending_aorta_B and E;
+        vars r_ascending_aorta_B and r;
+    enddef;
+
+    def map between Parameters_Systemic and ascending_aorta_C_module for
+        vars l_ascending_aorta_C and l;
+        vars E_ascending_aorta_C and E;
+        vars r_ascending_aorta_C and r;
+    enddef;
+
+    def map between Parameters_Systemic and ascending_aorta_D_module for
+        vars l_ascending_aorta_D and l;
+        vars E_ascending_aorta_D and E;
+        vars r_ascending_aorta_D and r;
+    enddef;
+
+    def map between Parameters_Systemic and aortic_arch_C2_module for
+        vars l_aortic_arch_C2 and l;
+        vars E_aortic_arch_C2 and E;
+        vars r_aortic_arch_C2 and r;
+    enddef;
+
+    def map between Parameters_Systemic and brachiocephalic_trunk_C4_module for
+        vars l_brachiocephalic_trunk_C4 and l;
+        vars E_brachiocephalic_trunk_C4 and E;
+        vars r_brachiocephalic_trunk_C4 and r;
+    enddef;
+
+    def map between Parameters_Systemic and aortic_arch_C46_module for
+        vars l_aortic_arch_C46 and l;
+        vars E_aortic_arch_C46 and E;
+        vars r_aortic_arch_C46 and r;
+    enddef;
+
+    def map between Parameters_Systemic and aortic_arch_C64_module for
+        vars l_aortic_arch_C64 and l;
+        vars E_aortic_arch_C64 and E;
+        vars r_aortic_arch_C64 and r;
+    enddef;
+
+    def map between Parameters_Systemic and aortic_arch_C94_module for
+        vars l_aortic_arch_C94 and l;
+        vars E_aortic_arch_C94 and E;
+        vars r_aortic_arch_C94 and r;
+    enddef;
+
+    def map between Parameters_Systemic and thoracic_aorta_C96_module for
+        vars l_thoracic_aorta_C96 and l;
+        vars E_thoracic_aorta_C96 and E;
+        vars r_thoracic_aorta_C96 and r;
+    enddef;
+
+    def map between Parameters_Systemic and thoracic_aorta_C100_module for
+        vars l_thoracic_aorta_C100 and l;
+        vars E_thoracic_aorta_C100 and E;
+        vars r_thoracic_aorta_C100 and r;
+    enddef;
+
+    def map between Parameters_Systemic and thoracic_aorta_C104_module for
+        vars l_thoracic_aorta_C104 and l;
+        vars E_thoracic_aorta_C104 and E;
+        vars r_thoracic_aorta_C104 and r;
+    enddef;
+
+    def map between Parameters_Systemic and thoracic_aorta_C108_module for
+        vars l_thoracic_aorta_C108 and l;
+        vars E_thoracic_aorta_C108 and E;
+        vars r_thoracic_aorta_C108 and r;
+    enddef;
+
+    def map between Parameters_Systemic and thoracic_aorta_C112_module for
+        vars l_thoracic_aorta_C112 and l;
+        vars E_thoracic_aorta_C112 and E;
+        vars r_thoracic_aorta_C112 and r;
+    enddef;
+
+    def map between Parameters_Systemic and abdominal_aorta_C114_module for
+        vars l_abdominal_aorta_C114 and l;
+        vars E_abdominal_aorta_C114 and E;
+        vars r_abdominal_aorta_C114 and r;
+    enddef;
+
+    def map between Parameters_Systemic and abdominal_aorta_C136_module for
+        vars l_abdominal_aorta_C136 and l;
+        vars E_abdominal_aorta_C136 and E;
+        vars r_abdominal_aorta_C136 and r;
+    enddef;
+
+    def map between Parameters_Systemic and abdominal_aorta_C164_module for
+        vars l_abdominal_aorta_C164 and l;
+        vars E_abdominal_aorta_C164 and E;
+        vars r_abdominal_aorta_C164 and r;
+    enddef;
+
+    def map between Parameters_Systemic and abdominal_aorta_C176_module for
+        vars l_abdominal_aorta_C176 and l;
+        vars E_abdominal_aorta_C176 and E;
+        vars r_abdominal_aorta_C176 and r;
+    enddef;
+
+    def map between Parameters_Systemic and abdominal_aorta_C188_module for
+        vars l_abdominal_aorta_C188 and l;
+        vars E_abdominal_aorta_C188 and E;
+        vars r_abdominal_aorta_C188 and r;
+    enddef;
+
+    def map between Parameters_Systemic and abdominal_aorta_C192_module for
+        vars l_abdominal_aorta_C192 and l;
+        vars E_abdominal_aorta_C192 and E;
+        vars r_abdominal_aorta_C192 and r;
+    enddef;
+
+    // Trunk
+
+    def map between Parameters_Systemic and celiac_trunk_C116_module for
+        vars l_celiac_trunk_C116 and l;
+        vars E_celiac_trunk_C116 and E;
+        vars r_celiac_trunk_C116 and r;
+    enddef;
+
+    def map between Parameters_Systemic and splenic_T2_C118_module for
+        vars l_splenic_T2_C118 and l;
+        vars E_splenic_T2_C118 and E;
+        vars r_splenic_T2_C118 and r;
+    enddef;
+
+    def map between Parameters_Systemic and splenic_T2_C122_module for
+        vars l_splenic_T2_C122 and l;
+        vars E_splenic_T2_C122 and E;
+        vars r_splenic_T2_C122 and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_hepatic_C128_module for
+        vars l_common_hepatic_C128 and l;
+        vars E_common_hepatic_C128 and E;
+        vars r_common_hepatic_C128 and r;
+    enddef;
+
+    def map between Parameters_Systemic and hepatic_artery_proper_C130_module for
+        vars l_hepatic_artery_proper_C130 and l;
+        vars E_hepatic_artery_proper_C130 and E;
+        vars r_hepatic_artery_proper_C130 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C138_module for
+        vars l_superior_mesenteric_T4_C138 and l;
+        vars E_superior_mesenteric_T4_C138 and E;
+        vars r_superior_mesenteric_T4_C138 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C142_module for
+        vars l_superior_mesenteric_T4_C142 and l;
+        vars E_superior_mesenteric_T4_C142 and E;
+        vars r_superior_mesenteric_T4_C142 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C146_module for
+        vars l_superior_mesenteric_T4_C146 and l;
+        vars E_superior_mesenteric_T4_C146 and E;
+        vars r_superior_mesenteric_T4_C146 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C150_module for
+        vars l_superior_mesenteric_T4_C150 and l;
+        vars E_superior_mesenteric_T4_C150 and E;
+        vars r_superior_mesenteric_T4_C150 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C154_module for
+        vars l_superior_mesenteric_T4_C154 and l;
+        vars E_superior_mesenteric_T4_C154 and E;
+        vars r_superior_mesenteric_T4_C154 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C158_module for
+        vars l_superior_mesenteric_T4_C158 and l;
+        vars E_superior_mesenteric_T4_C158 and E;
+        vars r_superior_mesenteric_T4_C158 and r;
+    enddef;
+
+    def map between Parameters_Systemic and renal_L166_module for
+        vars l_renal_L166 and l;
+        vars E_renal_L166 and E;
+        vars r_renal_L166 and r;
+    enddef;
+
+    def map between Parameters_Systemic and renal_anterior_branch_L168_module for
+        vars l_renal_anterior_branch_L168 and l;
+        vars E_renal_anterior_branch_L168 and E;
+        vars r_renal_anterior_branch_L168 and r;
+    enddef;
+
+    def map between Parameters_Systemic and renal_R178_module for
+        vars l_renal_R178 and l;
+        vars E_renal_R178 and E;
+        vars r_renal_R178 and r;
+    enddef;
+
+    def map between Parameters_Systemic and renal_anterior_branch_R180_module for
+        vars l_renal_anterior_branch_R180 and l;
+        vars E_renal_anterior_branch_R180 and E;
+        vars r_renal_anterior_branch_R180 and r;
+    enddef;
+
+    // Lower Limbs
+
+    def map between Parameters_Systemic and common_iliac_R216_module for
+        vars l_common_iliac_R216 and l;
+        vars E_common_iliac_R216 and E;
+        vars r_common_iliac_R216 and r;
+    enddef;
+
+    def map between Parameters_Systemic and external_iliac_R220_module for
+        vars l_external_iliac_R220 and l;
+        vars E_external_iliac_R220 and E;
+        vars r_external_iliac_R220 and r;
+    enddef;
+
+    def map between Parameters_Systemic and femoral_R222_module for
+        vars l_femoral_R222 and l;
+        vars E_femoral_R222 and E;
+        vars r_femoral_R222 and r;
+    enddef;
+
+    def map between Parameters_Systemic and femoral_R226_module for
+        vars l_femoral_R226 and l;
+        vars E_femoral_R226 and E;
+        vars r_femoral_R226 and r;
+    enddef;
+
+    def map between Parameters_Systemic and popliteal_R228_module for
+        vars l_popliteal_R228 and l;
+        vars E_popliteal_R228 and E;
+        vars r_popliteal_R228 and r;
+    enddef;
+
+    def map between Parameters_Systemic and popliteal_R232_module for
+        vars l_popliteal_R232 and l;
+        vars E_popliteal_R232 and E;
+        vars r_popliteal_R232 and r;
+    enddef;
+
+    def map between Parameters_Systemic and tibiofibular_trunk_R234_module for
+        vars l_tibiofibular_trunk_R234 and l;
+        vars E_tibiofibular_trunk_R234 and E;
+        vars r_tibiofibular_trunk_R234 and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_iliac_L194_module for
+        vars l_common_iliac_L194 and l;
+        vars E_common_iliac_L194 and E;
+        vars r_common_iliac_L194 and r;
+    enddef;
+
+    def map between Parameters_Systemic and external_iliac_L198_module for
+        vars l_external_iliac_L198 and l;
+        vars E_external_iliac_L198 and E;
+        vars r_external_iliac_L198 and r;
+    enddef;
+
+    def map between Parameters_Systemic and femoral_L200_module for
+        vars l_femoral_L200 and l;
+        vars E_femoral_L200 and E;
+        vars r_femoral_L200 and r;
+    enddef;
+
+    def map between Parameters_Systemic and femoral_L204_module for
+        vars l_femoral_L204 and l;
+        vars E_femoral_L204 and E;
+        vars r_femoral_L204 and r;
+    enddef;
+
+    def map between Parameters_Systemic and popliteal_L206_module for
+        vars l_popliteal_L206 and l;
+        vars E_popliteal_L206 and E;
+        vars r_popliteal_L206 and r;
+    enddef;
+
+    def map between Parameters_Systemic and popliteal_L210_module for
+        vars l_popliteal_L210 and l;
+        vars E_popliteal_L210 and E;
+        vars r_popliteal_L210 and r;
+    enddef;
+
+    def map between Parameters_Systemic and tibiofibular_trunk_L212_module for
+        vars l_tibiofibular_trunk_L212 and l;
+        vars E_tibiofibular_trunk_L212 and E;
+        vars r_tibiofibular_trunk_L212 and r;
+    enddef;
+
+    // Upper Limbs
+
+    def map between Parameters_Systemic and subclavian_R28_module for
+        vars l_subclavian_R28 and l;
+        vars E_subclavian_R28 and E;
+        vars r_subclavian_R28 and r;
+    enddef;
+
+    def map between Parameters_Systemic and subclavian_R30_module for
+        vars l_subclavian_R30 and l;
+        vars E_subclavian_R30 and E;
+        vars r_subclavian_R30 and r;
+    enddef;
+
+    def map between Parameters_Systemic and axillary_R32_module for
+        vars l_axillary_R32 and l;
+        vars E_axillary_R32 and E;
+        vars r_axillary_R32 and r;
+    enddef;
+
+    def map between Parameters_Systemic and brachial_R34_module for
+        vars l_brachial_R34 and l;
+        vars E_brachial_R34 and E;
+        vars r_brachial_R34 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ulnar_T2_R36_module for
+        vars l_ulnar_T2_R36 and l;
+        vars E_ulnar_T2_R36 and E;
+        vars r_ulnar_T2_R36 and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_interosseous_R38_module for
+        vars l_common_interosseous_R38 and l;
+        vars E_common_interosseous_R38 and E;
+        vars r_common_interosseous_R38 and r;
+    enddef;
+
+    def map between Parameters_Systemic and subclavian_L66_module for
+        vars l_subclavian_L66 and l;
+        vars E_subclavian_L66 and E;
+        vars r_subclavian_L66 and r;
+    enddef;
+
+    def map between Parameters_Systemic and subclavian_L78_module for
+        vars l_subclavian_L78 and l;
+        vars E_subclavian_L78 and E;
+        vars r_subclavian_L78 and r;
+    enddef;
+
+    def map between Parameters_Systemic and axillary_L80_module for
+        vars l_axillary_L80 and l;
+        vars E_axillary_L80 and E;
+        vars r_axillary_L80 and r;
+    enddef;
+
+    def map between Parameters_Systemic and brachial_L82_module for
+        vars l_brachial_L82 and l;
+        vars E_brachial_L82 and E;
+        vars r_brachial_L82 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ulnar_T2_L84_module for
+        vars l_ulnar_T2_L84 and l;
+        vars E_ulnar_T2_L84 and E;
+        vars r_ulnar_T2_L84 and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_interosseous_L86_module for
+        vars l_common_interosseous_L86 and l;
+        vars E_common_interosseous_L86 and E;
+        vars r_common_interosseous_L86 and r;
+    enddef;
+
+    // Head		
+
+    def map between Parameters_Systemic and common_carotid_R6_A_module for
+        vars l_common_carotid_R6_A and l;
+        vars E_common_carotid_R6_A and E;
+        vars r_common_carotid_R6_A and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_carotid_R6_B_module for
+        vars l_common_carotid_R6_B and l;
+        vars E_common_carotid_R6_B and E;
+        vars r_common_carotid_R6_B and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_carotid_R6_C_module for
+        vars l_common_carotid_R6_C and l;
+        vars E_common_carotid_R6_C and E;
+        vars r_common_carotid_R6_C and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_carotid_R8_A_module for
+        vars l_internal_carotid_R8_A and l;
+        vars E_internal_carotid_R8_A and E;
+        vars r_internal_carotid_R8_A and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_carotid_R8_B_module for
+        vars l_internal_carotid_R8_B and l;
+        vars E_internal_carotid_R8_B and E;
+        vars r_internal_carotid_R8_B and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_carotid_R8_C_module for
+        vars l_internal_carotid_R8_C and l;
+        vars E_internal_carotid_R8_C and E;
+        vars R_T_internal_carotid_R8_C and R_T;
+        vars C_T_internal_carotid_R8_C and C_T;
+        vars r_internal_carotid_R8_C and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_carotid_L48_A_module for
+        vars l_common_carotid_L48_A and l;
+        vars E_common_carotid_L48_A and E;
+        vars r_common_carotid_L48_A and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_carotid_L48_B_module for
+        vars l_common_carotid_L48_B and l;
+        vars E_common_carotid_L48_B and E;
+        vars r_common_carotid_L48_B and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_carotid_L48_C_module for
+        vars l_common_carotid_L48_C and l;
+        vars E_common_carotid_L48_C and E;
+        vars r_common_carotid_L48_C and r;
+    enddef;
+
+    def map between Parameters_Systemic and common_carotid_L48_D_module for
+        vars l_common_carotid_L48_D and l;
+        vars E_common_carotid_L48_D and E;
+        vars r_common_carotid_L48_D and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_carotid_L50_A_module for
+        vars l_internal_carotid_L50_A and l;
+        vars E_internal_carotid_L50_A and E;
+        vars r_internal_carotid_L50_A and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_carotid_L50_B_module for
+        vars l_internal_carotid_L50_B and l;
+        vars E_internal_carotid_L50_B and E;
+        vars r_internal_carotid_L50_B and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_carotid_L50_C_module for
+        vars l_internal_carotid_L50_C and l;
+        vars E_internal_carotid_L50_C and E;
+        vars R_T_internal_carotid_L50_C and R_T;
+        vars C_T_internal_carotid_L50_C and C_T;
+        vars r_internal_carotid_L50_C and r;
+    enddef;
+
+    def map between Parameters_Systemic and vertebral_L2_module for
+        vars l_vertebral_L2 and l;
+        vars E_vertebral_L2 and E;
+        vars R_T_vertebral_L2 and R_T;
+        vars C_T_vertebral_L2 and C_T;
+        vars r_vertebral_L2 and r;
+    enddef;
+
+    def map between Parameters_Systemic and vertebral_R272_module for
+        vars l_vertebral_R272 and l;
+        vars E_vertebral_R272 and E;
+        vars R_T_vertebral_R272 and R_T;
+        vars C_T_vertebral_R272 and C_T;
+        vars r_vertebral_R272 and r;
+    enddef;
+
+    // Terminal
+
+    def map between Parameters_Systemic and posterior_intercostal_T1_R98_module for
+        vars l_posterior_intercostal_T1_R98 and l;
+        vars E_posterior_intercostal_T1_R98 and E;
+        vars R_T_posterior_intercostal_T1_R98 and R_T;
+        vars C_T_posterior_intercostal_T1_R98 and C_T;
+        vars r_posterior_intercostal_T1_R98 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_intercostal_T1_L102_module for
+        vars l_posterior_intercostal_T1_L102 and l;
+        vars E_posterior_intercostal_T1_L102 and E;
+        vars R_T_posterior_intercostal_T1_L102 and R_T;
+        vars C_T_posterior_intercostal_T1_L102 and C_T;
+        vars r_posterior_intercostal_T1_L102 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_intercostal_T2_R106_module for
+        vars l_posterior_intercostal_T2_R106 and l;
+        vars E_posterior_intercostal_T2_R106 and E;
+        vars R_T_posterior_intercostal_T2_R106 and R_T;
+        vars C_T_posterior_intercostal_T2_R106 and C_T;
+        vars r_posterior_intercostal_T2_R106 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_intercostal_T2_L110_module for
+        vars l_posterior_intercostal_T2_L110 and l;
+        vars E_posterior_intercostal_T2_L110 and E;
+        vars R_T_posterior_intercostal_T2_L110 and R_T;
+        vars C_T_posterior_intercostal_T2_L110 and C_T;
+        vars r_posterior_intercostal_T2_L110 and r;
+    enddef;
+
+    def map between Parameters_Systemic and left_gastric_T3_C120_module for
+        vars l_left_gastric_T3_C120 and l;
+        vars E_left_gastric_T3_C120 and E;
+        vars R_T_left_gastric_T3_C120 and R_T;
+        vars C_T_left_gastric_T3_C120 and C_T;
+        vars r_left_gastric_T3_C120 and r;
+    enddef;
+
+    def map between Parameters_Systemic and dorsal_pancreatic_T1_C124_module for
+        vars l_dorsal_pancreatic_T1_C124 and l;
+        vars E_dorsal_pancreatic_T1_C124 and E;
+        vars R_T_dorsal_pancreatic_T1_C124 and R_T;
+        vars C_T_dorsal_pancreatic_T1_C124 and C_T;
+        vars r_dorsal_pancreatic_T1_C124 and r;
+    enddef;
+
+    def map between Parameters_Systemic and splenic_T2_C126_module for
+        vars l_splenic_T2_C126 and l;
+        vars E_splenic_T2_C126 and E;
+        vars R_T_splenic_T2_C126 and R_T;
+        vars C_T_splenic_T2_C126 and C_T;
+        vars r_splenic_T2_C126 and r;
+    enddef;
+
+    def map between Parameters_Systemic and hepatic_artery_proper_left_branch_C132_module for
+        vars l_hepatic_artery_proper_left_branch_C132 and l;
+        vars E_hepatic_artery_proper_left_branch_C132 and E;
+        vars R_T_hepatic_artery_proper_left_branch_C132 and R_T;
+        vars C_T_hepatic_artery_proper_left_branch_C132 and C_T;
+        vars r_hepatic_artery_proper_left_branch_C132 and r;
+    enddef;
+
+    def map between Parameters_Systemic and hepatic_artery_proper_right_branch_C134_module for
+        vars l_hepatic_artery_proper_right_branch_C134 and l;
+        vars E_hepatic_artery_proper_right_branch_C134 and E;
+        vars R_T_hepatic_artery_proper_right_branch_C134 and R_T;
+        vars C_T_hepatic_artery_proper_right_branch_C134 and C_T;
+        vars r_hepatic_artery_proper_right_branch_C134 and r;
+    enddef;
+
+    def map between Parameters_Systemic and middle_colic_T8_C140_module for
+        vars l_middle_colic_T8_C140 and l;
+        vars E_middle_colic_T8_C140 and E;
+        vars R_T_middle_colic_T8_C140 and R_T;
+        vars C_T_middle_colic_T8_C140 and C_T;
+        vars r_middle_colic_T8_C140 and r;
+    enddef;
+
+    def map between Parameters_Systemic and jejunal_3_T10_C144_module for
+        vars l_jejunal_3_T10_C144 and l;
+        vars E_jejunal_3_T10_C144 and E;
+        vars R_T_jejunal_3_T10_C144 and R_T;
+        vars C_T_jejunal_3_T10_C144 and C_T;
+        vars r_jejunal_3_T10_C144 and r;
+    enddef;
+
+    def map between Parameters_Systemic and jejunal_6_T11_C148_module for
+        vars l_jejunal_6_T11_C148 and l;
+        vars E_jejunal_6_T11_C148 and E;
+        vars R_T_jejunal_6_T11_C148 and R_T;
+        vars C_T_jejunal_6_T11_C148 and C_T;
+        vars r_jejunal_6_T11_C148 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ileocolic_T9_C152_module for
+        vars l_ileocolic_T9_C152 and l;
+        vars E_ileocolic_T9_C152 and E;
+        vars R_T_ileocolic_T9_C152 and R_T;
+        vars C_T_ileocolic_T9_C152 and C_T;
+        vars r_ileocolic_T9_C152 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ileal_4_T12_C156_module for
+        vars l_ileal_4_T12_C156 and l;
+        vars E_ileal_4_T12_C156 and E;
+        vars R_T_ileal_4_T12_C156 and R_T;
+        vars C_T_ileal_4_T12_C156 and C_T;
+        vars r_ileal_4_T12_C156 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ileal_6_T13_C160_module for
+        vars l_ileal_6_T13_C160 and l;
+        vars E_ileal_6_T13_C160 and E;
+        vars R_T_ileal_6_T13_C160 and R_T;
+        vars C_T_ileal_6_T13_C160 and C_T;
+        vars r_ileal_6_T13_C160 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_mesenteric_T4_C162_module for
+        vars l_superior_mesenteric_T4_C162 and l;
+        vars E_superior_mesenteric_T4_C162 and E;
+        vars R_T_superior_mesenteric_T4_C162 and R_T;
+        vars C_T_superior_mesenteric_T4_C162 and C_T;
+        vars r_superior_mesenteric_T4_C162 and r;
+    enddef;
+
+    def map between Parameters_Systemic and inferior_segmental_T5_L170_module for
+        vars l_inferior_segmental_T5_L170 and l;
+        vars E_inferior_segmental_T5_L170 and E;
+        vars R_T_inferior_segmental_T5_L170 and R_T;
+        vars C_T_inferior_segmental_T5_L170 and C_T;
+        vars r_inferior_segmental_T5_L170 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_segmental_T4_L172_module for
+        vars l_superior_segmental_T4_L172 and l;
+        vars E_superior_segmental_T4_L172 and E;
+        vars R_T_superior_segmental_T4_L172 and R_T;
+        vars C_T_superior_segmental_T4_L172 and C_T;
+        vars r_superior_segmental_T4_L172 and r;
+    enddef;
+
+    def map between Parameters_Systemic and renal_posterior_branch_T3_L174_module for
+        vars l_renal_posterior_branch_T3_L174 and l;
+        vars E_renal_posterior_branch_T3_L174 and E;
+        vars R_T_renal_posterior_branch_T3_L174 and R_T;
+        vars C_T_renal_posterior_branch_T3_L174 and C_T;
+        vars r_renal_posterior_branch_T3_L174 and r;
+    enddef;
+
+    def map between Parameters_Systemic and superior_segmental_T4_R182_module for
+        vars l_superior_segmental_T4_R182 and l;
+        vars E_superior_segmental_T4_R182 and E;
+        vars R_T_superior_segmental_T4_R182 and R_T;
+        vars C_T_superior_segmental_T4_R182 and C_T;
+        vars r_superior_segmental_T4_R182 and r;
+    enddef;
+
+    def map between Parameters_Systemic and inferior_segmental_T5_R184_module for
+        vars l_inferior_segmental_T5_R184 and l;
+        vars E_inferior_segmental_T5_R184 and E;
+        vars R_T_inferior_segmental_T5_R184 and R_T;
+        vars C_T_inferior_segmental_T5_R184 and C_T;
+        vars r_inferior_segmental_T5_R184 and r;
+    enddef;
+
+    def map between Parameters_Systemic and renal_posterior_branch_T3_R186_module for
+        vars l_renal_posterior_branch_T3_R186 and l;
+        vars E_renal_posterior_branch_T3_R186 and E;
+        vars R_T_renal_posterior_branch_T3_R186 and R_T;
+        vars C_T_renal_posterior_branch_T3_R186 and C_T;
+        vars r_renal_posterior_branch_T3_R186 and r;
+    enddef;
+
+    def map between Parameters_Systemic and inferior_mesenteric_T5_C190_module for
+        vars l_inferior_mesenteric_T5_C190 and l;
+        vars E_inferior_mesenteric_T5_C190 and E;
+        vars R_T_inferior_mesenteric_T5_C190 and R_T;
+        vars C_T_inferior_mesenteric_T5_C190 and C_T;
+        vars r_inferior_mesenteric_T5_C190 and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_iliac_T1_R218_module for
+        vars l_internal_iliac_T1_R218 and l;
+        vars E_internal_iliac_T1_R218 and E;
+        vars R_T_internal_iliac_T1_R218 and R_T;
+        vars C_T_internal_iliac_T1_R218 and C_T;
+        vars r_internal_iliac_T1_R218 and r;
+    enddef;
+
+    def map between Parameters_Systemic and profundus_T2_R224_module for
+        vars l_profundus_T2_R224 and l;
+        vars E_profundus_T2_R224 and E;
+        vars R_T_profundus_T2_R224 and R_T;
+        vars C_T_profundus_T2_R224 and C_T;
+        vars r_profundus_T2_R224 and r;
+    enddef;
+
+    def map between Parameters_Systemic and anterior_tibial_T3_R230_module for
+        vars l_anterior_tibial_T3_R230 and l;
+        vars E_anterior_tibial_T3_R230 and E;
+        vars R_T_anterior_tibial_T3_R230 and R_T;
+        vars C_T_anterior_tibial_T3_R230 and C_T;
+        vars r_anterior_tibial_T3_R230 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_tibial_T4_R236_module for
+        vars l_posterior_tibial_T4_R236 and l;
+        vars E_posterior_tibial_T4_R236 and E;
+        vars R_T_posterior_tibial_T4_R236 and R_T;
+        vars C_T_posterior_tibial_T4_R236 and C_T;
+        vars r_posterior_tibial_T4_R236 and r;
+    enddef;
+
+    def map between Parameters_Systemic and internal_iliac_T1_L196_module for
+        vars l_internal_iliac_T1_L196 and l;
+        vars E_internal_iliac_T1_L196 and E;
+        vars R_T_internal_iliac_T1_L196 and R_T;
+        vars C_T_internal_iliac_T1_L196 and C_T;
+        vars r_internal_iliac_T1_L196 and r;
+    enddef;
+
+    def map between Parameters_Systemic and profundus_T2_L202_module for
+        vars l_profundus_T2_L202 and l;
+        vars E_profundus_T2_L202 and E;
+        vars R_T_profundus_T2_L202 and R_T;
+        vars C_T_profundus_T2_L202 and C_T;
+        vars r_profundus_T2_L202 and r;
+    enddef;
+
+    def map between Parameters_Systemic and anterior_tibial_T3_L208_module for
+        vars l_anterior_tibial_T3_L208 and l;
+        vars E_anterior_tibial_T3_L208 and E;
+        vars R_T_anterior_tibial_T3_L208 and R_T;
+        vars C_T_anterior_tibial_T3_L208 and C_T;
+        vars r_anterior_tibial_T3_L208 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_tibial_T4_L214_module for
+        vars l_posterior_tibial_T4_L214 and l;
+        vars E_posterior_tibial_T4_L214 and E;
+        vars R_T_posterior_tibial_T4_L214 and R_T;
+        vars C_T_posterior_tibial_T4_L214 and C_T;
+        vars r_posterior_tibial_T4_L214 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_interosseous_T3_R40_module for
+        vars l_posterior_interosseous_T3_R40 and l;
+        vars E_posterior_interosseous_T3_R40 and E;
+        vars R_T_posterior_interosseous_T3_R40 and R_T;
+        vars C_T_posterior_interosseous_T3_R40 and C_T;
+        vars r_posterior_interosseous_T3_R40 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ulnar_T2_R42_module for
+        vars l_ulnar_T2_R42 and l;
+        vars E_ulnar_T2_R42 and E;
+        vars R_T_ulnar_T2_R42 and R_T;
+        vars C_T_ulnar_T2_R42 and C_T;
+        vars r_ulnar_T2_R42 and r;
+    enddef;
+
+    def map between Parameters_Systemic and radial_T1_R44_module for
+        vars l_radial_T1_R44 and l;
+        vars E_radial_T1_R44 and E;
+        vars R_T_radial_T1_R44 and R_T;
+        vars C_T_radial_T1_R44 and C_T;
+        vars r_radial_T1_R44 and r;
+    enddef;
+
+    def map between Parameters_Systemic and posterior_interosseous_T3_L88_module for
+        vars l_posterior_interosseous_T3_L88 and l;
+        vars E_posterior_interosseous_T3_L88 and E;
+        vars R_T_posterior_interosseous_T3_L88 and R_T;
+        vars C_T_posterior_interosseous_T3_L88 and C_T;
+        vars r_posterior_interosseous_T3_L88 and r;
+    enddef;
+
+    def map between Parameters_Systemic and ulnar_T2_L90_module for
+        vars l_ulnar_T2_L90 and l;
+        vars E_ulnar_T2_L90 and E;
+        vars R_T_ulnar_T2_L90 and R_T;
+        vars C_T_ulnar_T2_L90 and C_T;
+        vars r_ulnar_T2_L90 and r;
+    enddef;
+
+    def map between Parameters_Systemic and radial_T1_L92_module for
+        vars l_radial_T1_L92 and l;
+        vars E_radial_T1_L92 and E;
+        vars R_T_radial_T1_L92 and R_T;
+        vars C_T_radial_T1_L92 and C_T;
+        vars r_radial_T1_L92 and r;
+    enddef;
+
+    def map between Parameters_Systemic and external_carotid_T2_R26_module for
+        vars l_external_carotid_T2_R26 and l;
+        vars E_external_carotid_T2_R26 and E;
+        vars R_T_external_carotid_T2_R26 and R_T;
+        vars C_T_external_carotid_T2_R26 and C_T;
+        vars r_external_carotid_T2_R26 and r;
+    enddef;
+
+    def map between Parameters_Systemic and external_carotid_T2_L62_module for
+        vars l_external_carotid_T2_L62 and l;
+        vars E_external_carotid_T2_L62 and E;
+        vars R_T_external_carotid_T2_L62 and R_T;
+        vars C_T_external_carotid_T2_L62 and C_T;
+        vars r_external_carotid_T2_L62 and r;
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////// Time Mapping /////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Aorta
+
+    def map between Systemic and ascending_aorta_A_module for
+        vars u_root and u_C;
+        vars v_sas and v_in;
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ascending_aorta_B_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ascending_aorta_C_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ascending_aorta_D_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and aortic_arch_C2_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and brachiocephalic_trunk_C4_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and aortic_arch_C46_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and aortic_arch_C64_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and aortic_arch_C94_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and thoracic_aorta_C96_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and thoracic_aorta_C100_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and thoracic_aorta_C104_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and thoracic_aorta_C108_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and thoracic_aorta_C112_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and abdominal_aorta_C114_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and abdominal_aorta_C136_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and abdominal_aorta_C164_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and abdominal_aorta_C176_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and abdominal_aorta_C188_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and abdominal_aorta_C192_module for
+        vars t and t;
+    enddef;
+
+    // Trunk
+
+    def map between Systemic and celiac_trunk_C116_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and splenic_T2_C118_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and splenic_T2_C122_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_hepatic_C128_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and hepatic_artery_proper_C130_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C138_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C142_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C146_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C150_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C154_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and superior_mesenteric_T4_C158_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and renal_L166_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and renal_anterior_branch_L168_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and renal_R178_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and renal_anterior_branch_R180_module for
+        vars t and t;
+    enddef;
+
+    // Lower Limbs
+
+    def map between Systemic and common_iliac_R216_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and external_iliac_R220_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and femoral_R222_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and femoral_R226_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and popliteal_R228_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and popliteal_R232_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and tibiofibular_trunk_R234_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_iliac_L194_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and external_iliac_L198_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and femoral_L200_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and femoral_L204_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and popliteal_L206_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and popliteal_L210_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and tibiofibular_trunk_L212_module for
+        vars t and t;
+    enddef;
+
+    // Upper Limbs
+
+    def map between Systemic and subclavian_R28_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and subclavian_R30_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and axillary_R32_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and brachial_R34_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ulnar_T2_R36_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_interosseous_R38_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and subclavian_L66_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and subclavian_L78_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and axillary_L80_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and brachial_L82_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and ulnar_T2_L84_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_interosseous_L86_module for
+        vars t and t;
+    enddef;
+
+    // Head
+
+    def map between Systemic and common_carotid_R6_A_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_carotid_R6_B_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_carotid_R6_C_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_carotid_R8_A_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_carotid_R8_B_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_carotid_L48_A_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_carotid_L48_B_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_carotid_L48_C_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and common_carotid_L48_D_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_carotid_L50_A_module for
+        vars t and t;
+    enddef;
+
+    def map between Systemic and internal_carotid_L50_B_module for
+        vars t and t;
+    enddef;
+
+    def group as encapsulation for
+        comp Heart incl
+            comp Parameters_Heart;
+        endcomp;
+    enddef;
+
+    //    def group as encapsulation for
+    //        comp Coronary incl
+    //            comp Parameters_Coronary;
+    //        endcomp;
+    //    enddef;
+
+    def group as encapsulation for
+        comp Pulmonary incl
+            comp Parameters_Pulmonary;
+        endcomp;
+    enddef;
+
+    def group as encapsulation for
+        comp Systemic incl
+            comp Parameters_Systemic;
+            comp ascending_aorta_A_module;
+            comp ascending_aorta_B_module;
+            comp ascending_aorta_C_module;
+            comp ascending_aorta_D_module;
+            comp aortic_arch_C2_module;
+            comp brachiocephalic_trunk_C4_module;
+            comp aortic_arch_C46_module;
+            comp aortic_arch_C64_module;
+            comp aortic_arch_C94_module;
+            comp thoracic_aorta_C96_module;
+            comp thoracic_aorta_C100_module;
+            comp thoracic_aorta_C104_module;
+            comp thoracic_aorta_C108_module;
+            comp thoracic_aorta_C112_module;
+            comp abdominal_aorta_C114_module;
+            comp abdominal_aorta_C136_module;
+            comp abdominal_aorta_C164_module;
+            comp abdominal_aorta_C176_module;
+            comp abdominal_aorta_C188_module;
+            comp abdominal_aorta_C192_module;
+            comp posterior_intercostal_T1_R98_module;
+            comp posterior_intercostal_T1_L102_module;
+            comp posterior_intercostal_T2_R106_module;
+            comp posterior_intercostal_T2_L110_module;
+            comp celiac_trunk_C116_module;
+            comp splenic_T2_C118_module;
+            comp left_gastric_T3_C120_module;
+            comp splenic_T2_C122_module;
+            comp dorsal_pancreatic_T1_C124_module;
+            comp splenic_T2_C126_module;
+            comp common_hepatic_C128_module;
+            comp hepatic_artery_proper_C130_module;
+            comp hepatic_artery_proper_left_branch_C132_module;
+            comp hepatic_artery_proper_right_branch_C134_module;
+            comp superior_mesenteric_T4_C138_module;
+            comp middle_colic_T8_C140_module;
+            comp superior_mesenteric_T4_C142_module;
+            comp jejunal_3_T10_C144_module;
+            comp superior_mesenteric_T4_C146_module;
+            comp jejunal_6_T11_C148_module;
+            comp superior_mesenteric_T4_C150_module;
+            comp ileocolic_T9_C152_module;
+            comp superior_mesenteric_T4_C154_module;
+            comp ileal_4_T12_C156_module;
+            comp superior_mesenteric_T4_C158_module;
+            comp ileal_6_T13_C160_module;
+            comp superior_mesenteric_T4_C162_module;
+            comp renal_L166_module;
+            comp renal_anterior_branch_L168_module;
+            comp inferior_segmental_T5_L170_module;
+            comp superior_segmental_T4_L172_module;
+            comp renal_posterior_branch_T3_L174_module;
+            comp renal_R178_module;
+            comp renal_anterior_branch_R180_module;
+            comp superior_segmental_T4_R182_module;
+            comp inferior_segmental_T5_R184_module;
+            comp renal_posterior_branch_T3_R186_module;
+            comp inferior_mesenteric_T5_C190_module;
+            comp common_iliac_R216_module;
+            comp internal_iliac_T1_R218_module;
+            comp external_iliac_R220_module;
+            comp femoral_R222_module;
+            comp profundus_T2_R224_module;
+            comp femoral_R226_module;
+            comp popliteal_R228_module;
+            comp anterior_tibial_T3_R230_module;
+            comp popliteal_R232_module;
+            comp tibiofibular_trunk_R234_module;
+            comp posterior_tibial_T4_R236_module;
+            comp common_iliac_L194_module;
+            comp internal_iliac_T1_L196_module;
+            comp external_iliac_L198_module;
+            comp femoral_L200_module;
+            comp profundus_T2_L202_module;
+            comp femoral_L204_module;
+            comp popliteal_L206_module;
+            comp anterior_tibial_T3_L208_module;
+            comp popliteal_L210_module;
+            comp tibiofibular_trunk_L212_module;
+            comp posterior_tibial_T4_L214_module;
+            comp subclavian_R28_module;
+            comp subclavian_R30_module;
+            comp axillary_R32_module;
+            comp brachial_R34_module;
+            comp ulnar_T2_R36_module;
+            comp common_interosseous_R38_module;
+            comp posterior_interosseous_T3_R40_module;
+            comp ulnar_T2_R42_module;
+            comp radial_T1_R44_module;
+            comp subclavian_L66_module;
+            comp subclavian_L78_module;
+            comp axillary_L80_module;
+            comp brachial_L82_module;
+            comp ulnar_T2_L84_module;
+            comp common_interosseous_L86_module;
+            comp posterior_interosseous_T3_L88_module;
+            comp ulnar_T2_L90_module;
+            comp radial_T1_L92_module;
+            comp common_carotid_R6_A_module;
+            comp common_carotid_R6_B_module;
+            comp common_carotid_R6_C_module;
+            comp internal_carotid_R8_A_module;
+            comp internal_carotid_R8_B_module;
+            comp internal_carotid_R8_C_module;
+            comp external_carotid_T2_R26_module;
+            comp common_carotid_L48_A_module;
+            comp common_carotid_L48_B_module;
+            comp common_carotid_L48_C_module;
+            comp common_carotid_L48_D_module;
+            comp internal_carotid_L50_A_module;
+            comp internal_carotid_L50_B_module;
+            comp internal_carotid_L50_C_module;
+            comp external_carotid_T2_L62_module;
+            comp vertebral_L2_module;
+            comp vertebral_R272_module;
+            comp ascending_aorta_A;
+            comp ascending_aorta_B;
+            comp ascending_aorta_C;
+            comp ascending_aorta_D;
+            comp aortic_arch_C2;
+            comp brachiocephalic_trunk_C4;
+            comp aortic_arch_C46;
+            comp aortic_arch_C64;
+            comp aortic_arch_C94;
+            comp thoracic_aorta_C96;
+            comp thoracic_aorta_C100;
+            comp thoracic_aorta_C104;
+            comp thoracic_aorta_C108;
+            comp thoracic_aorta_C112;
+            comp abdominal_aorta_C114;
+            comp abdominal_aorta_C136;
+            comp abdominal_aorta_C164;
+            comp abdominal_aorta_C176;
+            comp abdominal_aorta_C188;
+            comp abdominal_aorta_C192;
+            comp posterior_intercostal_T1_R98;
+            comp posterior_intercostal_T1_L102;
+            comp posterior_intercostal_T2_R106;
+            comp posterior_intercostal_T2_L110;
+            comp celiac_trunk_C116;
+            comp splenic_T2_C118;
+            comp left_gastric_T3_C120;
+            comp splenic_T2_C122;
+            comp dorsal_pancreatic_T1_C124;
+            comp splenic_T2_C126;
+            comp common_hepatic_C128;
+            comp hepatic_artery_proper_C130;
+            comp hepatic_artery_proper_left_branch_C132;
+            comp hepatic_artery_proper_right_branch_C134;
+            comp superior_mesenteric_T4_C138;
+            comp middle_colic_T8_C140;
+            comp superior_mesenteric_T4_C142;
+            comp jejunal_3_T10_C144;
+            comp superior_mesenteric_T4_C146;
+            comp jejunal_6_T11_C148;
+            comp superior_mesenteric_T4_C150;
+            comp ileocolic_T9_C152;
+            comp superior_mesenteric_T4_C154;
+            comp ileal_4_T12_C156;
+            comp superior_mesenteric_T4_C158;
+            comp ileal_6_T13_C160;
+            comp superior_mesenteric_T4_C162;
+            comp renal_L166;
+            comp renal_anterior_branch_L168;
+            comp inferior_segmental_T5_L170;
+            comp superior_segmental_T4_L172;
+            comp renal_posterior_branch_T3_L174;
+            comp renal_R178;
+            comp renal_anterior_branch_R180;
+            comp superior_segmental_T4_R182;
+            comp inferior_segmental_T5_R184;
+            comp renal_posterior_branch_T3_R186;
+            comp inferior_mesenteric_T5_C190;
+            comp common_iliac_R216;
+            comp internal_iliac_T1_R218;
+            comp external_iliac_R220;
+            comp femoral_R222;
+            comp profundus_T2_R224;
+            comp femoral_R226;
+            comp popliteal_R228;
+            comp anterior_tibial_T3_R230;
+            comp popliteal_R232;
+            comp tibiofibular_trunk_R234;
+            comp posterior_tibial_T4_R236;
+            comp common_iliac_L194;
+            comp internal_iliac_T1_L196;
+            comp external_iliac_L198;
+            comp femoral_L200;
+            comp profundus_T2_L202;
+            comp femoral_L204;
+            comp popliteal_L206;
+            comp anterior_tibial_T3_L208;
+            comp popliteal_L210;
+            comp tibiofibular_trunk_L212;
+            comp posterior_tibial_T4_L214;
+            comp subclavian_R28;
+            comp subclavian_R30;
+            comp axillary_R32;
+            comp brachial_R34;
+            comp ulnar_T2_R36;
+            comp common_interosseous_R38;
+            comp posterior_interosseous_T3_R40;
+            comp ulnar_T2_R42;
+            comp radial_T1_R44;
+            comp subclavian_L66;
+            comp subclavian_L78;
+            comp axillary_L80;
+            comp brachial_L82;
+            comp ulnar_T2_L84;
+            comp common_interosseous_L86;
+            comp posterior_interosseous_T3_L88;
+            comp ulnar_T2_L90;
+            comp radial_T1_L92;
+            comp common_carotid_R6_A;
+            comp common_carotid_R6_B;
+            comp common_carotid_R6_C;
+            comp internal_carotid_R8_A;
+            comp internal_carotid_R8_B;
+            comp internal_carotid_R8_C;
+            comp external_carotid_T2_R26;
+            comp common_carotid_L48_A;
+            comp common_carotid_L48_B;
+            comp common_carotid_L48_C;
+            comp common_carotid_L48_D;
+            comp internal_carotid_L50_A;
+            comp internal_carotid_L50_B;
+            comp internal_carotid_L50_C;
+            comp external_carotid_T2_L62;
+            comp vertebral_L2;
+            comp vertebral_R272;
+        endcomp;
+    enddef;
+enddef;

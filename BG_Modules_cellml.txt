@@ -1,0 +1,517 @@
+def model Vessel_BG_Units as
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////// non-BC Vessel ////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    def comp pv_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s2_per_m5 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var u_in: J_per_m3 {pub: in};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v_out: m3_per_s {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u_in-u-R*v)/I;
+        ode(u_C, t) = (v-v_out)/C;
+        u = u_C+R_v*(v-v_out);
+    enddef;
+
+    //-----------------------------------------------------------------------------//
+    //-----------------------------------------------------------------------------//
+
+    def comp vp_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s_per_m3 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var v_in: m3_per_s {pub: in};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u_out: J_per_m3 {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u-u_out-R*v)/I;
+        ode(u_C, t) = (v_in-v)/C;
+        u = u_C+R_v*(v_in-v);
+    enddef;
+
+    //-----------------------------------------------------------------------------//
+    //-----------------------------------------------------------------------------//
+
+    def comp pp_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s_per_m3 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var u_in: J_per_m3 {pub: in};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v_d: m3_per_s {init: 0.0, pub: out};
+        var u_out: J_per_m3 {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u_in-u-R/2{dimensionless}*v)/(I/2{dimensionless});
+        ode(u_C, t) = (v-v_d)/C;
+        u = u_C+R_v*(v-v_d);
+        ode(v_d, t) = (u-u_out-R/2{dimensionless}*v_d)/(I/2{dimensionless});
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////// input-BC Vessel ///////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    def comp vv_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s_per_m3 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var v_in: m3_per_s {pub: in};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u_d: J_per_m3 {pub: out};
+        var u_C_d: J_per_m3 {init: 0.0, pub: out};
+        var v_out: m3_per_s {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u-u_d-R*v)/I;
+        ode(u_C, t) = (v_in-v)/(C/2{dimensionless});
+        ode(u_C_d, t) = (v-v_out)/(C/2{dimensionless});
+        u = u_C+2{dimensionless}*R_v*(v_in-v);
+        u_d = u_C_d+2{dimensionless}*R_v*(v-v_out);
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////// output-BC Vessel ///////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    def comp pp_BC_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s_per_m3 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var R_T: J_s_per_m6 {pub: in};
+        var R_T_2: J_s_per_m6 {pub: out};
+        var C_T: m6_per_J {pub: in};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var u_in: J_per_m3 {pub: in};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var u_C_T: J_per_m3 {init: 0.0, pub: out};
+        var v_T: m3_per_s {init: 0.0, pub: out};
+        var v_T_2: m3_per_s {init: 0.0, pub: out};
+        var u_out: J_per_m3 {pub: in};
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        R_T_2 = 4{dimensionless}*R_T;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u_in-u-R*v)/I;
+        ode(u_C, t) = (v-v_T)/C;
+        u = u_C+R_v*(v-v_T);
+        ode(v_T, t) = (u-u_out-u_C_T-1.3{dimensionless}*R_T*v_T)/(I*1e-6{dimensionless});
+        ode(u_C_T, t) = (v_T-v_T_2)/C_T;
+        ode(v_T_2, t) = (u_C_T-1.3{dimensionless}*R_T_2*v_T_2)/(I*1e-6{dimensionless});
+    enddef;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////// output-BC Venous Vessel ////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    def comp pp_vBC_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s_per_m3 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var R_T: J_s_per_m6 {pub: in};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var u_in: J_per_m3 {pub: in};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v_T: m3_per_s {init: 0.0, pub: out};
+        var u_out: J_per_m3 {pub: in};
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u_in-u-R*v)/I;
+        ode(u_C, t) = (v-v_T)/C;
+        u = u_C+R_v*(v-v_T);
+        ode(v_T, t) = (u-u_out-0.5{dimensionless}*R_T*v_T)/I;
+    enddef;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////// Junctions //////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Bifurcation
+
+    def comp pv_jII_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s2_per_m5 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var u_in: J_per_m3 {pub: in};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v_out_1: m3_per_s {pub: in};
+        var v_out_2: m3_per_s {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u_in-u-R*v)/I;
+        ode(u_C, t) = (v-v_out_1-v_out_2)/C;
+        u = u_C+R_v*(v-v_out_1-v_out_2);
+    enddef;
+
+    //-----------------------------------------------------------------------------//
+    //-----------------------------------------------------------------------------//
+
+    // Merging
+
+    def comp vv_jII_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s_per_m3 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var v_in_1: m3_per_s {pub: in};
+        var v_in_2: m3_per_s {pub: in};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u_d: J_per_m3 {pub: out};
+        var u_C_d: J_per_m3 {init: 0.0, pub: out};
+        var v_out_1: m3_per_s {pub: in};
+        var v_out_2: m3_per_s {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+
+        ode(v, t) = (u-u_d-R*v)/I;
+        ode(u_C, t) = (v_in_1+v_in_2-v)/(C/2{dimensionless});
+        ode(u_C_d, t) = (v-v_out_1-v_out_2)/(C/2{dimensionless});
+        u = u_C+2{dimensionless}*R_v*(v_in_1+v_in_2-v);
+        u_d = u_C_d+2{dimensionless}*R_v*(v-v_out_1-v_out_2);
+    enddef;
+
+    // Vein Merging
+
+    def comp vp_jII_type as
+        var t: second {pub: in};
+
+        // Constitutive Parameters
+
+        var mu: J_s_per_m3 {init: 0.004};
+        var rho: J_s2_per_m5 {init: 1050};
+        var E: J_per_m3 {pub: in};
+        var E_m: J_per_m3 {pub: out};
+        var l: metre {pub: in};
+        var length: metre {pub: out};
+        var h: metre {pub: out};
+        var thickness: metre {pub: out};
+        var r: metre {pub: in};
+        var radius: metre {pub: out};
+        var I: J_s2_per_m6 {pub: out};
+        var C: m6_per_J {pub: out};
+        var R: J_s_per_m6 {pub: out};
+        var R_v: J_s_per_m6 {pub: out};
+        var a: dimensionless {init: 0.2802};
+        var b: per_m {init: -505.3};
+        var c: dimensionless {init: 0.1324};
+        var d: per_m {init: -11.14};
+
+        // State Variables
+
+        var v_in_1: m3_per_s {pub: in};
+        var v_in_2: m3_per_s {pub: in};
+        var u: J_per_m3 {pub: out};
+        var u_C: J_per_m3 {init: 0.0, pub: out};
+        var v: m3_per_s {init: 0.0, pub: out};
+        var u_out: J_per_m3 {pub: in};
+
+        // Constitutive Relations
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(pi*sqr(r));
+        C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
+        R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
+        R_v = 0.01{second}/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // Conservation Laws
+        ode(v, t) = (u-u_out-R*v)/I;
+        ode(u_C, t) = (v_in_1+v_in_2-v)/C;
+        u = u_C+R_v*(v_in_1+v_in_2-v);
+    enddef;
+enddef;

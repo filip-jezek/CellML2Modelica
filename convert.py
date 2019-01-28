@@ -3,7 +3,6 @@ import re
 import datetime
 import fun_lib
 # TODO
-# copy only def comp - models
 # map parameters
 # map connections within class
 # error output other connections?
@@ -46,6 +45,7 @@ encs = re.findall(r'def group as encapsulation for(.+?)enddef;', text, re.DOTALL
 convertedText_main = re.sub(r'def group as encapsulation for(.+?)enddef;', r"// encapsulation trimmed \n", convertedText_main, re.DOTALL)
 convertedText_main = re.sub(r'def import using (.+?)enddef;', r"// import trimmed \n" , convertedText_main, re.DOTALL)
 
+# build instances and populate them with parameters
 for enc in encs:
     # find all the parent components within the encapsulation
     parents = re.findall(r'comp ([a-zA-Z0-9_]+) incl(.+?)endcomp;', enc, re.DOTALL)
@@ -55,14 +55,13 @@ for enc in encs:
         # find the encapsulated childs within the parents
         comps = re.findall(r'comp ([a-zA-Z0-9_]+)', par[1])
         instances = list()
-        for comp in comps:
+        for instance_name in comps:
             # match in the imports, get the package name (the filename) and the object name, given we already know the instance name
             imports = re.findall(r'def import using "([a-zA-Z0-9_\.]+)" for(.*?) enddef;', text, re.DOTALL)
             for imprt in imports:
-                import_lines = re.findall(r"comp " + comp + " using comp ([a-zA-Z0-9_.]+)", imprt[1])
+                import_lines = re.findall(r"comp " + instance_name + " using comp ([a-zA-Z0-9_.]+)", imprt[1])
                 for object_name in import_lines:
                     package_name = re.sub(r'[\.\-]', r'_', imprt[0])
-                    instance_name = comp
                     print('> building instance ' + instance_name)
 
                     # TODO - look for isntance parameters somehow?
@@ -73,29 +72,42 @@ for enc in encs:
                         #     vars r_tibiofibular_trunk_L212 and r;
                         # enddef;
                     instance_mappings = re.findall(r'def map between [a-zA-Z0-9_]+ and ' + instance_name + ' for(.+?)enddef;', text, re.DOTALL)
-                    param_strings = list()
-                    for instance_mapping in instance_mappings:
-                        param_mappings = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', instance_mapping)
-                        for param_mapping in param_mappings:
-                        # find __paramName__ from the paramlist and
-                        # __param_inst__ = param value from the list
-                            param_inst = param_mapping[0]
-                            param_name = param_mapping[1]
-                            values = [item for item in param_set if item[0] == param_inst]
-                            if len(values) < 1: break
-                            param_value_pair = param_name + " = " + values[0][1]
-                            print (">> " + param_value_pair)
-                            param_strings.append(param_value_pair)
-                    param_string = ', '.join(param_strings)
+                    # # and vice versa
+                    # re.findall(r'def map between ' + instance_name + ' and [a-zA-Z0-9_]+ for(.+?)enddef;', text, re.DOTALL)
+                    # instance_mappings.append()
+                    param_tuples = fun_lib.perametrizeInstances(instance_mappings, param_set)
+                    properties = list()
+                    for param in param_tuples: properties.append(' = '.join(param))
+                    param_string = ', '.join(properties)
                     # find mapping between isntance name and 
                     instances.append(r"\t" + package_name + "." + object_name + " " + instance_name + r'('+ param_string + r') "generated instance";')
                     # instances = instances + instance
                     # insert the encapsulations as instances
+
+            # connect parameters with variables
+            # connect parameters with variables
+            parameter_mappings = re.findall(r'def map between ' + instance_name + r' and ' + parent_name + ' for(.+?)enddef;', text, re.DOTALL)
+            params = fun_lib.perametrizeInstances(parameter_mappings, param_set)
+            # TODO also for modules?
+            modelRegex = re.compile('(model ' + parent_name + r'.*end ' + parent_name + ')', flags=re.DOTALL)
+            models = modelRegex.findall(convertedText_main)
+            for model in models:
+                convertedModel = model
+                for param in params:
+                    # itdoesnt matter if it already was as a parameter or input - this has a priority
+                    convertedModel = re.sub(r'Real (' + param[0] + r')[ ]*(\(.*?\))*?;', r'parameter Real \1\2 = ' + param[1] + ';', convertedModel)
+                    # TODO rewritten parameter?
+                modelRegex.sub(convertedModel, convertedText_main)
+                
+
+
+            
         # insert all the found instances
         if len(instances) > 0:
             instances_string = r'\n' + r'\n'.join(reversed(instances)) + r"\n"
             # append it just under the model definition
             convertedText_main = re.sub(r'(model ' + par[0] + '.*)', r'\1' + instances_string, convertedText_main)
+
 
 
 fw = open('convertedCellMl.mo','w')

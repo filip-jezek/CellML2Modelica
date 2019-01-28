@@ -1,5 +1,22 @@
 import re
 
+def perametrizeInstances(instance_mappings, param_set):
+    param_tuples = list()
+    for instance_mapping in instance_mappings:
+        param_mappings = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', instance_mapping)
+        for param_mapping in param_mappings:
+        # find __paramName__ from the paramlist and
+        # __param_inst__ = param value from the list
+            param_inst = param_mapping[0]
+            param_name = param_mapping[1]
+            values = [item for item in param_set if item[0] == param_inst]
+            if len(values) < 1: break
+            param_value_tuple = (param_name, values[0][1])
+            print (">> " + " = ".join(param_value_tuple))
+            param_tuples.append(param_value_tuple)
+    return param_tuples
+
+
 def trimComments(text):
     output = re.sub(r'[ \t]// (.*)\n', '', text)
     return output
@@ -34,6 +51,8 @@ def fillEquationString(txt):
 def convertText(text, cellml_package):
     # var V: mV {pub: in, priv: out}; TO input Real V (unit =”mV”)
     text = re.sub(r'(var )(.+): ([a-zA-Z0-9_]+) {pub: in.+', r'input Real \2(unit = "\3");', text)
+
+    
 
 
     # Derivatives:

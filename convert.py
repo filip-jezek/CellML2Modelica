@@ -2,11 +2,19 @@
 import re
 import datetime
 import fun_lib
+import sys
 # TODO
 # map parameters
 # map connections within class
 # error output other connections?
+# TODO - decide for each imported file, if it should be instantiated (as BG_modules) or included (as e.g. parameters)
+
 print("Lets GO!")
+# We have generally three types of mappings 
+# 1] the instance parameter mapping, which assign values to the newly created isntance (by encapsulation) 
+# 2] the outer parameter mapping, where the parameters of the object (usually imported as an separate file) are used to set the value of the component
+# 3] inter-component mappings or connections, where the values are connected together. This shall be overcome using the conectors in the future
+
 
 
 #Lets get all the parameters first
@@ -64,7 +72,8 @@ for enc in encs:
                     package_name = re.sub(r'[\.\-]', r'_', imprt[0])
                     print('> building instance ' + instance_name)
 
-                    # TODO - look for isntance parameters somehow?
+                    # 1st type of mapping
+                    # look for isntance parameters somehow?
                         # find in main text:
                         # def map between Parameters_Systemic and __instance__ for
                         #     vars __paramName__ and __param_inst__;
@@ -84,30 +93,35 @@ for enc in encs:
                     # instances = instances + instance
                     # insert the encapsulations as instances
 
-            # connect parameters with variables
-            # connect parameters with variables
+            # 2nd type of mapping - connect parameters with variables
+            print('>> Looking for sibling mappings for the component '+ instance_name + '...')
             parameter_mappings = re.findall(r'def map between ' + instance_name + r' and ' + parent_name + ' for(.+?)enddef;', text, re.DOTALL)
             params = fun_lib.perametrizeInstances(parameter_mappings, param_set)
             # TODO also for modules?
             modelRegex = re.compile('(model ' + parent_name + r'.*end ' + parent_name + ')', flags=re.DOTALL)
             models = modelRegex.findall(convertedText_main)
-            for model in models:
+            total = 0
+            for model in models: # usually just one
                 convertedModel = model
+                # find for each of the parameter set, if it does belong to own parameters
                 for param in params:
                     # itdoesnt matter if it already was as a parameter or input - this has a priority
-                    convertedModel = re.sub(r'Real (' + param[0] + r')[ ]*(\(.*?\))*?;', r'parameter Real \1\2 = ' + param[1] + ';', convertedModel)
+                    (convertedModel, replaces) = re.subn(r'Real (' + param[0] + r')[ ]*(\(.*?\))*?;', r'parameter Real \1\2 = ' + param[1] + ';', convertedModel)
+                    total += replaces
                     # TODO rewritten parameter?
-                modelRegex.sub(convertedModel, convertedText_main)
-                
-
-
+                convertedText_main = modelRegex.sub(convertedModel, convertedText_main)
+            if total > 0: print('>> Total: '+ str(total) + ' occurences found and inserted.\n')
             
+
         # insert all the found instances
         if len(instances) > 0:
             instances_string = r'\n' + r'\n'.join(reversed(instances)) + r"\n"
             # append it just under the model definition
             convertedText_main = re.sub(r'(model ' + par[0] + '.*)', r'\1' + instances_string, convertedText_main)
 
+# 3rd type of mapping
+# resolving mappings within the main text.
+# these can be resolved only on higher level
 
 
 fw = open('convertedCellMl.mo','w')

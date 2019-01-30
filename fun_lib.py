@@ -1,4 +1,5 @@
 import re
+import DataStructure as ds
 
 def perametrizeInstances(instance_mappings, param_set):
     param_tuples = list()
@@ -23,11 +24,11 @@ def trimComments(text):
 
 def readCellMlFile(cellml_filename):
     "the covnention is to use the hand in the original file.cellml and read the file_cellml.txt"
-    pckg = re.sub(r'[\.\-]', r'_', cellml_filename)
+    pckg = ds.Object.GetPackageName(cellml_filename)
     filename = pckg + '.txt'
     fo = open(filename, 'r')
     bgs = fo.read()
-    return pckg, bgs
+    return bgs
 
 def fillEquationString(txt):
     # find position for the "equation" label

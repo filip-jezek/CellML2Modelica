@@ -1,0 +1,38 @@
+def model Noble62_units as
+    def unit ms as
+        unit second {pref: milli};
+    enddef;
+
+    def unit per_ms as
+        unit second {pref: milli, expo: -1};
+    enddef;
+
+    def unit mV as
+        unit volt {pref: milli};
+    enddef;
+
+    def unit mM as
+        unit mole {pref: milli};
+    enddef;
+
+    def unit per_mV as
+        unit volt {pref: milli, expo: -1};
+    enddef;
+
+    def unit per_mV_ms as
+        unit mV {expo: -1};
+        unit ms {expo: -1};
+    enddef;
+
+    def unit mS as
+        unit siemens {pref: milli};
+    enddef;
+
+    def unit microF as
+        unit farad {pref: micro};
+    enddef;
+
+    def unit microA as
+        unit ampere {pref: micro};
+    enddef;
+enddef;

@@ -1,0 +1,27 @@
+def model leakage_ion_channel as
+    def import using "Noble62_units.cellml" for
+        unit mV using unit mV;
+        unit ms using unit ms;
+        unit mS using unit mS;
+        unit microA using unit microA;
+    enddef;
+
+    //    def comp environment as
+    //        var V: mV {init: 0, pub: out};
+    //        var t: ms {pub: out};
+    //        ode(V,t) = 1{dimensionless};
+    //    enddef;
+
+    def comp leakage_channel as
+        var V: mV {pub: in};
+        var g_L: mS {init: 0.075};
+        var E_L: mV {init: -60};
+        var i_L: microA {pub: out};
+
+        i_L = g_L*(V-E_L);
+    enddef;
+
+    //    def map between environment and leakage_channel for
+    //        vars V and V;
+    //    enddef;
+enddef;

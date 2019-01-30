@@ -122,6 +122,9 @@ for enc in encs:
 # 3rd type of mapping
 # resolving mappings within the main text.
 # these can be resolved only on higher level
+# Pseudocode:
+# * find environment - if not there, create one and create all instances in there
+# * find mapping
 
 
 fw = open('convertedCellMl.mo','w')

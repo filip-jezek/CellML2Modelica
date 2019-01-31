@@ -14,8 +14,13 @@ def importFiles(o:ds.Object):
         
         imported_line = re.findall(r"comp ([a-zA-Z0-9_.]+) using comp ([a-zA-Z0-9_.]+);", impor[1])
         for il in imported_line:
-            inst = ds.Object(il[1], package_name=pckg, instanceName=il[0])
-            o.imported_instances.append(inst)
+            # inst = ds.Object(il[1], package_name=pckg, instanceName=il[0])
+            obj = [oo for oo in o.children if oo.package_name == pckg and oo.name == il[1]]
+            inst = copy.copy(obj[0])
+            inst.instance_name = il[0]
+            # o.imported_instances.append(inst)
+            o.instances.append(inst)
+
         
 
 def findComponents(o:ds.Object):
@@ -39,7 +44,7 @@ def findEncapsulations(o:ds.Object):
                 
                 # either it is imported instance or own instance
                 # lets look for a nickname first - if it was imported it may have different instance name 
-                nickname = next((io for io in o.imported_instances if io.instance_name == encaps_comp), None)
+                nickname = next((io for io in o.instances if io.instance_name == encaps_comp), None)
                 obj_name = encaps_comp if nickname is None else nickname.name                
                 
                 # fine we got the name, now lets get the object - it should be already imported
@@ -47,14 +52,32 @@ def findEncapsulations(o:ds.Object):
                 # make a copy so we can have different instance names
                 child = copy.copy(obj)
                 # save its instance name for later
-                child.instance_name = obj_name
+                child.instance_name = encaps_comp
                 # child = next((c for c in o.imported_instances + o.children if c.instance_name == encaps_comp), None)
                 # only if we need the exact object
                 # child = next((c for c in o.children if c.instanceName == encaps_comp), None)
                 print(" > Encaps in " + parent.name + ": "  + child.name + ' ' + child.instance_name + ';' )
                 parent.instances.append(child)
 
-def findVar(o:ds.Object, obj, v):
+def findObjectInstance(o, instance_name):
+    # find that object with instance name, either in current scope...
+    # scope = [oo for oo in o.children if oo.package_name == o.package_name]
+    for obj in o.children:
+        # we found it in current package
+        if obj.package_name == o.package_name and obj.instance_name == instance_name:
+            return obj
+    for objx in o.instances:
+            # or in imports (therefore different isntance name from object name)
+            if objx.instance_name == instance_name:
+                return objx 
+                
+    # objX = next((oo for oo in o.children + o.instances if oo.package_name == o.package_name), None)
+    # 
+    # objX = next((oo for oo in o.children + o.instances if oo.instance_name == instance_name), None)
+    # return objX
+    
+
+def findVar(objX, v):
     # we need to find the object first
     # either it is imported instance or own instance
     # lets look for a nickname first - if it was imported it may have different instance name 
@@ -62,13 +85,11 @@ def findVar(o:ds.Object, obj, v):
     # obj_name = obj if nickname is None else nickname.name
     
     # objX = next((oo for oo in o.children if oo.name == obj_name), None)
-    objX = next((oo for oo in o.children + o.instances if oo.name == obj), None)
+    
     # TODO? build another isntance because of the mapping?
-    vars = re.findall(r'var '+ v + r': ([a-zA-Z0-9_]+) \{([a-zA-Z0-9:, .]+)\};', objX.text)
+    vars = re.findall(r'var '+ v + r': ([a-zA-Z0-9_]+) \{([-a-zA-Z0-9:, .]+)\};', objX.text)
     for var in vars:
-        return ds.Variable(var[0], var[0], var[1])
-
-
+        return ds.Variable(v, var[0], var[1])
 
 def getMappings(o:ds.Object):
     # mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for\n(.+?)enddef;'
@@ -76,14 +97,23 @@ def getMappings(o:ds.Object):
     mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for(.+?)enddef;', o.text, re.DOTALL)
     
     for mapping in mappings:
-        XX = mapping[0]
-        YY = mapping[1]
-        varmaps = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', o.text)
+        if mapping[0] == 'membrane':
+            print("hovno")
+        XX = findObjectInstance(o, mapping[0])
+        YY = findObjectInstance(o, mapping[1])
+        varmaps = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', mapping[2])
         for varmap in varmaps:
-            x = findVar(o, XX, varmap[0])
-            y = findVar(o, YY, varmap[1])
+            x = findVar(XX, varmap[0])
+            y = findVar(YY, varmap[1])
             # # find vars
-            return ds.Mapping(XX, x, YY, y)
+            map = ds.Mapping(XX, x, YY, y)
+            
+            # if map.instantiateType == ds.InstantiateType.ENCAPSULATION:
+            map.sourceInstance.mappings.append(map)
+            # else:
+                # o.mappings.append(map)
+
+
 
 
 def buildComponents(o:ds.Object):
@@ -99,10 +129,15 @@ def buildComponents(o:ds.Object):
     # look for mappings
     getMappings(o)
 
+def preProcess(text):
+    # strip out the commented lines
+    return re.sub(r'[ ]*//.*\n', '', text)
+
 # build tree
 def buildFile(filename, o = None):
     print("Opening filename " + filename)
     text = fun_lib.readCellMlFile(filename)
+    text = preProcess(text)
     pckg = ds.Object.GetPackageName(filename)
     
     topLevel = re.findall(r'def model ([a-zA-Z0-9_]+) as', text)
@@ -121,9 +156,50 @@ def buildFile(filename, o = None):
             o.children.append(grandchild)
     return o
 
+
+def buildModelicaText(o:ds.Object):
+
+    # get set of all packages
+    pckgs = []
+
+    for x in o.children:
+        if x.package_name not in pckgs:
+            pckgs.append(x.package_name)
     
+    for pckg in pckgs:
+        print('PACKAGE ' + pckg)
+
+        # package contents
+        packaged_children = [c for c in o.children if c.package_name == pckg]
+        for c in packaged_children:
+            print(' > model ' + c.name)
+            for gc in c.children:
+                print(' >> instances ' + gc.package_name + '.' + gc.name + ' ' + + gc.instance_name)
+                for m in gc.mappings:
+                    print( ' >>> mapping ' + m.writeOutput)
+            
+        
+    # top level element and its contents
+    print(' > TOP model ' + o.name)
+    top_instances = [c for c in o.children if c.package_name == pckg]
+    for ti in top_instances:
+        print(' >> instance ' + ti.instance_name)
+        for m in ti.mappings:
+            print( ' >>> mapping ' + m.writeOutput)
+        
+
+    # TODO instances, 
+    # TODO mappings,
+    # TODO variables
+    # TODO equations
+    # TODO recursive children
+
+
+
+
 o = buildFile('Noble_1962.cellml')
-    
+print('============================')
+buildModelicaText(o)
 
     # Je to cely naopak!
     # for encaps in encapses:

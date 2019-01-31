@@ -92,13 +92,12 @@ def findVar(objX, v):
         return ds.Variable(v, var[0], var[1])
 
 def getMappings(o:ds.Object):
+    print("Getting mappings for package " + o.package_name)
     # mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for\n(.+?)enddef;'
     #     , o.text, re.DOTALL)
     mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for(.+?)enddef;', o.text, re.DOTALL)
     
     for mapping in mappings:
-        if mapping[0] == 'membrane':
-            print("hovno")
         XX = findObjectInstance(o, mapping[0])
         YY = findObjectInstance(o, mapping[1])
         varmaps = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', mapping[2])
@@ -107,9 +106,14 @@ def getMappings(o:ds.Object):
             y = findVar(YY, varmap[1])
             # # find vars
             map = ds.Mapping(XX, x, YY, y)
-            
+            print(" > Found " + map.writeMappingType() + ' mapping for ' 
+                + map.ownerInstance.name
+                + ": " + map.writeOutput)
+                # in (" + XX.package_name + "." + XX.name + ') ' 
+                # + XX.instance_name + "." + x.name + ' = '
+                # + YY.instance_name + "." + y.name)
             # if map.instantiateType == ds.InstantiateType.ENCAPSULATION:
-            map.sourceInstance.mappings.append(map)
+            map.ownerInstance.mappings.append(map)
             # else:
                 # o.mappings.append(map)
 
@@ -173,8 +177,10 @@ def buildModelicaText(o:ds.Object):
         packaged_children = [c for c in o.children if c.package_name == pckg]
         for c in packaged_children:
             print(' > model ' + c.name)
-            for gc in c.children:
-                print(' >> instances ' + gc.package_name + '.' + gc.name + ' ' + + gc.instance_name)
+            for m in c.mappings:
+                    print( ' >> mapping ' + m.writeOutput + ' (type ' + m.writeMappingType())
+            for gc in c.instances:
+                print(' >> instance ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_name)
                 for m in gc.mappings:
                     print( ' >>> mapping ' + m.writeOutput)
             

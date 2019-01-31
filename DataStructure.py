@@ -19,16 +19,17 @@ class Variable:
         self.pubOut = True if re.search(r'pub: out', str) is not None else False
         self.privIn = True if re.search(r'priv: in', str) is not None else False
         self.privOut = True if re.search(r'priv: out', str) is not None else False
-        self.valueType = True
+        self.valueType = False
 
         self.value = next((v for v in re.findall(r'init: ([-0-9.]+)', str)), None)
     
-    @property
-    def returnBinding(self):
-        if self.valueType and  self.value is not None:
+    def returnBinding(self, prefix = None):
+        if self.valueType and self.value is not None:
             return self.value
-        else:
+        elif prefix is None:
             return self.name
+        else:
+            return ".".join([prefix, self.name])
 
 
 
@@ -66,60 +67,64 @@ class Mapping:
             # A
             self.mappingType = MappingType.EQUATION
             self.instantiateType = InstantiateType.ENCAPSULATION
-            self.sourceInstance = XX
-            self.sourceVariable = x
+            self.ownerInstance = XX
+            self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            self.writeOutput = self.sourceVariable.name + " = " + self.targetVariable.returnBinding
+            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.privOut and y.pubIn:
             # B
             self.mappingType = MappingType.BINDING
             self.instantiateType = InstantiateType.ENCAPSULATION
-            self.sourceInstance = XX
-            self.sourceVariable = x
-            self.targetInstance = YY
-            self.targetVariable = y
-            self.writeOutput = self.sourceInstance.uniqueInstanceName + '.' +  self.sourceVariable.name + " = " + self.targetVariable.name
+            self.ownerInstance = YY
+            self.ownerVariable = y
+            self.targetInstance = XX
+            self.targetVariable = x
+            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
         elif x.pubOut and y.privIn:
             # C
             self.mappingType = MappingType.EQUATION
             self.instantiateType = InstantiateType.ENCAPSULATION
-            self.sourceInstance = YY
-            self.sourceVariable = y
+            self.ownerInstance = YY
+            self.ownerVariable = y
             self.targetInstance = XX
             self.targetVariable = x
-            self.writeOutput = self.sourceVariable.name + " = " + self.targetVariable.returnBinding
+            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.pubIn and y.privOut:
             # D
             self.mappingType = MappingType.BINDING
             self.instantiateType = InstantiateType.ENCAPSULATION
-            self.sourceInstance = YY
-            self.sourceVariable = y
-            self.targetInstance = XX
-            self.targetVariable = x
-            self.writeOutput = self.sourceInstance.uniqueInstanceName + '.' +  self.sourceVariable.name + " = " + self.targetVariable.name
+            self.ownerInstance = XX
+            self.ownerVariable = x
+            self.targetInstance = YY
+            self.targetVariable = y
+            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
         elif x.pubIn and y.pubOut:
             # E
             self.mappingType = MappingType.BINDING
             self.instantiateType = InstantiateType.SIBLINGS
-            self.sourceInstance = XX
-            self.sourceVariable = x
+            self.ownerInstance = XX
+            self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            self.writeOutput = self.sourceInstance.uniqueInstanceName + '.' +  self.sourceVariable.name + " = " + self.targetVariable.name
+            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.pubOut and y.pubIn:
             # F
             self.mappingType = MappingType.BINDING
             self.instantiateType = InstantiateType.SIBLINGS
-            self.sourceInstance = XX
-            self.sourceVariable = x
-            self.targetInstance = YY
-            self.targetVariable = y
-            self.writeOutput = self.sourceInstance.uniqueInstanceName + '.' +  self.sourceVariable.name + " = " + self.targetVariable.name        
+            self.ownerInstance = YY
+            self.ownerVariable = y
+            self.targetInstance = XX
+            self.targetVariable = x
+            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         else:
             raise ValueError('Sumfin wen wong in mappings! Cannot recognize the type')
 
-
+    def writeMappingType(self):
+        if self.mappingType == MappingType.BINDING:
+            return "BINDING"
+        else:
+            return "EQUATION"
     # def writeOutput(self):
     #     if self.mappingType = MappingType.BINDING and self.instantiateType = InstantiateType.ENCAPSULATION:
             
@@ -129,10 +134,10 @@ class Mapping:
     def _source(self):
         # if Mapping.EvaluateParameters:# and self.__targetValue is not None:
             # return self.__targetValue
-        if self.sourceInstance is None:
-            return self.sourceVariable
+        if self.ownerInstance is None:
+            return self.ownerVariable
         else:
-            return ".".join((self.sourceInstance, self.sourceVariable))
+            return ".".join((self.ownerInstance, self.ownerVariable))
 
     def _target(self):
         if self.targetInstance is None:

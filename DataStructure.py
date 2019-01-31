@@ -7,6 +7,19 @@ class MappingType(Enum):
     BINDING = 1
     EQUATION = 2
 
+class Variable:
+
+    def __init__(self, name, unit, str):
+        self.name = name
+        self.unit = unit
+        self.pubIn = True if re.match(r'pub: in', str) is not None else False
+        self.pubOut = True if re.match(r'pub: out', str) is not None else False
+        self.privIn = True if re.match(r'priv: in', str) is not None else False
+        self.privOut = True if re.match(r'priv: out', str) is not None else False
+        self.valueType = True
+
+        self.value = next((v for v in re.findall(r'init: ([-0-9.]+)', str)), None)
+
 class Mapping:
     """ Maps variables.
 
@@ -32,23 +45,33 @@ class Mapping:
 
     """
 
-    EvaluateParameters = True
+    # EvaluateParameters = True
 
     def __init__(
-        self, mappingType, sourceVariable, targetVariable, 
-        sourceInstance = None, targetInstance = None, targetValue = None):
-        self.__mappingType = mappingType
+        self, sourceInstance , sourceVariable,targetInstance, targetVariable):
         self.__sourceInstance = sourceInstance
         self.__sourceVariable = sourceVariable
         self.__targetInstance = targetInstance
         self.__targetVariable = targetVariable
-        self.__targetValue = targetValue
+
+        # if   x.privIn and y.pubOut:
+        #     # x = YY_instance
+        # elif x.privOut and y.pubIn:
+        # elif x.pubOut and y.privIn:
+        # elif x.pubIn and y.privOut:
+        # elif x.pubIn and y.pubOut:
+        # elif x.pubOut and y.pubOut:
+        # else:
+        #     print("ERROR")
+
+
+    # def writeOutput
         
 
     def _source(self):
-        if Mapping.EvaluateParameters and self.__targetValue is not None:
-            return self.__targetValue
-        elif self.__sourceInstance is None:
+        # if Mapping.EvaluateParameters:# and self.__targetValue is not None:
+            # return self.__targetValue
+        if self.__sourceInstance is None:
             return self.__sourceVariable
         else:
             return ".".join((self.__sourceInstance, self.__sourceVariable))
@@ -59,11 +82,11 @@ class Mapping:
         else:
             return ".".join((self.__targetInstance, self.__targetVariable))
 
-    def getMapping(self):
-        if self.__mappingType == MappingType.BINDING:
-            return self.__targetVariable + ' = ' + self._source()
-        elif self.__mappingType == MappingType.EQUATION:
-            return self._source() + ' = ' + self._target() + ';\n'
+    # def getMapping(self):
+    #     if self.__mappingType == MappingType.BINDING:
+    #         return self.__targetVariable + ' = ' + self._source()
+    #     elif self.__mappingType == MappingType.EQUATION:
+    #         return self._source() + ' = ' + self._target() + ';\n'
             
 class Object:
     def __init__(self, name, text = None, package_name = None, instanceName = None):
@@ -77,6 +100,7 @@ class Object:
 
         self.children = list()
         self.instances = list()
+        self.imported_instances = list()
         self.mappings = list()
         self.text = text
 

@@ -1,4 +1,9 @@
 def model Noble62_units as
+
+    def comp MothaFuka as
+        var C_pas: m6_per_J {init: 0.00135e-6, pub: out};
+	enddef;
+
     def unit ms as
         unit second {pref: milli};
     enddef;
@@ -35,4 +40,6 @@ def model Noble62_units as
     def unit microA as
         unit ampere {pref: micro};
     enddef;
+	
+	
 enddef;

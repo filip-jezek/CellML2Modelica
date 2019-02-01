@@ -25,6 +25,8 @@ class Variable:
         self.state_variable = False
 
         self.value = next((v for v in re.findall(r'init: ([-0-9eE+.]+)', str)), None)
+        self.commented_out = False
+        self.comment = ''
     
     def returnBinding(self, prefix = None):
         if Variable.EvaluateParameters and not self.state_variable and self.value is not None:
@@ -38,15 +40,18 @@ class Variable:
         unit = 'unit = "' + self.unit + '"' if Variable.UseUnits else None
         start_string = ("start = " + self.value if self.state_variable and self.value is not None else None)
         properties_string = ", ".join((s for s in (unit, start_string) if s is not None or ''))
-        return (\
-            "input " if self.pubIn \
+        return \
+            ("// " if self.commented_out else '') \
+            + ( "input " if self.pubIn \
                 else "parameter " if not self.privIn and self.value is not None and not self.state_variable \
                 else "") \
             + "Real " + self.name \
             + '(' \
             + properties_string \
             + ")" \
-            + (" = " + self.value + ";" if not self.state_variable and self.value is not None else ";")
+            + (" = " + self.value if not self.state_variable and self.value is not None else "") \
+            + self.comment \
+            + ";"
 
 
 
@@ -185,7 +190,7 @@ class Mapping:
     #         return self._source() + ' = ' + self._target() + ';\n'
             
 class Object:
-    VERBOSE = True
+    VERBOSE = False
     def __init__(self, name, text = None, package_name = None, instance_name = None):
         self.name = name
         self.package_name = package_name

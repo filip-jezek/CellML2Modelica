@@ -11,15 +11,17 @@ import copy
 # TODO 
 # limitations: single level packages
 
-def importFiles(o:ds.Object):
+def importFiles(o:ds.Object, top:ds.Object):
     imports = re.findall(r'def import using "([a-zA-Z0-9_\.-]+)" for(.*?)enddef;', o.text, flags=re.DOTALL)
     for impor in imports:
         # isnt the file already imported?
         pckg = ds.Object.GetPackageName(impor[0])
-        child = next((child for child in o.children if child.package_name == pckg), None)
+        child = next((child for child in top.children if child.package_name == pckg), None)
         newFile = child is None
         if newFile: 
-            buildFile(impor[0], o)
+            buildFile(impor[0], o, top)
+        else:
+            print('>> Skipping ' + child.package_name)
         
         imported_line = re.findall(r"comp ([a-zA-Z0-9_.]+) using comp ([a-zA-Z0-9_.]+);", impor[1])
         for il in imported_line:
@@ -76,7 +78,7 @@ def findComponents(o:ds.Object):
     comps = re.findall(r'def comp ([a-zA-Z0-9_]+) as(.+?)enddef;', o.text, flags=re.DOTALL)
     for comp in comps:
         # child = ds.Object(comp[0], comp[1])
-        print("In " + o.package_name + ": found " + comp[0])
+        print("> In " + o.package_name + ": found " + comp[0])
         c = ds.Object(comp[0], comp[1], o.package_name)
         lines = c.text.split('\n')
         for line in lines:
@@ -84,6 +86,10 @@ def findComponents(o:ds.Object):
             var_str = re.search(r'var ([a-zA-Z0-9_]+): ([a-zA-Z0-9_]+)( \{([-a-zA-Z0-9:+, .]+)\})?;',line)
             if var_str is not None:
                 var = ds.Variable(var_str[1], var_str[2], var_str[3])
+                if next((v for v in c.variables if v.name == var.name), None) is not None:
+                    print("WARNING: FOUND DUPLICATE VARIABLE " + var.name + ' in ' + c.package_name + '.' + c.name + '! Commenting it out')
+                    var.commented_out = True
+                    var.comment = "Duplicite variable automatically commented out during CellMl Export"
                 c.variables.append(var)
             else:
                 # otherwise it may be equation - so add it to equations block
@@ -204,9 +210,9 @@ def getMappings(o:ds.Object):
 
 
 
-def buildComponents(o:ds.Object):
+def buildComponents(o:ds.Object, top):
     # look for definitions of encapsulated objects in imports from another files
-    importFiles(o)
+    importFiles(o, top)
 
     # look for components        
     findComponents(o)
@@ -222,7 +228,7 @@ def preProcess(text):
     return re.sub(r'[ ]*//.*\n', '', text)
 
 # build tree
-def buildFile(filename, o = None):
+def buildFile(filename, o = None, top = None):
     print("Opening filename " + filename)
     text = fun_lib.readCellMlFile(filename)
     text = preProcess(text)
@@ -234,11 +240,11 @@ def buildFile(filename, o = None):
     # add all instances into new model with new pakcages
         o = ds.Object(topLevel, text, pckg)
         print("> Building top-level package " + pckg )
-        buildComponents(o)
+        buildComponents(o, o)
     else:
         child = ds.Object(topLevel, text, pckg)
         print("> Building nested package " + pckg )
-        buildComponents(child)
+        buildComponents(child, o)
         # nested do not need toplevel model
         for grandchild in child.children:
             o.children.append(grandchild)

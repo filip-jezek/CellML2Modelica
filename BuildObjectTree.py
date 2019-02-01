@@ -3,6 +3,9 @@ import DataStructure as ds
 import fun_lib
 import copy
 
+# TODO rework the children model to package - top level, children 
+# limitations: single level packages
+
 def importFiles(o:ds.Object):
     imports = re.findall(r'def import using "([a-zA-Z0-9_\.-]+)" for(.*?)enddef;', o.text, flags=re.DOTALL)
     for impor in imports:
@@ -21,14 +24,80 @@ def importFiles(o:ds.Object):
             # o.imported_instances.append(inst)
             o.instances.append(inst)
 
-        
+def convertCellMlEquations(text):
+    # rid of the {dimensions}
+    text = re.sub(r'\{[a-zA-Z0-9_]+?\}', '', text)
+    # ln( to log(
+    text = re.sub(r'(?<![a-zA-Z0-9_])ln\(', r'log(', text)
+    # log( to log10
+    text = re.sub(r'(?<![a-zA-Z0-9_])log\(', r'log10(', text)
+    # pow to ^ (only simple expressions here)
+    text = re.sub(r'(?<![a-zA-Z0-9_])pow\(([a-zA-Z_0-9]+),[ ]*([0-9\.]+)\)', r'(\1^\2) ', text)
+    # # get rid of {dimensionless}
+    # text = re.sub(r'\{[a-zA-Z0-9_]+?\}', r'', text)
+    
+    # get rid of ode
+    text = re.sub(r'ode\(([a-zA-Z0-9_]+?), [a-zA-Z0-9_]+\)', r'der(\1)', text)
+    
+    # SLECTIONS to IFs
+    select_regex = re.compile(r'([ ]*=[ ]*sel.+?endsel;)', re.DOTALL)
+    selects = select_regex.findall(text)
+    for sel in selects:
+        #ifs
+        converted = re.sub(r'sel.+?case (.+?):', r'if \1 then ', sel, flags=re.DOTALL)
+        #elseifs
+        converted = re.sub(r'case(.+?):', r'elseif \1 then ', converted, flags=re.DOTALL)
+        #otherwise
+        otherwise_search = re.search('otherwise', converted)
+        if otherwise_search is not None:
+            # that was easy
+            converted = re.sub(r'otherwise:', r'else ', converted)
+        else:
+            # find the last occurence of elseif ___ and change it to else
+            es = converted.split(' else')
+            es[-1] = re.sub(r'if (.+?) then', r' /* \1 */', es[-1])
+            converted = " else".join(es)
+        # get rid of ; inbetween cases
+        converted = re.sub(';', '', converted)
+        #get rid of endsel, add the last ;
+        converted = re.sub('[ ]*endsel', ';', converted)
+        # substitute in the text
+        text = select_regex.sub(converted, text)
+    
+    return text
 
 def findComponents(o:ds.Object):
     comps = re.findall(r'def comp ([a-zA-Z0-9_]+) as(.+?)enddef;', o.text, flags=re.DOTALL)
     for comp in comps:
         # child = ds.Object(comp[0], comp[1])
         print("In " + o.package_name + ": found " + comp[0])
-        o.children.append(ds.Object(comp[0], comp[1], o.package_name))
+        c = ds.Object(comp[0], comp[1], o.package_name)
+        lines = c.text.split('\n')
+        for line in lines:
+            # if the lines contains variable definition, then add it to variables
+            var_str = re.search(r'var ([a-zA-Z0-9_]+): ([a-zA-Z0-9_]+)( \{([-a-zA-Z0-9:, .]+)\})?;',line)
+            if var_str is not None:
+                var = ds.Variable(var_str[1], var_str[2], var_str[3])
+                c.variables.append(var)
+            else:
+                # otherwise it may be equation - so add it to equations block
+                c.equations += line + "\n"
+        
+        # search through the equations - which variables are state variables?
+        stateVars = re.findall(r'ode\(([a-zA-Z0-9_]+?), [a-zA-Z0-9_]+\)', c.text)
+        for stateVar in stateVars:
+            # find the var and kill it!
+            for v in c.variables:
+                if v.name == stateVar:
+                    v.state_variable = True
+
+        # manipulate the equations block
+        c.equations = convertCellMlEquations(c.equations)
+
+        # add that dipshit to the big family
+        o.children.append(c)
+        # add also ints instance
+        o.instances.append(c)
 
 def findEncapsulations(o:ds.Object):
     encapses = re.findall(r'def group as encapsulation for(.*?)enddef;', o.text, flags=re.DOTALL)
@@ -53,11 +122,13 @@ def findEncapsulations(o:ds.Object):
                 child = copy.copy(obj)
                 # save its instance name for later
                 child.instance_name = encaps_comp
-                # child = next((c for c in o.imported_instances + o.children if c.instance_name == encaps_comp), None)
-                # only if we need the exact object
-                # child = next((c for c in o.children if c.instanceName == encaps_comp), None)
                 print(" > Encaps in " + parent.name + ": "  + child.name + ' ' + child.instance_name + ';' )
                 parent.instances.append(child)
+                
+                # now remove it from instances, as it is encapsulated and thus not on big scene anymore
+                if child in o.instances: 
+                    o.instances.remove(child)
+
 
 def findObjectInstance(o, instance_name):
     # find that object with instance name, either in current scope...
@@ -108,7 +179,7 @@ def getMappings(o:ds.Object):
             map = ds.Mapping(XX, x, YY, y)
             print(" > Found " + map.writeMappingType() + ' mapping for ' 
                 + map.ownerInstance.name
-                + ": " + map.writeOutput)
+                + ": " + str(map))
                 # in (" + XX.package_name + "." + XX.name + ') ' 
                 # + XX.instance_name + "." + x.name + ' = '
                 # + YY.instance_name + "." + y.name)
@@ -144,15 +215,15 @@ def buildFile(filename, o = None):
     text = preProcess(text)
     pckg = ds.Object.GetPackageName(filename)
     
-    topLevel = re.findall(r'def model ([a-zA-Z0-9_]+) as', text)
-
+    tl = re.search(r'def model(\{[a-zA-Z0-9_]+\})? ([a-zA-Z0-9_]+) as', text)
+    topLevel = tl[2]
     if o is None:
     # add all instances into new model with new pakcages
-        o = ds.Object(topLevel[0], text, pckg)
+        o = ds.Object(topLevel, text, pckg)
         print("Building top-level package " + pckg )
         buildComponents(o)
     else:
-        child = ds.Object(topLevel[0], text, pckg)
+        child = ds.Object(topLevel, text, pckg)
         print("> Building nested package " + pckg )
         buildComponents(child)
         # nested do not need toplevel model
@@ -162,7 +233,7 @@ def buildFile(filename, o = None):
 
 
 def buildModelicaText(o:ds.Object):
-
+    text = ''
     # get set of all packages
     pckgs = []
 
@@ -171,31 +242,49 @@ def buildModelicaText(o:ds.Object):
             pckgs.append(x.package_name)
     
     for pckg in pckgs:
-        print('PACKAGE ' + pckg)
-
+        print('BUILDING PACKAGE ' + pckg)
+        text += 'package ' + pckg + '\n'
         # package contents
         packaged_children = [c for c in o.children if c.package_name == pckg]
         for c in packaged_children:
-            print(' > model ' + c.name)
-            for m in c.mappings:
-                    print( ' >> mapping ' + m.writeOutput + ' (type ' + m.writeMappingType())
-            for gc in c.instances:
-                print(' >> instance ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_name)
-                for m in gc.mappings:
-                    print( ' >>> mapping ' + m.writeOutput)
-            
+            text += printObject(c)
         
-    # top level element and its contents
-    print(' > TOP model ' + o.name)
-    top_instances = [c for c in o.children if c.package_name == pckg]
-    for ti in top_instances:
-        print(' >> instance ' + ti.instance_name)
-        for m in ti.mappings:
-            print( ' >>> mapping ' + m.writeOutput)
+        return text + 'end ' + pckg + ';\n'
+        
+    # prepare top level element and its contents
+    print(" == TOPMODEL == ")
+    text += printObject(o)
+    return text
+
+def printObject(c):
+    print(' > model ' + c.name)
+    text = '  model ' + c.name + '\n'
+    for gc in c.instances:
+        print(' >> instance ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_name)
+        map_string = list()
+        for m in gc.mappings:
+            if m.mappingType == ds.MappingType.BINDING:
+                print( ' >>> binding ' + str(m))
+                map_string.append(str(m))
+        text += '    ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_id \
+                + ( '(' + ', '.join(map_string) + ')' if map_string is not None else '') \
+                + ';\n'
+
+
+    for v in c.variables:
+        text += '    ' + str(v) + '\n'
+    text += '  equation\n'
+    for m in c.mappings:
+        if m.mappingType == ds.MappingType.EQUATION:
+            print( ' >> eq:' + str(m) )
+            text += '    ' + str(m) + '\n'
+    
+    text += c.equations
+    text += '\n  end ' + c.name + ';\n'
+    return text
         
 
-    # TODO instances, 
-    # TODO mappings,
+    # TODO instances - not required, bc it would not work in cellml as well
     # TODO variables
     # TODO equations
     # TODO recursive children
@@ -203,9 +292,13 @@ def buildModelicaText(o:ds.Object):
 
 
 
-o = buildFile('Noble_1962.cellml')
+# o = buildFile('Noble_1962.cellml')
+o = buildFile('sodium_ion_channel.cellml')
 print('============================')
-buildModelicaText(o)
+text = buildModelicaText(o)
+
+open(o.package_name + '.mo', 'w').write(text)
+
 
     # Je to cely naopak!
     # for encaps in encapses:

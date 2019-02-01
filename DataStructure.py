@@ -11,25 +11,35 @@ class InstantiateType(Enum):
     ENCAPSULATION = 2
 
 class Variable:
+    EvaluateParameters = True
 
-    def __init__(self, name, unit, str):
+    def __init__(self, name, unit, str = ''):
         self.name = name
         self.unit = unit
+        if str is None: str = ''
         self.pubIn = True if re.search(r'pub: in', str) is not None else False
         self.pubOut = True if re.search(r'pub: out', str) is not None else False
         self.privIn = True if re.search(r'priv: in', str) is not None else False
         self.privOut = True if re.search(r'priv: out', str) is not None else False
-        self.valueType = False
+        self.state_variable = False
 
         self.value = next((v for v in re.findall(r'init: ([-0-9.]+)', str)), None)
     
     def returnBinding(self, prefix = None):
-        if self.valueType and self.value is not None:
+        if Variable.EvaluateParameters and self.state_variable and self.value is not None:
             return self.value
         elif prefix is None:
             return self.name
         else:
             return ".".join([prefix, self.name])
+    
+    def __repr__(self):
+        return ("input " if self.privIn or self.pubIn else "") \
+            + "Real " + self.name \
+            + '(unit = "' + self.unit + '"'\
+            + (", start = " + self.value if self.state_variable and self.value is not None else "") \
+            + ")" \
+            + (" = " + self.value + ";" if not self.state_variable and self.value is not None else ";")
 
 
 
@@ -71,7 +81,7 @@ class Mapping:
             self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
+            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.privOut and y.pubIn:
             # B
             self.mappingType = MappingType.BINDING
@@ -80,7 +90,7 @@ class Mapping:
             self.ownerVariable = y
             self.targetInstance = XX
             self.targetVariable = x
-            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
+            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
         elif x.pubOut and y.privIn:
             # C
             self.mappingType = MappingType.EQUATION
@@ -89,7 +99,7 @@ class Mapping:
             self.ownerVariable = y
             self.targetInstance = XX
             self.targetVariable = x
-            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
+            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.pubIn and y.privOut:
             # D
             self.mappingType = MappingType.BINDING
@@ -98,7 +108,7 @@ class Mapping:
             self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
+            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
         elif x.pubIn and y.pubOut:
             # E
             self.mappingType = MappingType.BINDING
@@ -107,7 +117,7 @@ class Mapping:
             self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
+            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.pubOut and y.pubIn:
             # F
             self.mappingType = MappingType.BINDING
@@ -116,7 +126,7 @@ class Mapping:
             self.ownerVariable = y
             self.targetInstance = XX
             self.targetVariable = x
-            self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
+            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         else:
             raise ValueError('Sumfin wen wong in mappings! Cannot recognize the type')
 
@@ -125,25 +135,36 @@ class Mapping:
             return "BINDING"
         else:
             return "EQUATION"
+    
+    def __repr__(self):
+        if  self.mappingType == MappingType.EQUATION and self.instantiateType == InstantiateType.ENCAPSULATION:
+            return self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.instance_id )
+        elif self.mappingType == MappingType.BINDING and self.instantiateType == InstantiateType.ENCAPSULATION:
+            return self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
+        elif self.mappingType == MappingType.BINDING and self.instantiateType == InstantiateType.SIBLINGS:
+            return self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.instance_id)
+        else:
+            return "???? ERROR in mapping representation of " + self.ownerInstance.name + "." + self.ownerVariable.name + "????"
+
     # def writeOutput(self):
     #     if self.mappingType = MappingType.BINDING and self.instantiateType = InstantiateType.ENCAPSULATION:
             
     #     elif self.mappingType = MappingType.BINDING and self.instantiateType = InstantiateType.ENCAPSULATION:
         
 
-    def _source(self):
-        # if Mapping.EvaluateParameters:# and self.__targetValue is not None:
-            # return self.__targetValue
-        if self.ownerInstance is None:
-            return self.ownerVariable
-        else:
-            return ".".join((self.ownerInstance, self.ownerVariable))
+    # def _source(self):
+    #     # if Mapping.EvaluateParameters:# and self.__targetValue is not None:
+    #         # return self.__targetValue
+    #     if self.ownerInstance is None:
+    #         return self.ownerVariable
+    #     else:
+    #         return ".".join((self.ownerInstance, self.ownerVariable))
 
-    def _target(self):
-        if self.targetInstance is None:
-            return self.targetVariable
-        else:
-            return ".".join((self.targetInstance, self.targetVariable))
+    # def _target(self):
+    #     if self.targetInstance is None:
+    #         return self.targetVariable
+    #     else:
+    #         return ".".join((self.targetInstance, self.targetVariable))
 
     # def getMapping(self):
     #     if self.__mappingType == MappingType.BINDING:
@@ -152,21 +173,22 @@ class Mapping:
     #         return self._source() + ' = ' + self._target() + ';\n'
             
 class Object:
-    def __init__(self, name, text = None, package_name = None, instanceName = None):
+    def __init__(self, name, text = None, package_name = None, instance_name = None):
         self.name = name
         self.package_name = package_name
-        if instanceName is None:
-            # defining convention for instance mapping names, unless specified otherwise
+        if instance_name is None:
             self.instance_name = name
-            self.uniqueInstanceName = name + "1"
         else:
-            self.instance_name = instanceName
-
+            self.instance_name = instance_name
+        # defining convention for instance mapping names, unless specified otherwise
+        self.instance_id = self.name + "1" if self.name == self.instance_name else instance_name
         self.children = list()
         self.instances = list()
         # self.imported_instances = list()
         self.mappings = list()
         self.text = text
+        self.variables = list()
+        self.equations = ""
 
     # @property
     # def children(self):

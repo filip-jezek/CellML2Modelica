@@ -17,7 +17,8 @@ def importFiles(o:ds.Object):
         # isnt the file already imported?
         pckg = ds.Object.GetPackageName(impor[0])
         child = next((child for child in o.children if child.package_name == pckg), None)
-        if child is None:
+        newFile = child is None
+        if newFile: 
             buildFile(impor[0], o)
         
         imported_line = re.findall(r"comp ([a-zA-Z0-9_.]+) using comp ([a-zA-Z0-9_.]+);", impor[1])
@@ -127,7 +128,8 @@ def findEncapsulations(o:ds.Object):
                 child = copy.copy(obj)
                 # save its instance name for later
                 child.instance_name = encaps_comp
-                print(" > Encaps in " + parent.name + ": "  + child.name + ' ' + child.instance_name + ';' )
+                if o.VERBOSE:
+                    print(" > Encaps in " + parent.name + ": "  + child.name + ' ' + child.instance_name + ';' )
                 parent.instances.append(child)
                 
                 # now remove it from instances, as it is encapsulated and thus not on big scene anymore
@@ -168,35 +170,32 @@ def findVar(objX, v):
     
     # objX = next((oo for oo in o.children if oo.name == obj_name), None)
     
-    # TODO? build another isntance because of the mapping?
-    vars = re.findall(r'var '+ v + r': ([a-zA-Z0-9_]+) \{([-a-zA-Z0-9:, .]+)\};', objX.text)
-    for var in vars:
-        return ds.Variable(v, var[0], var[1])
+    # vars = re.findall(r'var '+ v + r': ([a-zA-Z0-9_]+) \{([-a-zA-Z0-9:, .]+)\};', objX.text)
+    return next((var for var in objX.variables if var.name == v), None)
+    # for var in vars:
+    #     return ds.Variable(v, var[0], var[1])
 
 def getMappings(o:ds.Object):
-    print("Getting mappings for package " + o.package_name)
+    print("> Getting mappings for package " + o.package_name)
     mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for(.+?)enddef;', o.text, re.DOTALL)
 
     for mapping in mappings:
-        if mapping[0] == 'Na_channel':
-            print('d')
-
         XX = findObjectInstance(o, mapping[0])
         YY = findObjectInstance(o, mapping[1])
         if XX is None or YY is None:
             raise ValueError("sumfin wen wong: the instance could not be found")
         varmaps = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', mapping[2])
         for varmap in varmaps:
+            # if varmap[0] == 'R_svl':
+            #     print()
             x = findVar(XX, varmap[0])
             y = findVar(YY, varmap[1])
             # # find vars
             map = ds.Mapping(XX, x, YY, y)
-            print(" > Found " + map.writeMappingType() + ' mapping for ' 
-                + map.ownerInstance.name
-                + ": " + str(map))
-                # in (" + XX.package_name + "." + XX.name + ') ' 
-                # + XX.instance_name + "." + x.name + ' = '
-                # + YY.instance_name + "." + y.name)
+            if o.VERBOSE:
+                print(">> Found " + map.writeMappingType() + ' mapping for ' 
+                    + map.ownerInstance.name
+                    + ": " + str(map))
             # if map.instantiateType == ds.InstantiateType.ENCAPSULATION:
             map.ownerInstance.mappings.append(map)
             # else:
@@ -234,7 +233,7 @@ def buildFile(filename, o = None):
     if o is None:
     # add all instances into new model with new pakcages
         o = ds.Object(topLevel, text, pckg)
-        print("Building top-level package " + pckg )
+        print("> Building top-level package " + pckg )
         buildComponents(o)
     else:
         child = ds.Object(topLevel, text, pckg)
@@ -324,10 +323,9 @@ def printObject(c):
 
 
 
-# o = buildFile('Noble_1962.cellml')
-# o = buildFile('new_Noble_1962.cellml')
 # o = buildFile('sodium_ion_channel.cellml')
-o = buildFile('main_ADAN-86.cellml')
+o = buildFile('Noble_1962.cellml')
+# o = buildFile('main_ADAN-86.cellml')
 print('============================')
 text = buildModelicaText(o)
 

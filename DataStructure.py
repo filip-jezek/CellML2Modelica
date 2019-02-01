@@ -185,6 +185,7 @@ class Mapping:
     #         return self._source() + ' = ' + self._target() + ';\n'
             
 class Object:
+    VERBOSE = True
     def __init__(self, name, text = None, package_name = None, instance_name = None):
         self.name = name
         self.package_name = package_name

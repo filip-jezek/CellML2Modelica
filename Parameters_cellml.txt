@@ -1,4 +1,4 @@
-def model Parameters as
+ def model Parameters as
     def comp Parameters_Pulmonary as
         var C_pas: m6_per_J {init: 0.00135e-6, pub: out};
         var C_pat: m6_per_J {init: 0.0285e-6, pub: out};
@@ -183,41 +183,77 @@ def model Parameters as
 
         // Speed
 
-        var E_LM_1: J_per_m3 {init: 7.9, pub: out};
-        var E_LAD1_2: J_per_m3 {init: 8.3, pub: out};
-        var E_LAD2_3: J_per_m3 {init: 8.3, pub: out};
-        var E_LAD3_4: J_per_m3 {init: 8.4e-3, pub: out};
-        var E_LAD4_5: J_per_m3 {init: 8.6e-3, pub: out};
-        var E_LAD5_6: J_per_m3 {init: 9.0e-3, pub: out};
-        var E_LAD6_7: J_per_m3 {init: 9.1e-3, pub: out};
-        var E_LAD7_8: J_per_m3 {init: 9.6e-3, pub: out};
-        var E_LAD8_9: J_per_m3 {init: 9.8e-3, pub: out};
-        var E_LAD9_10: J_per_m3 {init: 10.5e-3, pub: out};
-        var E_LAD10_11: J_per_m3 {init: 10.8e-3, pub: out};
-        var E_LAD11_12: J_per_m3 {init: 11.2e-3, pub: out};
-        var E_LAD12_13: J_per_m3 {init: 12.1e-3, pub: out};
-        var E_LAD13_14: J_per_m3 {init: 13.3e-3, pub: out};
-        var E_LAD14_15: J_per_m3 {init: 14.6e-3, pub: out};
-        var E_LAD15_16: J_per_m3 {init: 15.6e-3, pub: out};
-        var E_S1a_17: J_per_m3 {init: 10.9e-3, pub: out};
-        var E_S1b_18: J_per_m3 {init: 13.7e-3, pub: out};
-        var E_S1c_19: J_per_m3 {init: 15.1e-3, pub: out};
-        var E_S2a_20: J_per_m3 {init: 14.6e-3, pub: out};
-        var E_S2b_21: J_per_m3 {init: 15.5e-3, pub: out};
-        var E_S3a_22: J_per_m3 {init: 14.6e-3, pub: out};
-        var E_S3b_23: J_per_m3 {init: 15.5e-3, pub: out};
-        var E_D1a_24: J_per_m3 {init: 10.9e-3, pub: out};
-        var E_D1b_25: J_per_m3 {init: 11.5e-3, pub: out};
-        var E_D1c_26: J_per_m3 {init: 12.9e-3, pub: out};
-        var E_D1d_27: J_per_m3 {init: 14.1e-3, pub: out};
-        var E_D2a_28: J_per_m3 {init: 11.5e-3, pub: out};
-        var E_D2b_29: J_per_m3 {init: 12.1e-3, pub: out};
-        var E_D2c_30: J_per_m3 {init: 13.3e-3, pub: out};
-        var E_D2d_31: J_per_m3 {init: 14.6e-3, pub: out};
-        var E_D3a_32: J_per_m3 {init: 12.1e-3, pub: out};
-        var E_D3b_33: J_per_m3 {init: 12.5e-3, pub: out};
-        var E_D3c_34: J_per_m3 {init: 13.7e-3, pub: out};
-        var E_D3d_35: J_per_m3 {init: 15.0e-3, pub: out};
+        //        var E_LM_1: J_per_m3 {init: 7.9, pub: out};
+        //        var E_LAD1_2: J_per_m3 {init: 8.3, pub: out};
+        //        var E_LAD2_3: J_per_m3 {init: 8.3, pub: out};
+        //        var E_LAD3_4: J_per_m3 {init: 8.4, pub: out};
+        //        var E_LAD4_5: J_per_m3 {init: 8.6, pub: out};
+        //        var E_LAD5_6: J_per_m3 {init: 9.0, pub: out};
+        //        var E_LAD6_7: J_per_m3 {init: 9.1, pub: out};
+        //        var E_LAD7_8: J_per_m3 {init: 9.6, pub: out};
+        //        var E_LAD8_9: J_per_m3 {init: 9.8, pub: out};
+        //        var E_LAD9_10: J_per_m3 {init: 10.5, pub: out};
+        //        var E_LAD10_11: J_per_m3 {init: 10.8, pub: out};
+        //        var E_LAD11_12: J_per_m3 {init: 11.2, pub: out};
+        //        var E_LAD12_13: J_per_m3 {init: 12.1, pub: out};
+        //        var E_LAD13_14: J_per_m3 {init: 13.3, pub: out};
+        //        var E_LAD14_15: J_per_m3 {init: 14.6, pub: out};
+        //        var E_LAD15_16: J_per_m3 {init: 15.6, pub: out};
+        //        var E_S1a_17: J_per_m3 {init: 10.9, pub: out};
+        //        var E_S1b_18: J_per_m3 {init: 13.7, pub: out};
+        //        var E_S1c_19: J_per_m3 {init: 15.1, pub: out};
+        //        var E_S2a_20: J_per_m3 {init: 14.6, pub: out};
+        //        var E_S2b_21: J_per_m3 {init: 15.5, pub: out};
+        //        var E_S3a_22: J_per_m3 {init: 14.6, pub: out};
+        //        var E_S3b_23: J_per_m3 {init: 15.5, pub: out};
+        //        var E_D1a_24: J_per_m3 {init: 10.9, pub: out};
+        //        var E_D1b_25: J_per_m3 {init: 11.5, pub: out};
+        //        var E_D1c_26: J_per_m3 {init: 12.9, pub: out};
+        //        var E_D1d_27: J_per_m3 {init: 14.1, pub: out};
+        //        var E_D2a_28: J_per_m3 {init: 11.5, pub: out};
+        //        var E_D2b_29: J_per_m3 {init: 12.1, pub: out};
+        //        var E_D2c_30: J_per_m3 {init: 13.3, pub: out};
+        //        var E_D2d_31: J_per_m3 {init: 14.6, pub: out};
+        //        var E_D3a_32: J_per_m3 {init: 12.1, pub: out};
+        //        var E_D3b_33: J_per_m3 {init: 12.5, pub: out};
+        //        var E_D3c_34: J_per_m3 {init: 13.7, pub: out};
+        //        var E_D3d_35: J_per_m3 {init: 15.0, pub: out};
+
+        var E_LM_1: J_per_m3 {init: 0.62e+6, pub: out};
+        var E_LAD1_2: J_per_m3 {init: 0.64e+6, pub: out};
+        var E_LAD2_3: J_per_m3 {init: 0.642e+6, pub: out};
+        var E_LAD3_4: J_per_m3 {init: 0.648e+6, pub: out};
+        var E_LAD4_5: J_per_m3 {init: 0.659e+6, pub: out};
+        var E_LAD5_6: J_per_m3 {init: 0.693e+6, pub: out};
+        var E_LAD6_7: J_per_m3 {init: 0.708e+6, pub: out};
+        var E_LAD7_8: J_per_m3 {init: 0.758e+6, pub: out};
+        var E_LAD8_9: J_per_m3 {init: 0.776e+6, pub: out};
+        var E_LAD9_10: J_per_m3 {init: 0.846e+6, pub: out};
+        var E_LAD10_11: J_per_m3 {init: 0.884e+6, pub: out};
+        var E_LAD11_12: J_per_m3 {init: 0.932e+6, pub: out};
+        var E_LAD12_13: J_per_m3 {init: 1.05e+6, pub: out};
+        var E_LAD13_14: J_per_m3 {init: 1.2e+6, pub: out};
+        var E_LAD14_15: J_per_m3 {init: 1.4e+6, pub: out};
+        var E_LAD15_16: J_per_m3 {init: 1.55e+6, pub: out};
+        var E_S1a_17: J_per_m3 {init: 0.9e+6, pub: out};
+        var E_S1b_18: J_per_m3 {init: 1.26e+6, pub: out};
+        var E_S1c_19: J_per_m3 {init: 1.47e+6, pub: out};
+        var E_S2a_20: J_per_m3 {init: 1.4e+6, pub: out};
+        var E_S2b_21: J_per_m3 {init: 1.53e+6, pub: out};
+        var E_S3a_22: J_per_m3 {init: 1.4e+6, pub: out};
+        var E_S3b_23: J_per_m3 {init: 1.53e+6, pub: out};
+        var E_D1a_24: J_per_m3 {init: 0.9e+6, pub: out};
+        var E_D1b_25: J_per_m3 {init: 0.97e+6, pub: out};
+        var E_D1c_26: J_per_m3 {init: 1.15e+6, pub: out};
+        var E_D1d_27: J_per_m3 {init: 1.33e+6, pub: out};
+        var E_D2a_28: J_per_m3 {init: 0.97e+6, pub: out};
+        var E_D2b_29: J_per_m3 {init: 1.05e+6, pub: out};
+        var E_D2c_30: J_per_m3 {init: 1.2e+6, pub: out};
+        var E_D2d_31: J_per_m3 {init: 1.39e+6, pub: out};
+        var E_D3a_32: J_per_m3 {init: 1.05e+6, pub: out};
+        var E_D3b_33: J_per_m3 {init: 1.1e+6, pub: out};
+        var E_D3c_34: J_per_m3 {init: 1.26e+6, pub: out};
+        var E_D3d_35: J_per_m3 {init: 1.45e+6, pub: out};
     enddef;
 
     def comp Parameters_Systemic as

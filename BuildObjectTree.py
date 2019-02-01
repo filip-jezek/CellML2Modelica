@@ -80,7 +80,7 @@ def findComponents(o:ds.Object):
         lines = c.text.split('\n')
         for line in lines:
             # if the lines contains variable definition, then add it to variables
-            var_str = re.search(r'var ([a-zA-Z0-9_]+): ([a-zA-Z0-9_]+)( \{([-a-zA-Z0-9:, .]+)\})?;',line)
+            var_str = re.search(r'var ([a-zA-Z0-9_]+): ([a-zA-Z0-9_]+)( \{([-a-zA-Z0-9:+, .]+)\})?;',line)
             if var_str is not None:
                 var = ds.Variable(var_str[1], var_str[2], var_str[3])
                 c.variables.append(var)
@@ -324,9 +324,10 @@ def printObject(c):
 
 
 
-o = buildFile('Noble_1962.cellml')
+# o = buildFile('Noble_1962.cellml')
 # o = buildFile('new_Noble_1962.cellml')
 # o = buildFile('sodium_ion_channel.cellml')
+o = buildFile('main_ADAN-86.cellml')
 print('============================')
 text = buildModelicaText(o)
 

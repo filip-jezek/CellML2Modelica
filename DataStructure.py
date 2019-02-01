@@ -24,7 +24,7 @@ class Variable:
         self.privOut = True if re.search(r'priv: out', str) is not None else False
         self.state_variable = False
 
-        self.value = next((v for v in re.findall(r'init: ([-0-9.]+)', str)), None)
+        self.value = next((v for v in re.findall(r'init: ([-0-9eE+.]+)', str)), None)
     
     def returnBinding(self, prefix = None):
         if Variable.EvaluateParameters and not self.state_variable and self.value is not None:

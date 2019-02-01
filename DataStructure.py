@@ -26,7 +26,7 @@ class Variable:
         self.value = next((v for v in re.findall(r'init: ([-0-9.]+)', str)), None)
     
     def returnBinding(self, prefix = None):
-        if Variable.EvaluateParameters and self.state_variable and self.value is not None:
+        if Variable.EvaluateParameters and not self.state_variable and self.value is not None:
             return self.value
         elif prefix is None:
             return self.name
@@ -72,6 +72,11 @@ class Mapping:
 
     def __init__(
         self, XX , x, YY, y):
+
+        if XX.hasInstance(YY) or YY.hasInstance(XX):
+            self.instantiateType = InstantiateType.ENCAPSULATION
+        else:
+            self.instantiateType = InstantiateType.SIBLINGS
 
         if   x.privIn and y.pubOut:
             # A
@@ -202,7 +207,7 @@ class Object:
     def GetPackageName(cellml_filename):
         return re.sub(r'[\.\-]', r'_', cellml_filename)
     
-    def hasInstance(self, obj:Object):
+    def hasInstance(self, obj):
         for o in self.instances:
             if o.instance_name == obj.instance_name:
                 return True

@@ -4,6 +4,8 @@ import fun_lib
 import copy
 
 # TODO rework the children model to package - top level, children 
+# TODO annotations
+# TODO 
 # limitations: single level packages
 
 def importFiles(o:ds.Object):
@@ -126,8 +128,9 @@ def findEncapsulations(o:ds.Object):
                 parent.instances.append(child)
                 
                 # now remove it from instances, as it is encapsulated and thus not on big scene anymore
-                if obj in o.instances: 
-                    o.instances.remove(obj)
+                for obj in o.instances: 
+                    if obj.instance_name == encaps_comp:
+                        o.instances.remove(obj)
 
 
 def findObjectInstance(o, instance_name):
@@ -141,6 +144,11 @@ def findObjectInstance(o, instance_name):
             # or in imports (therefore different isntance name from object name)
             if objx.instance_name == instance_name:
                 return objx 
+            # or in encapsulations hidden somewhere
+            r = findObjectInstance(objx, instance_name)
+            if r is not None: return r
+    return None
+                
                 
     # objX = next((oo for oo in o.children + o.instances if oo.package_name == o.package_name), None)
     # 

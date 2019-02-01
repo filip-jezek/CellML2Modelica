@@ -34,7 +34,7 @@ class Variable:
             return ".".join([prefix, self.name])
     
     def __repr__(self):
-        return ("input " if self.privIn or self.pubIn else "") \
+        return ("input " if self.pubIn else "") \
             + "Real " + self.name \
             + '(unit = "' + self.unit + '"'\
             + (", start = " + self.value if self.state_variable and self.value is not None else "") \
@@ -202,6 +202,13 @@ class Object:
     def GetPackageName(cellml_filename):
         return re.sub(r'[\.\-]', r'_', cellml_filename)
     
+    def hasInstance(self, obj:Object):
+        for o in self.instances:
+            if o.instance_name == obj.instance_name:
+                return True
+        return False
+
+
     def __str__(self):
         return ".".join((self.package_name, self.name))
     

@@ -126,8 +126,8 @@ def findEncapsulations(o:ds.Object):
                 parent.instances.append(child)
                 
                 # now remove it from instances, as it is encapsulated and thus not on big scene anymore
-                if child in o.instances: 
-                    o.instances.remove(child)
+                if obj in o.instances: 
+                    o.instances.remove(obj)
 
 
 def findObjectInstance(o, instance_name):
@@ -233,7 +233,8 @@ def buildFile(filename, o = None):
 
 
 def buildModelicaText(o:ds.Object):
-    text = ''
+    top_package = o.package_name + '_converted'
+    text = 'package ' + top_package + '\n'
     # get set of all packages
     pckgs = []
 
@@ -249,11 +250,12 @@ def buildModelicaText(o:ds.Object):
         for c in packaged_children:
             text += printObject(c)
         
-        return text + 'end ' + pckg + ';\n'
+        text += 'end ' + pckg + ';\n'
         
     # prepare top level element and its contents
     print(" == TOPMODEL == ")
     text += printObject(o)
+    text += 'end ' + top_package + ';\n'
     return text
 
 def printObject(c):
@@ -274,10 +276,19 @@ def printObject(c):
     for v in c.variables:
         text += '    ' + str(v) + '\n'
     text += '  equation\n'
+    
+    # the top-level environments have usually time
+    # correctly, it could be named in any way, as long as it is bound to any derivative
+    # but usually it is 't' or 'time'. Lets say it starts with t
+    if c.name == 'environment':
+        time_var = re.search(r'var ([tT][a-zA-Z0-9]*):', c.text)
+        text += '    // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES\n'
+        text += '    ' + time_var[1] + ' = time;\n'
+    
     for m in c.mappings:
         if m.mappingType == ds.MappingType.EQUATION:
             print( ' >> eq:' + str(m) )
-            text += '    ' + str(m) + '\n'
+            text += '    ' + str(m) + ';\n'
     
     text += c.equations
     text += '\n  end ' + c.name + ';\n'
@@ -292,8 +303,8 @@ def printObject(c):
 
 
 
-# o = buildFile('Noble_1962.cellml')
-o = buildFile('sodium_ion_channel.cellml')
+o = buildFile('Noble_1962.cellml')
+# o = buildFile('sodium_ion_channel.cellml')
 print('============================')
 text = buildModelicaText(o)
 

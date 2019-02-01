@@ -11,7 +11,8 @@ class InstantiateType(Enum):
     ENCAPSULATION = 2
 
 class Variable:
-    EvaluateParameters = True
+    EvaluateParameters = False
+    UseUnits = False
 
     def __init__(self, name, unit, str = ''):
         self.name = name
@@ -34,10 +35,16 @@ class Variable:
             return ".".join([prefix, self.name])
     
     def __repr__(self):
-        return ("input " if self.pubIn else "") \
+        unit = 'unit = "' + self.unit + '"' if Variable.UseUnits else None
+        start_string = ("start = " + self.value if self.state_variable and self.value is not None else None)
+        properties_string = ", ".join((s for s in (unit, start_string) if s is not None or ''))
+        return (\
+            "input " if self.pubIn \
+                else "parameter " if not self.privIn and self.value is not None and not self.state_variable \
+                else "") \
             + "Real " + self.name \
-            + '(unit = "' + self.unit + '"'\
-            + (", start = " + self.value if self.state_variable and self.value is not None else "") \
+            + '(' \
+            + properties_string \
             + ")" \
             + (" = " + self.value + ";" if not self.state_variable and self.value is not None else ";")
 
@@ -73,12 +80,12 @@ class Mapping:
     def __init__(
         self, XX , x, YY, y):
 
-        if XX.hasInstance(YY) or YY.hasInstance(XX):
-            self.instantiateType = InstantiateType.ENCAPSULATION
-        else:
-            self.instantiateType = InstantiateType.SIBLINGS
+        # if XX.hasInstance(YY) or YY.hasInstance(XX):
+        #     self.instantiateType = InstantiateType.ENCAPSULATION
+        # else:
+        #     self.instantiateType = InstantiateType.SIBLINGS
 
-        if   x.privIn and y.pubOut:
+        if   x.privIn and y.pubOut and XX.hasInstance(YY):
             # A
             self.mappingType = MappingType.EQUATION
             self.instantiateType = InstantiateType.ENCAPSULATION
@@ -87,7 +94,7 @@ class Mapping:
             self.targetInstance = YY
             self.targetVariable = y
             # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
-        elif x.privOut and y.pubIn:
+        elif x.privOut and y.pubIn and XX.hasInstance(YY):
             # B
             self.mappingType = MappingType.BINDING
             self.instantiateType = InstantiateType.ENCAPSULATION
@@ -96,7 +103,7 @@ class Mapping:
             self.targetInstance = XX
             self.targetVariable = x
             # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
-        elif x.pubOut and y.privIn:
+        elif x.pubOut and y.privIn and YY.hasInstance(XX):
             # C
             self.mappingType = MappingType.EQUATION
             self.instantiateType = InstantiateType.ENCAPSULATION
@@ -105,7 +112,7 @@ class Mapping:
             self.targetInstance = XX
             self.targetVariable = x
             # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
-        elif x.pubIn and y.privOut:
+        elif x.pubIn and y.privOut and YY.hasInstance(XX):
             # D
             self.mappingType = MappingType.BINDING
             self.instantiateType = InstantiateType.ENCAPSULATION
@@ -185,8 +192,8 @@ class Object:
             self.instance_name = name
         else:
             self.instance_name = instance_name
-        # defining convention for instance mapping names, unless specified otherwise
-        self.instance_id = self.name + "1" if self.name == self.instance_name else instance_name
+        
+        self.__instance_id = None
         self.children = list()
         self.instances = list()
         # self.imported_instances = list()
@@ -194,6 +201,19 @@ class Object:
         self.text = text
         self.variables = list()
         self.equations = ""
+
+    @property
+    def instance_id(self):
+        # defining convention for instance mapping names, unless specified otherwise
+        if self.__instance_id is None:
+            # defining convention for instance mapping names, unless specified otherwise
+            return self.name + "1" if self.name == self.instance_name else self.instance_name
+        else:
+            self.__instance_id
+
+    @instance_id.setter
+    def instance_id(self, id):
+        self.__instance_id = id
 
     # @property
     # def children(self):

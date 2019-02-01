@@ -64,11 +64,11 @@ def model Noble_1962 as
         ode(V, t) = -(i_Na+i_K+i_L)/Cm;
     enddef;
 
-    def map between membrane and environment  for
+    def map between membrane and environment for
         vars t and t;
     enddef;
 
-    def map between Na_channel and membrane  for
+    def map between Na_channel and membrane for
         vars V and V;
         vars t and t;
         vars Nai and Nai;

@@ -3,6 +3,9 @@ import DataStructure as ds
 import fun_lib
 import copy
 
+# TODO variables with equations are parameters
+# TODO time in environment does not have equation
+
 # TODO rework the children model to package - top level, children 
 # TODO annotations
 # TODO 
@@ -29,10 +32,10 @@ def importFiles(o:ds.Object):
 def convertCellMlEquations(text):
     # rid of the {dimensions}
     text = re.sub(r'\{[a-zA-Z0-9_]+?\}', '', text)
-    # ln( to log(
-    text = re.sub(r'(?<![a-zA-Z0-9_])ln\(', r'log(', text)
     # log( to log10
     text = re.sub(r'(?<![a-zA-Z0-9_])log\(', r'log10(', text)
+    # ln( to log(
+    text = re.sub(r'(?<![a-zA-Z0-9_])ln\(', r'log(', text)
     # pow to ^ (only simple expressions here)
     text = re.sub(r'(?<![a-zA-Z0-9_])pow\(([a-zA-Z_0-9]+),[ ]*([0-9\.]+)\)', r'(\1^\2) ', text)
     # # get rid of {dimensionless}
@@ -172,13 +175,16 @@ def findVar(objX, v):
 
 def getMappings(o:ds.Object):
     print("Getting mappings for package " + o.package_name)
-    # mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for\n(.+?)enddef;'
-    #     , o.text, re.DOTALL)
     mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for(.+?)enddef;', o.text, re.DOTALL)
-    
+
     for mapping in mappings:
+        if mapping[0] == 'Na_channel':
+            print('d')
+
         XX = findObjectInstance(o, mapping[0])
         YY = findObjectInstance(o, mapping[1])
+        if XX is None or YY is None:
+            raise ValueError("sumfin wen wong: the instance could not be found")
         varmaps = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', mapping[2])
         for varmap in varmaps:
             x = findVar(XX, varmap[0])
@@ -281,18 +287,25 @@ def printObject(c):
                 + ';\n'
 
 
-    for v in c.variables:
-        text += '    ' + str(v) + '\n'
-    text += '  equation\n'
-    
     # the top-level environments have usually time
     # correctly, it could be named in any way, as long as it is bound to any derivative
     # but usually it is 't' or 'time'. Lets say it starts with t
     if c.name == 'environment':
-        time_var = re.search(r'var ([tT][a-zA-Z0-9]*):', c.text)
-        text += '    // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES\n'
-        text += '    ' + time_var[1] + ' = time;\n'
-    
+        # time_var = re.search(r'var ([tT][a-zA-Z0-9]*):', c.text)
+        time_var = next((v for v in c.variables if re.match('[t|T]', v.name) is not None), None)
+        if time_var is None:
+            c.equations = '    // Time variable not found\n'  + c.equations
+        else:
+            #  fake it into state var, just in case it does have start value, so it doesnt create equation = 0
+            time_var.state_variable = True
+            c.equations = '    ' + time_var.name + ' = time;\n' + c.equations
+            c.equations = '    // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES\n' + c.equations                
+
+    for v in c.variables:
+        text += '    ' + str(v) + '\n'
+    text += '  equation\n'
+
+
     for m in c.mappings:
         if m.mappingType == ds.MappingType.EQUATION:
             print( ' >> eq:' + str(m) )
@@ -312,6 +325,7 @@ def printObject(c):
 
 
 o = buildFile('Noble_1962.cellml')
+# o = buildFile('new_Noble_1962.cellml')
 # o = buildFile('sodium_ion_channel.cellml')
 print('============================')
 text = buildModelicaText(o)

@@ -1,0 +1,536 @@
+ def model Units as
+    // displacement
+
+    def unit mm as
+        unit metre {pref: milli};
+    enddef;
+
+    // area
+
+    def unit m2 as
+        unit metre {expo: 2};
+    enddef;
+
+    def unit mm2 as
+        unit metre {pref: milli, expo: 2};
+    enddef;
+
+    // volume
+
+    def unit m3 as
+        unit metre {expo: 3};
+    enddef;
+
+    def unit mm3 as
+        unit metre {pref: milli, expo: 3};
+    enddef;
+
+    /////////////////////////
+    // power
+
+    def unit J_per_s as
+        unit joule;
+        unit second {expo: -1};
+    enddef;
+
+    //////////////////////////
+    // flow (molar)
+
+    def unit mol_per_s as
+        unit mole;
+        unit second {expo: -1};
+    enddef;
+
+    def unit mmol_per_s as
+        unit mole {pref: milli};
+        unit second {expo: -1};
+    enddef;
+
+    def unit umol_per_s as
+        unit mole {pref: micro};
+        unit second {expo: -1};
+    enddef;
+
+    def unit nmol_per_s as
+        unit mole {pref: nano};
+        unit second {expo: -1};
+    enddef;
+
+    // flow (current)
+
+    def unit C_per_s as
+        unit coulomb;
+        unit second {expo: -1};
+    enddef;
+
+    def unit mC_per_s as
+        unit coulomb {pref: milli};
+        unit second {expo: -1};
+    enddef;
+
+    def unit uC_per_s as
+        unit coulomb {pref: micro};
+        unit second {expo: -1};
+    enddef;
+
+    def unit nC_per_s as
+        unit coulomb {pref: nano};
+        unit second {expo: -1};
+    enddef;
+
+    // flow (velocity)
+
+    def unit m_per_s as
+        unit metre;
+        unit second {expo: -1};
+    enddef;
+
+    def unit mm_per_s as
+        unit metre {pref: milli};
+        unit second {expo: -1};
+    enddef;
+
+    def unit um_per_s as
+        unit metre {pref: milli};
+        unit second {expo: -1};
+    enddef;
+
+    def unit rad_per_s as
+        unit radian;
+        unit second {expo: -1};
+    enddef;
+
+    // flow (volumetric)
+
+    def unit m3_per_s as
+        unit metre {expo: 3};
+        unit second {expo: -1};
+    enddef;
+
+    def unit mm3_per_s as
+        unit metre {pref: milli, expo: 3};
+        unit second {expo: -1};
+    enddef;
+
+    def unit l_per_s as
+        unit litre;
+        unit second {expo: -1};
+    enddef;
+
+    //////////////////////////
+    // potential (chemical)
+
+    def unit J_per_mol as
+        unit joule;
+        unit mole {expo: -1};
+    enddef;
+
+    // potential (voltage)
+
+    def unit J_per_C as
+        unit joule;
+        unit coulomb {expo: -1};
+    enddef;
+
+    def unit J_per_C_s as
+        unit joule;
+        unit coulomb {expo: -1};
+        unit second {expo: -1};
+    enddef;
+
+    // potential (force)
+
+    def unit J_per_m as
+        unit joule;
+        unit metre {expo: -1};
+    enddef;
+
+    // potential (pressure)
+
+    def unit J_per_m3 as
+        unit joule;
+        unit metre {expo: -3};
+    enddef;
+
+    def unit J_per_m3_s as
+        unit joule;
+        unit metre {expo: -3};
+        unit second {expo: -1};
+    enddef;
+
+    ////////////////////////
+    // inductance
+
+    def unit Js2_per_mol2 as
+        unit joule;
+        unit second {expo: 2};
+        unit mole {expo: -2};
+    enddef;
+
+    // elastance
+
+    def unit Js_per_mol2 as
+        unit joule;
+        unit second;
+        unit mole {expo: -2};
+    enddef;
+
+    // resistance
+
+    def unit J_per_mol2 as
+        unit joule;
+        unit mole {expo: -2};
+    enddef;
+
+    // conductance
+
+    def unit C2_per_J_s as
+        unit coulomb {expo: 2};
+        unit joule {expo: -1};
+        unit second {expo: -1};
+    enddef;
+
+    // capacitance
+
+    def unit J_per_C2 as
+        unit joule {expo: 1};
+        unit coulomb {expo: -2};
+    enddef;
+
+    def unit C2_per_J as
+        unit joule {expo: 1};
+        unit coulomb {expo: -2};
+    enddef;
+
+    /////////////////////////
+    // concentration (molar)
+
+    def unit mol_per_m3 as
+        unit mole;
+        unit metre {expo: -3};
+    enddef;
+
+    // concentration (M)
+
+    def unit M as
+        unit mole;
+        unit litre {expo: -1};
+    enddef;
+
+    // concentration (mM)
+
+    def unit mM as
+        unit mole {pref: milli};
+        unit litre {expo: -1};
+    enddef;
+
+    // concentration (uM)
+
+    def unit uM as
+        unit mole {pref: micro};
+        unit litre {expo: -1};
+    enddef;
+
+    // concentration (mass)
+
+    def unit kg_per_m3 as
+        unit kilogram;
+        unit metre {expo: -3};
+    enddef;
+
+    // concentration (number)
+
+    def unit per_m3 as
+        unit metre {expo: -3};
+    enddef;
+
+    /////////////////////////
+    // flux (diffusion)
+
+    def unit mol_per_m2_s as
+        unit mole;
+        unit metre {expo: -2};
+        unit second {expo: -1};
+    enddef;
+
+    // flux (M)
+
+    def unit mM_m_per_s as
+        unit mM;
+        unit metre;
+        unit second {expo: -1};
+    enddef;
+
+    // flux (energy)
+
+    def unit J_per_m2_s as
+        unit joule;
+        unit metre {expo: -2};
+        unit second {expo: -1};
+    enddef;
+
+    // flux (mass)
+
+    def unit Js_per_m4 as
+        unit joule;
+        unit second;
+        unit metre {expo: -4};
+    enddef;
+
+    /////////////////////////
+    // reaction rate (order0)
+
+    def unit mM_per_s as
+        unit mM;
+        unit second {expo: -1};
+    enddef;
+
+    // reaction rate (order1)
+
+    def unit per_s as
+        unit second {expo: -1};
+    enddef;
+
+    // reaction rate (order2)
+
+    def unit per_mM_s as
+        unit mM {expo: -1};
+        unit second {expo: -1};
+    enddef;
+
+    // reaction rate (order3)
+
+    def unit m6_per_mol2_s as
+        unit metre {expo: 6};
+        unit mole {expo: -2};
+        unit second {expo: -1};
+    enddef;
+
+    def unit m3_per_mol as
+        unit metre {expo: 3};
+        unit mole {expo: -1};
+    enddef;
+
+    def unit mol_per_m3_s as
+        unit mole {expo: 1};
+        unit metre {expo: -3};
+        unit second {expo: -1};
+    enddef;
+
+    /////////////////////////
+    // rate constant
+
+    def unit per_mol as
+        unit mole {expo: -1};
+    enddef;
+
+    // gas constant
+
+    def unit J_per_mol_K as
+        unit joule;
+        unit mole {expo: -1};
+        unit kelvin {expo: -1};
+    enddef;
+
+    // faraday constant
+
+    def unit C_per_mol as
+        unit coulomb;
+        unit mole {expo: -1};
+    enddef;
+
+    // diffusivity (mass)
+
+    def unit m2_per_s as
+        unit metre {expo: 2};
+        unit second {expo: -1};
+    enddef;
+
+    def unit per_C as
+        unit coulomb {expo: -1};
+    enddef;
+
+    def unit per_m as
+        unit metre {expo: -1};
+    enddef;
+
+    def unit per_mM as
+        unit mM {expo: -1};
+    enddef;
+
+    //////////////////////// Mechanical System /////////////////////
+    // inductance
+
+    def unit J_s2_per_m2 as
+        unit joule;
+        unit second {expo: 2};
+        unit metre {expo: -2};
+    enddef;
+
+    // elastance
+
+    def unit J_s_per_m2 as
+        unit joule;
+        unit second;
+        unit metre {expo: -2};
+    enddef;
+
+    // resistance
+
+    def unit J_per_m2 as
+        unit joule;
+        unit metre {expo: -2};
+    enddef;
+
+    // Acceleration
+
+    def unit m_per_s2 as
+        unit metre;
+        unit second {expo: -2};
+    enddef;
+
+    def unit rad_per_s2 as
+        unit radian;
+        unit second {expo: -2};
+    enddef;
+
+    //////////////////////// Fluid System /////////////////////
+    // Dynamic Viscosity (Pa.s)
+
+    def unit J_s_per_m3 as
+        unit joule;
+        unit second;
+        unit metre {expo: -3};
+    enddef;
+
+    // Density (kg/m3)
+
+    def unit J_s2_per_m5 as
+        unit joule;
+        unit second {expo: 2};
+        unit metre {expo: -5};
+    enddef;
+
+    // Compliance
+
+    def unit J_per_m6 as
+        unit joule;
+        unit metre {expo: -6};
+    enddef;
+
+    // Elastance
+
+    def unit m6_per_J as
+        unit metre {expo: 6};
+        unit joule {expo: -1};
+    enddef;
+
+    // Resistance
+
+    def unit J_s_per_m6 as
+        unit joule;
+        unit second;
+        unit metre {expo: -6};
+    enddef;
+
+    // Inertia
+
+    def unit J_s2_per_m6 as
+        unit joule;
+        unit second {expo: 2};
+        unit metre {expo: -6};
+    enddef;
+
+    // Acceleration
+
+    def unit m3_per_s2 as
+        unit metre {expo: 3};
+        unit second {expo: -2};
+    enddef;
+
+    //////////////////////// Fluid System /////////////////////
+    // Dynamic Viscosity (Pa.s)
+
+    def unit gJ_per_m3 as
+        unit joule {pref: giga};
+        unit metre {expo: -3};
+    enddef;
+
+    def unit gJ_s_per_m3 as
+        unit joule {pref: giga};
+        unit second;
+        unit metre {expo: -3};
+    enddef;
+
+    // Density (kg/m3)
+
+    def unit pJ_s2_per_m5 as
+        unit joule {pref: peta};
+        unit second {expo: 2};
+        unit metre {expo: -5};
+    enddef;
+
+    // Compliance
+
+    def unit eJ_per_m6 as
+        unit joule {pref: exa};
+        unit metre {expo: -6};
+    enddef;
+
+    // Elastance
+
+    def unit mm6_per_J as
+        unit metre {pref: milli, expo: 6};
+        unit joule {expo: -1};
+    enddef;
+
+    // Resistance
+
+    def unit eJ_s_per_m6 as
+        unit joule {pref: exa};
+        unit second;
+        unit metre {expo: -6};
+    enddef;
+
+    // Inertia
+
+    def unit eJ_s2_per_m6 as
+        unit joule {pref: exa};
+        unit second {expo: 2};
+        unit metre {expo: -6};
+    enddef;
+
+    def unit J_s2_per_m9 as
+        unit joule;
+        unit second {expo: 2};
+        unit metre {expo: -9};
+    enddef;
+
+    // Acceleration
+
+    def unit mm3_per_s2 as
+        unit metre {pref: milli, expo: 3};
+        unit second {expo: -2};
+    enddef;
+
+    def unit per_mm3 as
+        unit metre {pref: milli, expo: -3};
+    enddef;
+
+    // Valve Unit
+
+    def unit UnitValve as
+        unit metre {expo: 3};
+        unit second {expo: -1};
+        unit J_per_m3 {expo: -0.5};
+    enddef;
+
+    def unit s2 as
+        unit second {expo: 2};
+    enddef;
+
+    def unit s_per_m3 as
+        unit second;
+        unit metre {expo: -3};
+    enddef;
+enddef;

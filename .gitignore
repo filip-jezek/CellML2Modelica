@@ -1,4 +1,11 @@
 /__pycache__
-/.vscode/.ropeproject/config.py
-/.vscode/.ropeproject/objectdb
-/.vscode/launch.json
+/.vscode/*
+*.mat
+
+dymosim.exe
+buildlog.txt
+dbg
+dsfinal.txt
+dsin.txt
+dslog.txt
+dsmodel.c

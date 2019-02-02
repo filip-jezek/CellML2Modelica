@@ -14,7 +14,7 @@ class Variable:
     EvaluateParameters = False
     UseUnits = False
 
-    def __init__(self, name, unit, str = ''):
+    def __init__(self, name, unit, str = None):
         self.name = name
         self.unit = unit
         if str is None: str = ''
@@ -26,31 +26,36 @@ class Variable:
 
         self.value = next((v for v in re.findall(r'init: ([-0-9eE+.]+)', str)), None)
         self.commented_out = False
-        self.comment = ''
+        self.comment = None
+    
+    @property
+    def correct_name(self):
+        "Variable name corrected for reserved keywords, such as 'time'"
+        return (self.name if self.name != 'time' else 'time_')
     
     def returnBinding(self, prefix = None):
         if Variable.EvaluateParameters and not self.state_variable and self.value is not None:
             return self.value
         elif prefix is None:
-            return self.name
+            return self.correct_name
         else:
-            return ".".join([prefix, self.name])
+            return ".".join([prefix, self.correct_name])
     
     def __repr__(self):
         unit = 'unit = "' + self.unit + '"' if Variable.UseUnits else None
         start_string = ("start = " + self.value if self.state_variable and self.value is not None else None)
         properties_string = ", ".join((s for s in (unit, start_string) if s is not None or ''))
+        properties_string = '(' + properties_string + ')' if properties_string != '' else ''
         return \
             ("// " if self.commented_out else '') \
             + ( "input " if self.pubIn \
                 else "parameter " if not self.privIn and self.value is not None and not self.state_variable \
                 else "") \
-            + "Real " + self.name \
-            + '(' \
+            + "Real " \
+            + self.correct_name \
             + properties_string \
-            + ")" \
             + (" = " + self.value if not self.state_variable and self.value is not None else "") \
-            + self.comment \
+            + (' "'+ self.comment + '"' if self.comment is not None else '')\
             + ";"
 
 
@@ -192,7 +197,13 @@ class Mapping:
 class Object:
     VERBOSE = False
     def __init__(self, name, text = None, package_name = None, instance_name = None):
-        self.name = name
+        
+        # time is reserved keyword in modelica
+        if name == 'time':
+            self.name = 'time_'
+        else:
+            self.name = name
+        
         self.package_name = package_name
         if instance_name is None:
             self.instance_name = name

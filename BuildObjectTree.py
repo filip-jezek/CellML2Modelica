@@ -25,9 +25,9 @@ def importFiles(o:ds.Object, top:ds.Object):
         
         imported_line = re.findall(r"comp ([a-zA-Z0-9_.]+) using comp ([a-zA-Z0-9_.]+);", impor[1])
         for il in imported_line:
-            # inst = ds.Object(il[1], package_name=pckg, instanceName=il[0])
+            # import it as instance to current scope - we already have its text in the children
             obj = [oo for oo in o.children if oo.package_name == pckg and oo.name == il[1]]
-            inst = copy.copy(obj[0])
+            inst = copy.deepcopy(obj[0])
             inst.instance_name = il[0]
             # o.imported_instances.append(inst)
             o.instances.append(inst)
@@ -41,8 +41,10 @@ def convertCellMlEquations(text):
     text = re.sub(r'(?<![a-zA-Z0-9_])ln\(', r'log(', text)
     # pow to ^ (only simple expressions here)
     text = re.sub(r'(?<![a-zA-Z0-9_])pow\(([a-zA-Z_0-9]+),[ ]*([0-9\.]+)\)', r'(\1^\2) ', text)
-    # # get rid of {dimensionless}
-    # text = re.sub(r'\{[a-zA-Z0-9_]+?\}', r'', text)
+    # transform PI constant
+    text = re.sub(r'(?<![a-zA-Z0-9_])pi(?![a-zA-Z0-9_])', 'Modelica.Constants.pi', text)
+    # transform sqr function
+    text = re.sub(r'(?<!\w)sqr\((\w+)\)(?!\w)', r'(\1)^2', text)
     
     # get rid of ode
     text = re.sub(r'ode\(([a-zA-Z0-9_]+?), [a-zA-Z0-9_]+\)', r'der(\1)', text)
@@ -103,6 +105,8 @@ def findComponents(o:ds.Object):
                 if v.name == stateVar:
                     v.state_variable = True
 
+        if comp == 'Heart':
+            print('Fix me pi')
         # manipulate the equations block
         c.equations = convertCellMlEquations(c.equations)
 
@@ -131,7 +135,7 @@ def findEncapsulations(o:ds.Object):
                 # fine we got the name, now lets get the object - it should be already imported
                 obj = next((oo for oo in o.children if oo.name == obj_name), None)
                 # make a copy so we can have different instance names
-                child = copy.copy(obj)
+                child = copy.deepcopy(obj)
                 # save its instance name for later
                 child.instance_name = encaps_comp
                 if o.VERBOSE:
@@ -147,10 +151,10 @@ def findEncapsulations(o:ds.Object):
 def findObjectInstance(o, instance_name):
     # find that object with instance name, either in current scope...
     # scope = [oo for oo in o.children if oo.package_name == o.package_name]
-    for obj in o.children:
-        # we found it in current package
-        if obj.package_name == o.package_name and obj.instance_name == instance_name:
-            return obj
+    # for obj in o.children:
+    #     # we found it in current package
+    #     if obj.package_name == o.package_name and obj.instance_name == instance_name:
+    #         return obj
     for objx in o.instances:
             # or in imports (therefore different isntance name from object name)
             if objx.instance_name == instance_name:
@@ -186,6 +190,8 @@ def getMappings(o:ds.Object):
     mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for(.+?)enddef;', o.text, re.DOTALL)
 
     for mapping in mappings:
+        if mapping[0] == 'abdominal_aorta_C114':
+            print('ty kokos')
         XX = findObjectInstance(o, mapping[0])
         YY = findObjectInstance(o, mapping[1])
         if XX is None or YY is None:
@@ -278,14 +284,14 @@ def buildModelicaText(o:ds.Object):
     return text
 
 def printObject(c):
-    print(' > model ' + c.name)
+    if ds.Object.VERBOSE: print(' > model ' + c.name)
     text = '  model ' + c.name + '\n'
     for gc in c.instances:
-        print(' >> instance ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_name)
+        if ds.Object.VERBOSE: print(' >> instance ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_name)
         map_string = list()
         for m in gc.mappings:
             if m.mappingType == ds.MappingType.BINDING:
-                print( ' >>> binding ' + str(m))
+                if ds.Object.VERBOSE: print( ' >>> binding ' + str(m))
                 map_string.append(str(m))
         text += '    ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_id \
                 + ( '(' + ', '.join(map_string) + ')' if map_string is not None else '') \
@@ -295,6 +301,7 @@ def printObject(c):
     # the top-level environments have usually time
     # correctly, it could be named in any way, as long as it is bound to any derivative
     # but usually it is 't' or 'time'. Lets say it starts with t
+    # but the name time is reserved in Modelica!
     if c.name == 'environment':
         # time_var = re.search(r'var ([tT][a-zA-Z0-9]*):', c.text)
         time_var = next((v for v in c.variables if re.match('[t|T]', v.name) is not None), None)
@@ -303,7 +310,7 @@ def printObject(c):
         else:
             #  fake it into state var, just in case it does have start value, so it doesnt create equation = 0
             time_var.state_variable = True
-            c.equations = '    ' + time_var.name + ' = time;\n' + c.equations
+            c.equations = '    ' + time_var.correct_name + ' = time;\n' + c.equations
             c.equations = '    // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES\n' + c.equations                
 
     for v in c.variables:
@@ -313,7 +320,7 @@ def printObject(c):
 
     for m in c.mappings:
         if m.mappingType == ds.MappingType.EQUATION:
-            print( ' >> eq:' + str(m) )
+            if ds.Object.VERBOSE: print( ' >> eq:' + str(m) )
             text += '    ' + str(m) + ';\n'
     
     text += c.equations
@@ -330,8 +337,15 @@ def printObject(c):
 
 
 # o = buildFile('sodium_ion_channel.cellml')
-o = buildFile('Noble_1962.cellml')
-# o = buildFile('main_ADAN-86.cellml')
+# o = buildFile('Noble_1962.cellml')
+o = ds.Object('pico')
+
+o.children.append(ds.Object('sukat'))
+p = copy.deepcopy(o)
+p.children.append(ds.Object('kozy'))
+
+
+o = buildFile('main_ADAN-86.cellml')
 print('============================')
 text = buildModelicaText(o)
 

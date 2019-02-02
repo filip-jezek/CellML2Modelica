@@ -62,28 +62,18 @@ class Variable:
 
 class Mapping:
     """ Maps variables.
-
     mappingType.Binding: are in the object instantiation. For direction TO target. 
         for encapsulation mappings:
             ObjectName TargetInstance1 (targetVariable = self.sourceVariable);
         for wincest between children:
             ObjectName TargetInstance1 (targetVariable = self.sourceInstance1.sourceVariable);
-        
-
     mappingType.Equation: are in equation section. For direction FROM target
         For encapsulation mappings:
             self.sourceVariable = TargetInstance1.targetVariable
         for wincest between children: the direction is not imprortant here:
             self.sourceInstance1.sourceVariable = TargetInstasnce1.targetVariable
             # and actually never happens! (?)
-
-
-    TODO EvaluateParameters: if the pub:out variable is a param, then directly insert its value, e.g.
-        parentInstance1 = [targetInstance].targetValue
-
-    Mappings are only allowed from top to bottom, e.g. from parent to its children or from environment (top level)
-
-    """
+    Mappings are only allowed from top to bottom, e.g. from parent to its children or from environment (top level) """
 
     # EvaluateParameters = True
 

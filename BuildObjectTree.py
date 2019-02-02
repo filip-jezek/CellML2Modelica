@@ -2,6 +2,7 @@ import re
 import DataStructure as ds
 import fun_lib
 import copy
+import math
 
 # TODO variables with equations are parameters
 # TODO time in environment does not have equation
@@ -190,8 +191,6 @@ def getMappings(o:ds.Object):
     mappings = re.findall(r'def map between ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+) for(.+?)enddef;', o.text, re.DOTALL)
 
     for mapping in mappings:
-        if mapping[0] == 'abdominal_aorta_C114':
-            print('ty kokos')
         XX = findObjectInstance(o, mapping[0])
         YY = findObjectInstance(o, mapping[1])
         if XX is None or YY is None:
@@ -283,9 +282,34 @@ def buildModelicaText(o:ds.Object):
     text += 'end ' + top_package + ';\n'
     return text
 
+def buildAnnotation(i:int, count):
+    origin = [-100, 100]
+    size = [20, 20]
+    space = [10, 10]
+    if count > 50:
+        size = [20, 10]
+        space = [5, 5]
+    if count > 100:
+        size = [20, 5]
+        space = [5, 5]
+
+    cols_per_row = math.floor((abs(origin[0])*2 + space[0]) / (size[0] + space[0]))
+    # row_per_col = (abs(origin[1])*2  + space[1]) / (size[1] + space[1])
+
+    r = math.floor(i / cols_per_row)
+    c = i - r*cols_per_row
+
+    position = [origin[0] + c*(size[0] + space[0]), origin[1] - r*(size[1] + space[1])]
+
+
+    return "\n    annotation (Placement(transformation(extent={{" \
+        + str(position[0]) + ',' + str(position[1]) + '},{' \
+        + str(position[0] + size[0])  + ',' + str(position[1] - size[1]) + '}})))'
+
 def printObject(c):
     if ds.Object.VERBOSE: print(' > model ' + c.name)
     text = '  model ' + c.name + '\n'
+    i = 0
     for gc in c.instances:
         if ds.Object.VERBOSE: print(' >> instance ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_name)
         map_string = list()
@@ -295,7 +319,9 @@ def printObject(c):
                 map_string.append(str(m))
         text += '    ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_id \
                 + ( '(' + ', '.join(map_string) + ')' if map_string is not None else '') \
+                + buildAnnotation(i, len(c.instances)) \
                 + ';\n'
+        i += 1
 
 
     # the top-level environments have usually time

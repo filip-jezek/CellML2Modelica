@@ -8,6 +8,7 @@ import math
 class MappingType(Enum):
     BINDING = 1
     EQUATION = 2
+    CONNECTION = 3
 
 class InstantiateType(Enum):
     SIBLINGS = 1
@@ -17,17 +18,17 @@ class Variable:
     EvaluateParameters = False
     UseUnits = False
 
-    def __init__(self, name, unit, str = None):
+    def __init__(self, name, unit = None, propertyStr = None):
         self.name = name
         self.unit = unit
-        if str is None: str = ''
-        self.pubIn = True if re.search(r'pub: in', str) is not None else False
-        self.pubOut = True if re.search(r'pub: out', str) is not None else False
-        self.privIn = True if re.search(r'priv: in', str) is not None else False
-        self.privOut = True if re.search(r'priv: out', str) is not None else False
+        if propertyStr is None: propertyStr = ''
+        self.pubIn = True if re.search(r'pub: in', propertyStr) is not None else False
+        self.pubOut = True if re.search(r'pub: out', propertyStr) is not None else False
+        self.privIn = True if re.search(r'priv: in', propertyStr) is not None else False
+        self.privOut = True if re.search(r'priv: out', propertyStr) is not None else False
         self.state_variable = False
 
-        self.value = next((v for v in re.findall(r'init: ([-0-9eE+.]+)', str)), None)
+        self.value = next((v for v in re.findall(r'init: ([-0-9eE+.]+)', propertyStr)), None)
         self.commented_out = False
         self.comment = None
     
@@ -158,6 +159,11 @@ class Mapping:
             return self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
         elif self.mappingType == MappingType.BINDING and self.instantiateType == InstantiateType.SIBLINGS:
             return self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.instance_id)
+        elif self.mappingType == MappingType.CONNECTION:
+            return "connect(" \
+                + self.ownerInstance + '.' + self.ownerVariable + ',' \
+                + self.targetInstance + '.' + self.targetVariable \
+                + ') annotation (Line(points={{0,0},{100,100}},thickness=1));'
         else:
             return "???? ERROR in mapping representation of " + self.ownerInstance.name + "." + self.ownerVariable.name + "????"
 
@@ -449,21 +455,29 @@ class Object:
                 continue
 
             varmaps = re.findall(r'vars ([a-zA-Z0-9_]+) and ([a-zA-Z0-9_]+);', mapping[2])
-            for varmap in varmaps:
-                # if varmap[0] == 'R_svl':
-                #     print()
-                x = XX.findVar(varmap[0])
-                y = YY.findVar(varmap[1])
-                # # find vars
-                map = Mapping(XX, x, YY, y)
-                if self.VERBOSE:
-                    print(">> Found " + map.writeMappingType() + ' mapping for ' 
-                        + map.ownerInstance.name
-                        + ": " + str(map))
-                # if map.instantiateType == ds.InstantiateType.ENCAPSULATION:
-                map.ownerInstance.mappings.append(map)
-                # else:
-                    # o.mappings.append(map)
+            self.processMapping(varmaps, XX, YY)
+
+    def processMapping(self, varmaps, XX, YY):
+        maps = list()
+        for varmap in varmaps:
+            # if varmap[0] == 'R_svl':
+            #     print()
+            x = XX.findVar(varmap[0])
+            y = YY.findVar(varmap[1])
+            # # find vars
+            map = Mapping(XX, x, YY, y)
+            maps.append(map)
+            if self.VERBOSE:
+                print(">> Found " + map.writeMappingType() + ' mapping for ' 
+                    + map.ownerInstance.name
+                    + ": " + str(map))
+
+            map.ownerInstance.mappings.append(map)
+            # self.processVarMap(map)
+        return maps
+
+    # def processVarMap(self, map):
+    #     map.ownerInstance.mappings.append(map)
 
     def buildComponents(self, top):
         # look for definitions of encapsulated objects in imports from another files
@@ -607,7 +621,10 @@ class Object:
         for m in self.mappings:
             if m.mappingType == MappingType.EQUATION:
                 if Object.VERBOSE: print( ' >> eq:' + str(m) )
-                text += '    ' + str(m) + ';\n'
+                text += '    ' + str(m) + '\n'
+            # if m.mappingType == MappingType.CONNECTION:
+            #     if Object.VERBOSE: print( ' >> CONN:' + str(m) )
+                # text += '    ' + 
         
         text += self.equations
         text += '\n  end ' + self.name + ';\n'

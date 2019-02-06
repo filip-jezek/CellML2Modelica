@@ -1,5 +1,6 @@
 import DataStructure as ds
 import convertADAN as dsa
+import json
 # TODO variables with equations are parameters
 # TODO time in environment does not have equation
 
@@ -15,7 +16,7 @@ import convertADAN as dsa
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 
 ds.Variable.EvaluateParameters = False
-ds.Variable.UseUnits = False
+ds.Variable.UseUnits = True
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 dsa.ADANModel.UseConnectionMapping = False
 dsa.ADANModel.convertCellML('main_ADAN-86.cellml')

@@ -5,11 +5,13 @@ class ADANModel(ds.Object):
 
     UseConnectionMapping = True
 
+
     @classmethod
     def convertCellML(cls, filename):
         """
         1. gets rid of non-module stuff
-        2. generate connections
+        2. specify some components replaceable
+        3. generate connections
         
         """
         o = cls.buildFromFile(filename)
@@ -23,12 +25,48 @@ class ADANModel(ds.Object):
         if c.package_name == 'main_ADAN_86_cellml' and ('_' in c.name) and re.match(r'.+[A-D\d]', c.name) is not None:
             c.SkipComponent = True
         
+        # set some components replaceable
+        if c.instance_id == 'Heart1':
+            c.replaceable = True
         if c.instance_id == 'Systemic1':
             c.replaceable = True
         if c.instance_name == 'aortic_arch_C46_module':
             c.replaceable = True
         if c.instance_name == 'internal_carotid_R8_A_module':
             c.replaceable = True
+
+        intrathoracic_arteries = """ascending_aorta_A_module
+                    ascending_aorta_B_module
+                    ascending_aorta_C_module
+                    ascending_aorta_D_module
+                    aortic_arch_C2_module
+                    brachiocephalic_trunk_C4_module
+                    replaceable aortic_arch_C46_module
+                    aortic_arch_C64_module
+                    aortic_arch_C94_module
+                    thoracic_aorta_C96_module
+                    thoracic_aorta_C100_module
+                    thoracic_aorta_C104_module
+                    thoracic_aorta_C108_module
+                    thoracic_aorta_C112_module"""
+
+        # get rid of whitespaces - just for being able to have nicer formatting here
+        intrathoracic_arteries = re.sub(r'[\s\t]', '', intrathoracic_arteries)
+        
+        ia = intrathoracic_arteries.splitlines()
+
+        if c.instance_name in ia:
+            print("***")
+            c.package_name = 'ADAN_main.BG_Modules_extended'
+            v_own = ds.Variable('thoracic_pressure')
+            v_own.pubIn = True
+            v_target = ds.Variable('thoracic_pressure')
+            v_target.privOut = True
+            m = ds.Mapping(c, v_own, self, v_target)
+
+            # c.name = ''
+
+        
         
 
     # def getMappings(self):

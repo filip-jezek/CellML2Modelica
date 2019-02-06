@@ -4,6 +4,7 @@ import re
 import fun_lib
 import copy
 import math
+import json
 
 class MappingType(Enum):
     BINDING = 1
@@ -17,6 +18,8 @@ class InstantiateType(Enum):
 class Variable:
     EvaluateParameters = False
     UseUnits = False
+    
+    __unit_dict = None
 
     def __init__(self, name, unit = None, propertyStr = None):
         self.name = name
@@ -32,6 +35,18 @@ class Variable:
         self.commented_out = False
         self.comment = None
     
+    
+    def convert_unit(self, unit):
+        if self.__unit_dict is None:
+            json1_str = open('units_cellML2Modelica.json').read()
+            self.__unit_dict = json.loads(json1_str)
+        
+        # TODO catch error?
+        convertedUnit = self.__unit_dict.get(unit, 'DimensionUnknown')
+
+        return convertedUnit
+
+   
     @property
     def correct_name(self):
         "Variable name corrected for reserved keywords, such as 'time'"
@@ -46,7 +61,7 @@ class Variable:
             return ".".join([prefix, self.correct_name])
     
     def __repr__(self):
-        unit = 'unit = "' + self.unit + '"' if Variable.UseUnits else None
+        unit = 'unit = "' + self.convert_unit(self.unit) + '"' if Variable.UseUnits else None
         start_string = ("start = " + self.value if self.state_variable and self.value is not None else None)
         properties_string = ", ".join((s for s in (unit, start_string) if s is not None or ''))
         properties_string = '(' + properties_string + ')' if properties_string != '' else ''
@@ -224,6 +239,8 @@ class Object:
         self.equations = ""
         self.SkipComponent = False
         self.replaceable = False
+        # 'head' is a string inserted at the begginging of the object, e.g. forincluding new elements, extends etc
+        self.head = ''
 
     # def newObject(self, name, text = None, package_name = None, instance_name = None):
     #     "All new objects shall be called using this function, as it may be retyped by child class"
@@ -601,6 +618,7 @@ class Object:
             return ''
         if Object.VERBOSE: print(' > model ' + self.name)
         text = '  model ' + self.name + '\n'
+        text += self.head
         i = 0
         for gc in self.instances:
             if gc.SkipComponent: 

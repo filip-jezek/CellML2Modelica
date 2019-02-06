@@ -23,6 +23,8 @@ class ADANModel(ds.Object):
         if c.package_name == 'main_ADAN_86_cellml' and ('_' in c.name) and re.match(r'.+[A-D\d]', c.name) is not None:
             c.SkipComponent = True
         
+        if c.instance_id == 'Systemic1':
+            c.replaceable = True
         if c.instance_name == 'aortic_arch_C46_module':
             c.replaceable = True
         if c.instance_name == 'internal_carotid_R8_A_module':

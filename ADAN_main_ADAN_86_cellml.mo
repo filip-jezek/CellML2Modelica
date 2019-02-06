@@ -3005,7 +3005,7 @@ end main_ADAN_86_cellml;
   model CardiovascularSystemMain
     main_ADAN_86_cellml.environment environment1()
     annotation (Placement(transformation(extent={{-100,100},{-80,80}})));
-    main_ADAN_86_cellml.Systemic Systemic1(u_ra = Heart1.u_ra, v_aux = Heart1.v_aux, t = environment1.time_)
+    replaceable main_ADAN_86_cellml.Systemic Systemic1(u_ra = Heart1.u_ra, v_aux = Heart1.v_aux, t = environment1.time_)
     annotation (Placement(transformation(extent={{-70,100},{-50,80}})));
     main_ADAN_86_cellml.Pulmonary Pulmonary1(u_la = Heart1.u_la, v_rv = Heart1.v_rv, t = environment1.time_)
     annotation (Placement(transformation(extent={{-40,100},{-20,80}})));

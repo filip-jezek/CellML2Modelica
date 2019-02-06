@@ -19,4 +19,5 @@ ds.Variable.UseUnits = False
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 dsa.ADANModel.UseConnectionMapping = False
 dsa.ADANModel.convertCellML('main_ADAN-86.cellml')
+print('Done Johne')
 

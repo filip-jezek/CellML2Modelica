@@ -14,7 +14,9 @@ import convertADAN as dsa
 # ds.Object.convertCellML('Noble_1962.cellml')
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 
-ds.Variable.EvaluateParameters = True
+ds.Variable.EvaluateParameters = False
+ds.Variable.UseUnits = False
 # ds.Object.convertCellML('main_ADAN-86.cellml')
+dsa.ADANModel.UseConnectionMapping = False
 dsa.ADANModel.convertCellML('main_ADAN-86.cellml')
 

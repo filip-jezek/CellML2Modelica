@@ -153,6 +153,8 @@ class Mapping:
             return "EQUATION"
     
     def __repr__(self):
+        """Returns the string representation of the mapping in the form of equation or binding. 
+        The traling semicolon and line break not included."""
         if  self.mappingType == MappingType.EQUATION and self.instantiateType == InstantiateType.ENCAPSULATION:
             return self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.instance_id )
         elif self.mappingType == MappingType.BINDING and self.instantiateType == InstantiateType.ENCAPSULATION:
@@ -163,7 +165,7 @@ class Mapping:
             return "connect(" \
                 + self.ownerInstance + '.' + self.ownerVariable + ',' \
                 + self.targetInstance + '.' + self.targetVariable \
-                + ') annotation (Line(points={{0,0},{100,100}},thickness=1));'
+                + ') annotation (Line(points={{0,0},{100,100}},thickness=1))'
         else:
             return "???? ERROR in mapping representation of " + self.ownerInstance.name + "." + self.ownerVariable.name + "????"
 
@@ -305,29 +307,44 @@ class Object:
         
         # SLECTIONS to IFs
         select_regex = re.compile(r'([ ]*=[ ]*sel.+?endsel;)', re.DOTALL)
-        selects = select_regex.findall(text)
-        for sel in selects:
-            #ifs
-            converted = re.sub(r'sel.+?case (.+?):', r'if \1 then ', sel, flags=re.DOTALL)
-            #elseifs
-            converted = re.sub(r'case(.+?):', r'elseif \1 then ', converted, flags=re.DOTALL)
-            #otherwise
-            otherwise_search = re.search('otherwise', converted)
-            if otherwise_search is not None:
-                # that was easy
-                converted = re.sub(r'otherwise:', r'else ', converted)
-            else:
-                # find the last occurence of elseif ___ and change it to else
-                es = converted.split(' else')
-                es[-1] = re.sub(r'if (.+?) then', r' /* \1 */', es[-1])
-                converted = " else".join(es)
-            # get rid of ; inbetween cases
-            converted = re.sub(';', '', converted)
-            #get rid of endsel, add the last ;
-            converted = re.sub('[ ]*endsel', ';', converted)
-            # substitute in the text
-            text = select_regex.sub(converted, text)
+        text = select_regex.sub(Object.matchAndSubstituteConditions, text)
+        # selects = select_regex.findall(text)
+        # for sel in selects:
+        #     #ifs
+        #     converted = (sel)
+        #     # substitute in the text
+            
         return text
+
+    @staticmethod
+    def matchAndSubstituteConditions(matchObj:re.Match):
+        textToSub = matchObj.group()
+        #ifs
+        converted = re.sub(r'sel.+?case (.+?):', r'if \1 then ', textToSub, flags=re.DOTALL)
+        #elseifs
+        converted = re.sub(r'case(.+?):', r'elseif \1 then ', converted, flags=re.DOTALL)
+        #otherwise
+        otherwise_search = re.search('otherwise', converted)
+        if otherwise_search is not None:
+            # that was easy
+            converted = re.sub(r'otherwise:', r'else ', converted)
+        else:
+            # find the last occurence of elseif ___ and change it to else
+            es = converted.split(' else')
+            es[-1] = re.sub(r'if (.+?) then', r' /* \1 */', es[-1])
+            converted = " else".join(es)
+        # get rid of ; inbetween cases
+        converted = re.sub(';', '', converted)
+        #get rid of endsel, add the last ;
+        converted = re.sub('[ ]*endsel', ';', converted)
+        #fix the dangling \n;
+        converted = re.sub('\n;', ';', converted)
+
+        # use noEvent, which is more appropriate for conversions from cellML
+        converted = re.sub(r'if(.+);', r'noEvent(if\1);', converted, flags=re.DOTALL)
+        
+        # substitute in the text
+        return converted
 
     def postProcessComponent(self, c):
         "For inherited usage - may skip the comopnent entirely"
@@ -610,7 +627,7 @@ class Object:
             else:
                 #  fake it into state var, just in case it does have start value, so it doesnt create equation = 0
                 time_var.state_variable = True
-                self.equations = '    ' + time_var.correct_name + ' = time;\n' + self.equations
+                self.equations = '    ' + time_var.correct_name + ' = time;' + self.equations
                 self.equations = '    // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES\n' + self.equations                
 
         for v in self.variables:
@@ -621,10 +638,10 @@ class Object:
         for m in self.mappings:
             if m.mappingType == MappingType.EQUATION:
                 if Object.VERBOSE: print( ' >> eq:' + str(m) )
-                text += '    ' + str(m) + '\n'
-            # if m.mappingType == MappingType.CONNECTION:
-            #     if Object.VERBOSE: print( ' >> CONN:' + str(m) )
-                # text += '    ' + 
+                text += '    ' + str(m) + ';\n'
+            if m.mappingType == MappingType.CONNECTION:
+                if Object.VERBOSE: print( ' >> CONN:' + str(m) )
+                text += '    ' + str(m) + ';\n'
         
         text += self.equations
         text += '\n  end ' + self.name + ';\n'

@@ -1,4 +1,4 @@
-def model CardiovascularSystem as
+def model CardiovascularSystemMain as
     def import using "Units.cellml" for
         unit m3 using unit m3;
         unit m3_per_s using unit m3_per_s;

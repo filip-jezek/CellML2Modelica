@@ -2,6 +2,8 @@ import DataStructure as ds
 
 class ADANModel(ds.Object):
 
+    UseConnectionMapping = True
+
     @classmethod
     def convertCellML(cls, filename):
         """
@@ -27,6 +29,8 @@ class ADANModel(ds.Object):
 
     def processMapping(self, varmaps, XX, YY):
         maps = super().processMapping(varmaps, XX, YY)
+        if not self.UseConnectionMapping:
+            return maps
         # types:
         # vars v_out_1 and v; where v is always PUBOUT  and v_out.. is always pubIN
         # vars u and u_in; where u is always pubOUT and u_in is always PUBIN
@@ -60,7 +64,7 @@ class ADANModel(ds.Object):
             v_map.ownerInstance.mappings.remove(v_map)
             port_a = ds.Variable('q_in')
             port_b = ds.Variable('q_out')
-            con_map = ds.Mapping(u_map.ownerInstance, 'port_a', u_map.targetInstance, 'port_b')
+            con_map = ds.Mapping(u_map.ownerInstance, port_a, u_map.targetInstance, port_b)
             con_map.mappingType = ds.MappingType.CONNECTION
             self.mappings.append(con_map)
 

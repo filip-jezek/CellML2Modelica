@@ -2364,242 +2364,241 @@ package main_ADAN_86_cellml
   equation
     // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES
     time_ = time;
-
     
 
   end environment;
   model Systemic
     Parameters_cellml.Parameters_Systemic Parameters_Systemic1()
     annotation (Placement(transformation(extent={{-100,100},{-80,95}})));
-    BG_Modules_cellml.vv_type ascending_aorta_A_module(v_out = ascending_aorta_B_module.v, l = 15.3234e-03, E = 0.4e+6, r = 15.642e-03, v_in = v_aux, t = t)
+    BG_Modules_cellml.vv_type ascending_aorta_A_module(v_out = ascending_aorta_B_module.v, l = Parameters_Systemic1.l_ascending_aorta_A, E = Parameters_Systemic1.E_ascending_aorta_A, r = Parameters_Systemic1.r_ascending_aorta_A, v_in = v_aux, t = t)
     annotation (Placement(transformation(extent={{-75,100},{-55,95}})));
-    BG_Modules_cellml.pv_type ascending_aorta_B_module(u_in = ascending_aorta_A_module.u, v_out = ascending_aorta_C_module.v, l = 14.796e-03, E = 0.4e+6, r = 15.08e-03, t = t)
+    BG_Modules_cellml.pv_type ascending_aorta_B_module(u_in = ascending_aorta_A_module.u, v_out = ascending_aorta_C_module.v, l = Parameters_Systemic1.l_ascending_aorta_B, E = Parameters_Systemic1.E_ascending_aorta_B, r = Parameters_Systemic1.r_ascending_aorta_B, t = t)
     annotation (Placement(transformation(extent={{-50,100},{-30,95}})));
-    BG_Modules_cellml.pv_type ascending_aorta_C_module(u_in = ascending_aorta_B_module.u, v_out = ascending_aorta_D_module.v, l = 14.796e-03, E = 0.4e+6, r = 14.5305e-03, t = t)
+    BG_Modules_cellml.pv_type ascending_aorta_C_module(u_in = ascending_aorta_B_module.u, v_out = ascending_aorta_D_module.v, l = Parameters_Systemic1.l_ascending_aorta_C, E = Parameters_Systemic1.E_ascending_aorta_C, r = Parameters_Systemic1.r_ascending_aorta_C, t = t)
     annotation (Placement(transformation(extent={{-25,100},{-5,95}})));
-    BG_Modules_cellml.pv_type ascending_aorta_D_module(u_in = ascending_aorta_C_module.u, v_out = aortic_arch_C2_module.v, l = 14.796e-03, E = 0.4e+6, r = 13.914e-03, t = t)
+    BG_Modules_cellml.pv_type ascending_aorta_D_module(u_in = ascending_aorta_C_module.u, v_out = aortic_arch_C2_module.v, l = Parameters_Systemic1.l_ascending_aorta_D, E = Parameters_Systemic1.E_ascending_aorta_D, r = Parameters_Systemic1.r_ascending_aorta_D, t = t)
     annotation (Placement(transformation(extent={{0,100},{20,95}})));
-    BG_Modules_cellml.pv_jII_type aortic_arch_C2_module(v_out_1 = brachiocephalic_trunk_C4_module.v, v_out_2 = aortic_arch_C46_module.v, u_in = ascending_aorta_D_module.u, l = 14.796e-03, E = 0.4e+6, r = 13.3364e-03, t = t)
+    BG_Modules_cellml.pv_jII_type aortic_arch_C2_module(v_out_1 = brachiocephalic_trunk_C4_module.v, v_out_2 = aortic_arch_C46_module.v, u_in = ascending_aorta_D_module.u, l = Parameters_Systemic1.l_aortic_arch_C2, E = Parameters_Systemic1.E_aortic_arch_C2, r = Parameters_Systemic1.r_aortic_arch_C2, t = t)
     annotation (Placement(transformation(extent={{25,100},{45,95}})));
-    BG_Modules_cellml.pv_jII_type brachiocephalic_trunk_C4_module(u_in = aortic_arch_C2_module.u, v_out_1 = common_carotid_R6_A_module.v, v_out_2 = subclavian_R28_module.v, l = 47.3822e-03, E = 0.4e+6, r = 6.41887e-03, t = t)
+    BG_Modules_cellml.pv_jII_type brachiocephalic_trunk_C4_module(u_in = aortic_arch_C2_module.u, v_out_1 = common_carotid_R6_A_module.v, v_out_2 = subclavian_R28_module.v, l = Parameters_Systemic1.l_brachiocephalic_trunk_C4, E = Parameters_Systemic1.E_brachiocephalic_trunk_C4, r = Parameters_Systemic1.r_brachiocephalic_trunk_C4, t = t)
     annotation (Placement(transformation(extent={{50,100},{70,95}})));
-    BG_Modules_cellml.pv_jII_type aortic_arch_C46_module(u_in = aortic_arch_C2_module.u, v_out_1 = aortic_arch_C64_module.v, v_out_2 = common_carotid_L48_A_module.v, l = 9.60849e-03, E = 0.4e+6, r = 12.76710e-03, t = t)
+    replaceable BG_Modules_cellml.pv_jII_type aortic_arch_C46_module(u_in = aortic_arch_C2_module.u, v_out_1 = aortic_arch_C64_module.v, v_out_2 = common_carotid_L48_A_module.v, l = Parameters_Systemic1.l_aortic_arch_C46, E = Parameters_Systemic1.E_aortic_arch_C46, r = Parameters_Systemic1.r_aortic_arch_C46, t = t)
     annotation (Placement(transformation(extent={{75,100},{95,95}})));
-    BG_Modules_cellml.pv_jII_type aortic_arch_C64_module(u_in = aortic_arch_C46_module.u, v_out_1 = aortic_arch_C94_module.v, v_out_2 = subclavian_L66_module.v, l = 6.97955e-03, E = 0.4e+6, r = 12.42880e-03, t = t)
+    BG_Modules_cellml.pv_jII_type aortic_arch_C64_module(u_in = aortic_arch_C46_module.u, v_out_1 = aortic_arch_C94_module.v, v_out_2 = subclavian_L66_module.v, l = Parameters_Systemic1.l_aortic_arch_C64, E = Parameters_Systemic1.E_aortic_arch_C64, r = Parameters_Systemic1.r_aortic_arch_C64, t = t)
     annotation (Placement(transformation(extent={{-100,90},{-80,85}})));
-    BG_Modules_cellml.pv_type aortic_arch_C94_module(u_in = aortic_arch_C64_module.u, v_out = thoracic_aorta_C96_module.v, l = 43.2111e-03, E = 0.4e+6, r = 11.7401e-03, t = t)
+    BG_Modules_cellml.pv_type aortic_arch_C94_module(u_in = aortic_arch_C64_module.u, v_out = thoracic_aorta_C96_module.v, l = Parameters_Systemic1.l_aortic_arch_C94, E = Parameters_Systemic1.E_aortic_arch_C94, r = Parameters_Systemic1.r_aortic_arch_C94, t = t)
     annotation (Placement(transformation(extent={{-75,90},{-55,85}})));
-    BG_Modules_cellml.pv_jII_type thoracic_aorta_C96_module(v_out_1 = thoracic_aorta_C100_module.v, v_out_2 = posterior_intercostal_T1_R98_module.v, u_in = aortic_arch_C94_module.u, l = 9.89803e-03, E = 0.4e+6, r = 10.4579e-03, t = t)
+    BG_Modules_cellml.pv_jII_type thoracic_aorta_C96_module(v_out_1 = thoracic_aorta_C100_module.v, v_out_2 = posterior_intercostal_T1_R98_module.v, u_in = aortic_arch_C94_module.u, l = Parameters_Systemic1.l_thoracic_aorta_C96, E = Parameters_Systemic1.E_thoracic_aorta_C96, r = Parameters_Systemic1.r_thoracic_aorta_C96, t = t)
     annotation (Placement(transformation(extent={{-50,90},{-30,85}})));
-    BG_Modules_cellml.pv_jII_type thoracic_aorta_C100_module(u_in = thoracic_aorta_C96_module.u, v_out_1 = thoracic_aorta_C104_module.v, v_out_2 = posterior_intercostal_T1_L102_module.v, l = 7.88038e-03, E = 0.4e+6, r = 10.2897e-03, t = t)
+    BG_Modules_cellml.pv_jII_type thoracic_aorta_C100_module(u_in = thoracic_aorta_C96_module.u, v_out_1 = thoracic_aorta_C104_module.v, v_out_2 = posterior_intercostal_T1_L102_module.v, l = Parameters_Systemic1.l_thoracic_aorta_C100, E = Parameters_Systemic1.E_thoracic_aorta_C100, r = Parameters_Systemic1.r_thoracic_aorta_C100, t = t)
     annotation (Placement(transformation(extent={{-25,90},{-5,85}})));
-    BG_Modules_cellml.pv_jII_type thoracic_aorta_C104_module(u_in = thoracic_aorta_C100_module.u, v_out_1 = thoracic_aorta_C108_module.v, v_out_2 = posterior_intercostal_T2_R106_module.v, l = 15.5561e-03, E = 0.4e+6, r = 10.0681e-03, t = t)
+    BG_Modules_cellml.pv_jII_type thoracic_aorta_C104_module(u_in = thoracic_aorta_C100_module.u, v_out_1 = thoracic_aorta_C108_module.v, v_out_2 = posterior_intercostal_T2_R106_module.v, l = Parameters_Systemic1.l_thoracic_aorta_C104, E = Parameters_Systemic1.E_thoracic_aorta_C104, r = Parameters_Systemic1.r_thoracic_aorta_C104, t = t)
     annotation (Placement(transformation(extent={{0,90},{20,85}})));
-    BG_Modules_cellml.pv_jII_type thoracic_aorta_C108_module(u_in = thoracic_aorta_C104_module.u, v_out_1 = thoracic_aorta_C112_module.v, v_out_2 = posterior_intercostal_T2_L110_module.v, l = 5.32705e-03, E = 0.4e+6, r = 9.87279e-03, t = t)
+    BG_Modules_cellml.pv_jII_type thoracic_aorta_C108_module(u_in = thoracic_aorta_C104_module.u, v_out_1 = thoracic_aorta_C112_module.v, v_out_2 = posterior_intercostal_T2_L110_module.v, l = Parameters_Systemic1.l_thoracic_aorta_C108, E = Parameters_Systemic1.E_thoracic_aorta_C108, r = Parameters_Systemic1.r_thoracic_aorta_C108, t = t)
     annotation (Placement(transformation(extent={{25,90},{45,85}})));
-    BG_Modules_cellml.pv_type thoracic_aorta_C112_module(u_in = thoracic_aorta_C108_module.u, v_out = abdominal_aorta_C114_module.v, l = 121.566e-03, E = 0.4e+6, r = 8.47543e-03, t = t)
+    BG_Modules_cellml.pv_type thoracic_aorta_C112_module(u_in = thoracic_aorta_C108_module.u, v_out = abdominal_aorta_C114_module.v, l = Parameters_Systemic1.l_thoracic_aorta_C112, E = Parameters_Systemic1.E_thoracic_aorta_C112, r = Parameters_Systemic1.r_thoracic_aorta_C112, t = t)
     annotation (Placement(transformation(extent={{50,90},{70,85}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C114_module(v_out_1 = abdominal_aorta_C136_module.v, v_out_2 = celiac_trunk_C116_module.v, u_in = thoracic_aorta_C112_module.u, l = 3.24767e-03, E = 0.4e+6, r = 7.51533e-03, t = t)
+    BG_Modules_cellml.pv_jII_type abdominal_aorta_C114_module(v_out_1 = abdominal_aorta_C136_module.v, v_out_2 = celiac_trunk_C116_module.v, u_in = thoracic_aorta_C112_module.u, l = Parameters_Systemic1.l_abdominal_aorta_C114, E = Parameters_Systemic1.E_abdominal_aorta_C114, r = Parameters_Systemic1.r_abdominal_aorta_C114, t = t)
     annotation (Placement(transformation(extent={{75,90},{95,85}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C136_module(u_in = abdominal_aorta_C114_module.u, v_out_1 = abdominal_aorta_C164_module.v, v_out_2 = superior_mesenteric_T4_C138_module.v, l = 13.9886e-03, E = 0.4e+6, r = 7.42666e-03, t = t)
+    BG_Modules_cellml.pv_jII_type abdominal_aorta_C136_module(u_in = abdominal_aorta_C114_module.u, v_out_1 = abdominal_aorta_C164_module.v, v_out_2 = superior_mesenteric_T4_C138_module.v, l = Parameters_Systemic1.l_abdominal_aorta_C136, E = Parameters_Systemic1.E_abdominal_aorta_C136, r = Parameters_Systemic1.r_abdominal_aorta_C136, t = t)
     annotation (Placement(transformation(extent={{-100,80},{-80,75}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C164_module(u_in = abdominal_aorta_C136_module.u, v_out_1 = abdominal_aorta_C176_module.v, v_out_2 = renal_L166_module.v, l = 4.31913e-03, E = 0.4e+6, r = 7.29199e-03, t = t)
+    BG_Modules_cellml.pv_jII_type abdominal_aorta_C164_module(u_in = abdominal_aorta_C136_module.u, v_out_1 = abdominal_aorta_C176_module.v, v_out_2 = renal_L166_module.v, l = Parameters_Systemic1.l_abdominal_aorta_C164, E = Parameters_Systemic1.E_abdominal_aorta_C164, r = Parameters_Systemic1.r_abdominal_aorta_C164, t = t)
     annotation (Placement(transformation(extent={{-75,80},{-55,75}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C176_module(u_in = abdominal_aorta_C164_module.u, v_out_1 = abdominal_aorta_C188_module.v, v_out_2 = renal_R178_module.v, l = 11.9773e-03, E = 0.4e+6, r = 7.18902e-03, t = t)
+    BG_Modules_cellml.pv_jII_type abdominal_aorta_C176_module(u_in = abdominal_aorta_C164_module.u, v_out_1 = abdominal_aorta_C188_module.v, v_out_2 = renal_R178_module.v, l = Parameters_Systemic1.l_abdominal_aorta_C176, E = Parameters_Systemic1.E_abdominal_aorta_C176, r = Parameters_Systemic1.r_abdominal_aorta_C176, t = t)
     annotation (Placement(transformation(extent={{-50,80},{-30,75}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C188_module(u_in = abdominal_aorta_C176_module.u, v_out_1 = abdominal_aorta_C192_module.v, v_out_2 = inferior_mesenteric_T5_C190_module.v, l = 54.0907e-03, E = 0.4e+6, r = 6.79934e-03, t = t)
+    BG_Modules_cellml.pv_jII_type abdominal_aorta_C188_module(u_in = abdominal_aorta_C176_module.u, v_out_1 = abdominal_aorta_C192_module.v, v_out_2 = inferior_mesenteric_T5_C190_module.v, l = Parameters_Systemic1.l_abdominal_aorta_C188, E = Parameters_Systemic1.E_abdominal_aorta_C188, r = Parameters_Systemic1.r_abdominal_aorta_C188, t = t)
     annotation (Placement(transformation(extent={{-25,80},{-5,75}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C192_module(u_in = abdominal_aorta_C188_module.u, v_out_1 = common_iliac_R216_module.v, v_out_2 = common_iliac_L194_module.v, l = 42.231e-03, E = 0.4e+6, r = 6.12422e-03, t = t)
+    BG_Modules_cellml.pv_jII_type abdominal_aorta_C192_module(u_in = abdominal_aorta_C188_module.u, v_out_1 = common_iliac_R216_module.v, v_out_2 = common_iliac_L194_module.v, l = Parameters_Systemic1.l_abdominal_aorta_C192, E = Parameters_Systemic1.E_abdominal_aorta_C192, r = Parameters_Systemic1.r_abdominal_aorta_C192, t = t)
     annotation (Placement(transformation(extent={{0,80},{20,75}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T1_R98_module(u_out = 100, t = t, u_in = thoracic_aorta_C96_module.u, l = 197.232e-03, E = 0.4e+6, R_T = 22.5809e+9, C_T = 2.2736e-12, r = 1.4e-03)
+    BG_Modules_cellml.pp_BC_type posterior_intercostal_T1_R98_module(u_out = u_ivl, t = t, u_in = thoracic_aorta_C96_module.u, l = Parameters_Systemic1.l_posterior_intercostal_T1_R98, E = Parameters_Systemic1.E_posterior_intercostal_T1_R98, R_T = Parameters_Systemic1.R_T_posterior_intercostal_T1_R98, C_T = Parameters_Systemic1.C_T_posterior_intercostal_T1_R98, r = Parameters_Systemic1.r_posterior_intercostal_T1_R98)
     annotation (Placement(transformation(extent={{25,80},{45,75}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T1_L102_module(u_out = 100, t = t, u_in = thoracic_aorta_C100_module.u, l = 178.519e-03, E = 0.4e+6, R_T = 23.1661e+9, C_T = 2.2162e-12, r = 1.4e-03)
+    BG_Modules_cellml.pp_BC_type posterior_intercostal_T1_L102_module(u_out = u_ivl, t = t, u_in = thoracic_aorta_C100_module.u, l = Parameters_Systemic1.l_posterior_intercostal_T1_L102, E = Parameters_Systemic1.E_posterior_intercostal_T1_L102, R_T = Parameters_Systemic1.R_T_posterior_intercostal_T1_L102, C_T = Parameters_Systemic1.C_T_posterior_intercostal_T1_L102, r = Parameters_Systemic1.r_posterior_intercostal_T1_L102)
     annotation (Placement(transformation(extent={{50,80},{70,75}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T2_R106_module(u_out = 100, t = t, u_in = thoracic_aorta_C104_module.u, l = 201.883e-03, E = 0.4e+6, R_T = 21.0678e+9, C_T = 2.4369e-12, r = 1.55e-03)
+    BG_Modules_cellml.pp_BC_type posterior_intercostal_T2_R106_module(u_out = u_ivl, t = t, u_in = thoracic_aorta_C104_module.u, l = Parameters_Systemic1.l_posterior_intercostal_T2_R106, E = Parameters_Systemic1.E_posterior_intercostal_T2_R106, R_T = Parameters_Systemic1.R_T_posterior_intercostal_T2_R106, C_T = Parameters_Systemic1.C_T_posterior_intercostal_T2_R106, r = Parameters_Systemic1.r_posterior_intercostal_T2_R106)
     annotation (Placement(transformation(extent={{75,80},{95,75}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T2_L110_module(u_out = 100, t = t, u_in = thoracic_aorta_C108_module.u, l = 185.547e-03, E = 0.4e+6, R_T = 21.2483e+9, C_T = 2.4162e-12, r = 1.55e-03)
+    BG_Modules_cellml.pp_BC_type posterior_intercostal_T2_L110_module(u_out = u_ivl, t = t, u_in = thoracic_aorta_C108_module.u, l = Parameters_Systemic1.l_posterior_intercostal_T2_L110, E = Parameters_Systemic1.E_posterior_intercostal_T2_L110, R_T = Parameters_Systemic1.R_T_posterior_intercostal_T2_L110, C_T = Parameters_Systemic1.C_T_posterior_intercostal_T2_L110, r = Parameters_Systemic1.r_posterior_intercostal_T2_L110)
     annotation (Placement(transformation(extent={{-100,70},{-80,65}})));
-    BG_Modules_cellml.pv_jII_type celiac_trunk_C116_module(u_in = abdominal_aorta_C114_module.u, v_out_1 = splenic_T2_C118_module.v, v_out_2 = left_gastric_T3_C120_module.v, l = 16.9374e-03, E = 0.4e+6, r = 3.29653e-03, t = t)
+    BG_Modules_cellml.pv_jII_type celiac_trunk_C116_module(u_in = abdominal_aorta_C114_module.u, v_out_1 = splenic_T2_C118_module.v, v_out_2 = left_gastric_T3_C120_module.v, l = Parameters_Systemic1.l_celiac_trunk_C116, E = Parameters_Systemic1.E_celiac_trunk_C116, r = Parameters_Systemic1.r_celiac_trunk_C116, t = t)
     annotation (Placement(transformation(extent={{-75,70},{-55,65}})));
-    BG_Modules_cellml.pv_jII_type splenic_T2_C118_module(u_in = celiac_trunk_C116_module.u, v_out_1 = splenic_T2_C122_module.v, v_out_2 = dorsal_pancreatic_T1_C124_module.v, l = 3.9576e-03, E = 0.4e+6, r = 2.16682e-03, t = t)
+    BG_Modules_cellml.pv_jII_type splenic_T2_C118_module(u_in = celiac_trunk_C116_module.u, v_out_1 = splenic_T2_C122_module.v, v_out_2 = dorsal_pancreatic_T1_C124_module.v, l = Parameters_Systemic1.l_splenic_T2_C118, E = Parameters_Systemic1.E_splenic_T2_C118, r = Parameters_Systemic1.r_splenic_T2_C118, t = t)
     annotation (Placement(transformation(extent={{-50,70},{-30,65}})));
-    BG_Modules_cellml.pp_BC_type left_gastric_T3_C120_module(u_out = 100, t = t, u_in = celiac_trunk_C116_module.u, l = 94.8344e-03, E = 0.4e+6, R_T = 31.1251e+9, C_T = 1.6495e-12, r = 1.50666e-03)
+    BG_Modules_cellml.pp_BC_type left_gastric_T3_C120_module(u_out = u_ivl, t = t, u_in = celiac_trunk_C116_module.u, l = Parameters_Systemic1.l_left_gastric_T3_C120, E = Parameters_Systemic1.E_left_gastric_T3_C120, R_T = Parameters_Systemic1.R_T_left_gastric_T3_C120, C_T = Parameters_Systemic1.C_T_left_gastric_T3_C120, r = Parameters_Systemic1.r_left_gastric_T3_C120)
     annotation (Placement(transformation(extent={{-25,70},{-5,65}})));
-    BG_Modules_cellml.pv_jII_type splenic_T2_C122_module(u_in = splenic_T2_C118_module.u, v_out_1 = splenic_T2_C126_module.v, v_out_2 = common_hepatic_C128_module.v, l = 2.79812e-03, E = 0.4e+6, r = 2.16682e-03, t = t)
+    BG_Modules_cellml.pv_jII_type splenic_T2_C122_module(u_in = splenic_T2_C118_module.u, v_out_1 = splenic_T2_C126_module.v, v_out_2 = common_hepatic_C128_module.v, l = Parameters_Systemic1.l_splenic_T2_C122, E = Parameters_Systemic1.E_splenic_T2_C122, r = Parameters_Systemic1.r_splenic_T2_C122, t = t)
     annotation (Placement(transformation(extent={{0,70},{20,65}})));
-    BG_Modules_cellml.pp_BC_type dorsal_pancreatic_T1_C124_module(u_out = 100, t = t, u_in = splenic_T2_C118_module.u, l = 33.4687e-03, E = 0.4e+6, R_T = 16.6313e+9, C_T = 15.055e-12, r = 0.558491e-03)
+    BG_Modules_cellml.pp_BC_type dorsal_pancreatic_T1_C124_module(u_out = u_ivl, t = t, u_in = splenic_T2_C118_module.u, l = Parameters_Systemic1.l_dorsal_pancreatic_T1_C124, E = Parameters_Systemic1.E_dorsal_pancreatic_T1_C124, R_T = Parameters_Systemic1.R_T_dorsal_pancreatic_T1_C124, C_T = Parameters_Systemic1.C_T_dorsal_pancreatic_T1_C124, r = Parameters_Systemic1.r_dorsal_pancreatic_T1_C124)
     annotation (Placement(transformation(extent={{25,70},{45,65}})));
-    BG_Modules_cellml.pp_BC_type splenic_T2_C126_module(u_out = 100, t = t, u_in = splenic_T2_C122_module.u, l = 63.2749e-03, E = 0.4e+6, R_T = 0.429028e+9, C_T = 119.67e-12, r = 2.16682e-03)
+    BG_Modules_cellml.pp_BC_type splenic_T2_C126_module(u_out = u_ivl, t = t, u_in = splenic_T2_C122_module.u, l = Parameters_Systemic1.l_splenic_T2_C126, E = Parameters_Systemic1.E_splenic_T2_C126, R_T = Parameters_Systemic1.R_T_splenic_T2_C126, C_T = Parameters_Systemic1.C_T_splenic_T2_C126, r = Parameters_Systemic1.r_splenic_T2_C126)
     annotation (Placement(transformation(extent={{50,70},{70,65}})));
-    BG_Modules_cellml.pv_type common_hepatic_C128_module(u_in = splenic_T2_C122_module.u, v_out = hepatic_artery_proper_C130_module.v, l = 69.3076e-03, E = 0.4e+6, r = 2.68614e-03, t = t)
+    BG_Modules_cellml.pv_type common_hepatic_C128_module(u_in = splenic_T2_C122_module.u, v_out = hepatic_artery_proper_C130_module.v, l = Parameters_Systemic1.l_common_hepatic_C128, E = Parameters_Systemic1.E_common_hepatic_C128, r = Parameters_Systemic1.r_common_hepatic_C128, t = t)
     annotation (Placement(transformation(extent={{75,70},{95,65}})));
-    BG_Modules_cellml.pv_jII_type hepatic_artery_proper_C130_module(v_out_1 = hepatic_artery_proper_left_branch_C132_module.v, v_out_2 = hepatic_artery_proper_right_branch_C134_module.v, u_in = common_hepatic_C128_module.u, l = 16.8059e-03, E = 0.4e+6, r = 1.77555e-03, t = t)
+    BG_Modules_cellml.pv_jII_type hepatic_artery_proper_C130_module(v_out_1 = hepatic_artery_proper_left_branch_C132_module.v, v_out_2 = hepatic_artery_proper_right_branch_C134_module.v, u_in = common_hepatic_C128_module.u, l = Parameters_Systemic1.l_hepatic_artery_proper_C130, E = Parameters_Systemic1.E_hepatic_artery_proper_C130, r = Parameters_Systemic1.r_hepatic_artery_proper_C130, t = t)
     annotation (Placement(transformation(extent={{-100,60},{-80,55}})));
-    BG_Modules_cellml.pp_BC_type hepatic_artery_proper_left_branch_C132_module(u_out = 100, t = t, u_in = hepatic_artery_proper_C130_module.u, l = 164.224e-03, E = 0.4e+6, R_T = 0.852085e+9, C_T = 60.253e-12, r = 1.1663e-03)
+    BG_Modules_cellml.pp_BC_type hepatic_artery_proper_left_branch_C132_module(u_out = u_ivl, t = t, u_in = hepatic_artery_proper_C130_module.u, l = Parameters_Systemic1.l_hepatic_artery_proper_left_branch_C132, E = Parameters_Systemic1.E_hepatic_artery_proper_left_branch_C132, R_T = Parameters_Systemic1.R_T_hepatic_artery_proper_left_branch_C132, C_T = Parameters_Systemic1.C_T_hepatic_artery_proper_left_branch_C132, r = Parameters_Systemic1.r_hepatic_artery_proper_left_branch_C132)
     annotation (Placement(transformation(extent={{-75,60},{-55,55}})));
-    BG_Modules_cellml.pp_BC_type hepatic_artery_proper_right_branch_C134_module(u_out = 100, t = t, u_in = hepatic_artery_proper_C130_module.u, l = 80.0632e-03, E = 0.4e+6, R_T = 0.471438e+9, C_T = 108.9e-12, r = 1.42068e-03)
+    BG_Modules_cellml.pp_BC_type hepatic_artery_proper_right_branch_C134_module(u_out = u_ivl, t = t, u_in = hepatic_artery_proper_C130_module.u, l = Parameters_Systemic1.l_hepatic_artery_proper_right_branch_C134, E = Parameters_Systemic1.E_hepatic_artery_proper_right_branch_C134, R_T = Parameters_Systemic1.R_T_hepatic_artery_proper_right_branch_C134, C_T = Parameters_Systemic1.C_T_hepatic_artery_proper_right_branch_C134, r = Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
     annotation (Placement(transformation(extent={{-50,60},{-30,55}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C138_module(u_in = abdominal_aorta_C136_module.u, v_out_1 = middle_colic_T8_C140_module.v, v_out_2 = superior_mesenteric_T4_C142_module.v, l = 49.5492e-03, E = 0.4e+6, r = 3.72737e-03, t = t)
+    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C138_module(u_in = abdominal_aorta_C136_module.u, v_out_1 = middle_colic_T8_C140_module.v, v_out_2 = superior_mesenteric_T4_C142_module.v, l = Parameters_Systemic1.l_superior_mesenteric_T4_C138, E = Parameters_Systemic1.E_superior_mesenteric_T4_C138, r = Parameters_Systemic1.r_superior_mesenteric_T4_C138, t = t)
     annotation (Placement(transformation(extent={{-25,60},{-5,55}})));
-    BG_Modules_cellml.pp_BC_type middle_colic_T8_C140_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C138_module.u, l = 116.298e-03, E = 0.4e+6, R_T = 2.6865e+9, C_T = 19.111e-12, r = 1.425e-03)
+    BG_Modules_cellml.pp_BC_type middle_colic_T8_C140_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C138_module.u, l = Parameters_Systemic1.l_middle_colic_T8_C140, E = Parameters_Systemic1.E_middle_colic_T8_C140, R_T = Parameters_Systemic1.R_T_middle_colic_T8_C140, C_T = Parameters_Systemic1.C_T_middle_colic_T8_C140, r = Parameters_Systemic1.r_middle_colic_T8_C140)
     annotation (Placement(transformation(extent={{0,60},{20,55}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C142_module(u_in = superior_mesenteric_T4_C138_module.u, v_out_1 = jejunal_3_T10_C144_module.v, v_out_2 = superior_mesenteric_T4_C146_module.v, l = 35.1664e-03, E = 0.4e+6, r = 3.40146e-03, t = t)
+    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C142_module(u_in = superior_mesenteric_T4_C138_module.u, v_out_1 = jejunal_3_T10_C144_module.v, v_out_2 = superior_mesenteric_T4_C146_module.v, l = Parameters_Systemic1.l_superior_mesenteric_T4_C142, E = Parameters_Systemic1.E_superior_mesenteric_T4_C142, r = Parameters_Systemic1.r_superior_mesenteric_T4_C142, t = t)
     annotation (Placement(transformation(extent={{25,60},{45,55}})));
-    BG_Modules_cellml.pp_BC_type jejunal_3_T10_C144_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C142_module.u, l = 47.6944e-03, E = 0.4e+6, R_T = 1.96952e+9, C_T = 26.067e-12, r = 1.58037e-03)
+    BG_Modules_cellml.pp_BC_type jejunal_3_T10_C144_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C142_module.u, l = Parameters_Systemic1.l_jejunal_3_T10_C144, E = Parameters_Systemic1.E_jejunal_3_T10_C144, R_T = Parameters_Systemic1.R_T_jejunal_3_T10_C144, C_T = Parameters_Systemic1.C_T_jejunal_3_T10_C144, r = Parameters_Systemic1.r_jejunal_3_T10_C144)
     annotation (Placement(transformation(extent={{50,60},{70,55}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C146_module(u_in = superior_mesenteric_T4_C142_module.u, v_out_1 = jejunal_6_T11_C148_module.v, v_out_2 = superior_mesenteric_T4_C150_module.v, l = 32.2488e-03, E = 0.4e+6, r = 3.06914e-03, t = t)
+    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C146_module(u_in = superior_mesenteric_T4_C142_module.u, v_out_1 = jejunal_6_T11_C148_module.v, v_out_2 = superior_mesenteric_T4_C150_module.v, l = Parameters_Systemic1.l_superior_mesenteric_T4_C146, E = Parameters_Systemic1.E_superior_mesenteric_T4_C146, r = Parameters_Systemic1.r_superior_mesenteric_T4_C146, t = t)
     annotation (Placement(transformation(extent={{75,60},{95,55}})));
-    BG_Modules_cellml.pp_BC_type jejunal_6_T11_C148_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C146_module.u, l = 63.8535e-03, E = 0.4e+6, R_T = 1.96952e+9, C_T = 26.067e-12, r = 1.58037e-03)
+    BG_Modules_cellml.pp_BC_type jejunal_6_T11_C148_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C146_module.u, l = Parameters_Systemic1.l_jejunal_6_T11_C148, E = Parameters_Systemic1.E_jejunal_6_T11_C148, R_T = Parameters_Systemic1.R_T_jejunal_6_T11_C148, C_T = Parameters_Systemic1.C_T_jejunal_6_T11_C148, r = Parameters_Systemic1.r_jejunal_6_T11_C148)
     annotation (Placement(transformation(extent={{-100,50},{-80,45}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C150_module(u_in = superior_mesenteric_T4_C146_module.u, v_out_1 = ileocolic_T9_C152_module.v, v_out_2 = superior_mesenteric_T4_C154_module.v, l = 16.7458e-03, E = 0.4e+6, r = 2.85201e-03, t = t)
+    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C150_module(u_in = superior_mesenteric_T4_C146_module.u, v_out_1 = ileocolic_T9_C152_module.v, v_out_2 = superior_mesenteric_T4_C154_module.v, l = Parameters_Systemic1.l_superior_mesenteric_T4_C150, E = Parameters_Systemic1.E_superior_mesenteric_T4_C150, r = Parameters_Systemic1.r_superior_mesenteric_T4_C150, t = t)
     annotation (Placement(transformation(extent={{-75,50},{-55,45}})));
-    BG_Modules_cellml.pp_BC_type ileocolic_T9_C152_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C150_module.u, l = 46.8332e-03, E = 0.4e+6, R_T = 0.971722e+9, C_T = 52.835e-12, r = 2.0e-03)
+    BG_Modules_cellml.pp_BC_type ileocolic_T9_C152_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C150_module.u, l = Parameters_Systemic1.l_ileocolic_T9_C152, E = Parameters_Systemic1.E_ileocolic_T9_C152, R_T = Parameters_Systemic1.R_T_ileocolic_T9_C152, C_T = Parameters_Systemic1.C_T_ileocolic_T9_C152, r = Parameters_Systemic1.r_ileocolic_T9_C152)
     annotation (Placement(transformation(extent={{-50,50},{-30,45}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C154_module(u_in = superior_mesenteric_T4_C150_module.u, v_out_1 = ileal_4_T12_C156_module.v, v_out_2 = superior_mesenteric_T4_C158_module.v, l = 23.0546e-03, E = 0.4e+6, r = 2.69257e-03, t = t)
+    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C154_module(u_in = superior_mesenteric_T4_C150_module.u, v_out_1 = ileal_4_T12_C156_module.v, v_out_2 = superior_mesenteric_T4_C158_module.v, l = Parameters_Systemic1.l_superior_mesenteric_T4_C154, E = Parameters_Systemic1.E_superior_mesenteric_T4_C154, r = Parameters_Systemic1.r_superior_mesenteric_T4_C154, t = t)
     annotation (Placement(transformation(extent={{-25,50},{-5,45}})));
-    BG_Modules_cellml.pp_BC_type ileal_4_T12_C156_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C154_module.u, l = 45.6984e-03, E = 0.4e+6, R_T = 1.32964e+9, C_T = 38.612e-12, r = 1.8015e-03)
+    BG_Modules_cellml.pp_BC_type ileal_4_T12_C156_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C154_module.u, l = Parameters_Systemic1.l_ileal_4_T12_C156, E = Parameters_Systemic1.E_ileal_4_T12_C156, R_T = Parameters_Systemic1.R_T_ileal_4_T12_C156, C_T = Parameters_Systemic1.C_T_ileal_4_T12_C156, r = Parameters_Systemic1.r_ileal_4_T12_C156)
     annotation (Placement(transformation(extent={{0,50},{20,45}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C158_module(u_in = superior_mesenteric_T4_C154_module.u, v_out_1 = ileal_6_T13_C160_module.v, v_out_2 = superior_mesenteric_T4_C162_module.v, l = 20.5397e-03, E = 0.4e+6, r = 2.49385e-03, t = t)
+    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C158_module(u_in = superior_mesenteric_T4_C154_module.u, v_out_1 = ileal_6_T13_C160_module.v, v_out_2 = superior_mesenteric_T4_C162_module.v, l = Parameters_Systemic1.l_superior_mesenteric_T4_C158, E = Parameters_Systemic1.E_superior_mesenteric_T4_C158, r = Parameters_Systemic1.r_superior_mesenteric_T4_C158, t = t)
     annotation (Placement(transformation(extent={{25,50},{45,45}})));
-    BG_Modules_cellml.pp_BC_type ileal_6_T13_C160_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C158_module.u, l = 29.1584e-03, E = 0.4e+6, R_T = 1.32964e+9, C_T = 38.612e-12, r = 1.80150e-03)
+    BG_Modules_cellml.pp_BC_type ileal_6_T13_C160_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C158_module.u, l = Parameters_Systemic1.l_ileal_6_T13_C160, E = Parameters_Systemic1.E_ileal_6_T13_C160, R_T = Parameters_Systemic1.R_T_ileal_6_T13_C160, C_T = Parameters_Systemic1.C_T_ileal_6_T13_C160, r = Parameters_Systemic1.r_ileal_6_T13_C160)
     annotation (Placement(transformation(extent={{50,50},{70,45}})));
-    BG_Modules_cellml.pp_BC_type superior_mesenteric_T4_C162_module(u_out = 100, t = t, u_in = superior_mesenteric_T4_C158_module.u, l = 39.4879e-03, E = 0.4e+6, R_T = 0.880745e+9, C_T = 58.292e-12, r = 2.18233e-03)
+    BG_Modules_cellml.pp_BC_type superior_mesenteric_T4_C162_module(u_out = u_ivl, t = t, u_in = superior_mesenteric_T4_C158_module.u, l = Parameters_Systemic1.l_superior_mesenteric_T4_C162, E = Parameters_Systemic1.E_superior_mesenteric_T4_C162, R_T = Parameters_Systemic1.R_T_superior_mesenteric_T4_C162, C_T = Parameters_Systemic1.C_T_superior_mesenteric_T4_C162, r = Parameters_Systemic1.r_superior_mesenteric_T4_C162)
     annotation (Placement(transformation(extent={{75,50},{95,45}})));
-    BG_Modules_cellml.pv_jII_type renal_L166_module(u_in = abdominal_aorta_C164_module.u, v_out_1 = renal_anterior_branch_L168_module.v, v_out_2 = renal_posterior_branch_T3_L174_module.v, l = 22.0037e-03, E = 0.4e+6, r = 2.73574e-03, t = t)
+    BG_Modules_cellml.pv_jII_type renal_L166_module(u_in = abdominal_aorta_C164_module.u, v_out_1 = renal_anterior_branch_L168_module.v, v_out_2 = renal_posterior_branch_T3_L174_module.v, l = Parameters_Systemic1.l_renal_L166, E = Parameters_Systemic1.E_renal_L166, r = Parameters_Systemic1.r_renal_L166, t = t)
     annotation (Placement(transformation(extent={{-100,40},{-80,35}})));
-    BG_Modules_cellml.pv_jII_type renal_anterior_branch_L168_module(u_in = renal_L166_module.u, v_out_1 = inferior_segmental_T5_L170_module.v, v_out_2 = superior_segmental_T4_L172_module.v, l = 10.8789e-03, E = 0.4e+6, r = 2.48193e-03, t = t)
+    BG_Modules_cellml.pv_jII_type renal_anterior_branch_L168_module(u_in = renal_L166_module.u, v_out_1 = inferior_segmental_T5_L170_module.v, v_out_2 = superior_segmental_T4_L172_module.v, l = Parameters_Systemic1.l_renal_anterior_branch_L168, E = Parameters_Systemic1.E_renal_anterior_branch_L168, r = Parameters_Systemic1.r_renal_anterior_branch_L168, t = t)
     annotation (Placement(transformation(extent={{-75,40},{-55,35}})));
-    BG_Modules_cellml.pp_BC_type inferior_segmental_T5_L170_module(u_out = 100, t = t, u_in = renal_anterior_branch_L168_module.u, l = 40.8761e-03, E = 0.4e+6, R_T = 0.526057e+9, C_T = 97.595e-12, r = 1.92732e-03)
+    BG_Modules_cellml.pp_BC_type inferior_segmental_T5_L170_module(u_out = u_ivl, t = t, u_in = renal_anterior_branch_L168_module.u, l = Parameters_Systemic1.l_inferior_segmental_T5_L170, E = Parameters_Systemic1.E_inferior_segmental_T5_L170, R_T = Parameters_Systemic1.R_T_inferior_segmental_T5_L170, C_T = Parameters_Systemic1.C_T_inferior_segmental_T5_L170, r = Parameters_Systemic1.r_inferior_segmental_T5_L170)
     annotation (Placement(transformation(extent={{-50,40},{-30,35}})));
-    BG_Modules_cellml.pp_BC_type superior_segmental_T4_L172_module(u_out = 100, t = t, u_in = renal_anterior_branch_L168_module.u, l = 29.7265e-03, E = 0.4e+6, R_T = 0.526057e+9, C_T = 97.595e-12, r = 1.92732e-03)
+    BG_Modules_cellml.pp_BC_type superior_segmental_T4_L172_module(u_out = u_ivl, t = t, u_in = renal_anterior_branch_L168_module.u, l = Parameters_Systemic1.l_superior_segmental_T4_L172, E = Parameters_Systemic1.E_superior_segmental_T4_L172, R_T = Parameters_Systemic1.R_T_superior_segmental_T4_L172, C_T = Parameters_Systemic1.C_T_superior_segmental_T4_L172, r = Parameters_Systemic1.r_superior_segmental_T4_L172)
     annotation (Placement(transformation(extent={{-25,40},{-5,35}})));
-    BG_Modules_cellml.pp_BC_type renal_posterior_branch_T3_L174_module(u_out = 100, t = t, u_in = renal_L166_module.u, l = 22.3608e-03, E = 0.4e+6, R_T = 0.931304e+9, C_T = 55.127e-12, r = 1.59319e-03)
+    BG_Modules_cellml.pp_BC_type renal_posterior_branch_T3_L174_module(u_out = u_ivl, t = t, u_in = renal_L166_module.u, l = Parameters_Systemic1.l_renal_posterior_branch_T3_L174, E = Parameters_Systemic1.E_renal_posterior_branch_T3_L174, R_T = Parameters_Systemic1.R_T_renal_posterior_branch_T3_L174, C_T = Parameters_Systemic1.C_T_renal_posterior_branch_T3_L174, r = Parameters_Systemic1.r_renal_posterior_branch_T3_L174)
     annotation (Placement(transformation(extent={{0,40},{20,35}})));
-    BG_Modules_cellml.pv_jII_type renal_R178_module(u_in = abdominal_aorta_C176_module.u, v_out_1 = renal_anterior_branch_R180_module.v, v_out_2 = renal_posterior_branch_T3_R186_module.v, l = 37.7403e-03, E = 0.4e+6, r = 2.96767e-03, t = t)
+    BG_Modules_cellml.pv_jII_type renal_R178_module(u_in = abdominal_aorta_C176_module.u, v_out_1 = renal_anterior_branch_R180_module.v, v_out_2 = renal_posterior_branch_T3_R186_module.v, l = Parameters_Systemic1.l_renal_R178, E = Parameters_Systemic1.E_renal_R178, r = Parameters_Systemic1.r_renal_R178, t = t)
     annotation (Placement(transformation(extent={{25,40},{45,35}})));
-    BG_Modules_cellml.pv_jII_type renal_anterior_branch_R180_module(u_in = renal_R178_module.u, v_out_1 = superior_segmental_T4_R182_module.v, v_out_2 = inferior_segmental_T5_R184_module.v, l = 10.8792e-03, E = 0.4e+6, r = 2.48193e-03, t = t)
+    BG_Modules_cellml.pv_jII_type renal_anterior_branch_R180_module(u_in = renal_R178_module.u, v_out_1 = superior_segmental_T4_R182_module.v, v_out_2 = inferior_segmental_T5_R184_module.v, l = Parameters_Systemic1.l_renal_anterior_branch_R180, E = Parameters_Systemic1.E_renal_anterior_branch_R180, r = Parameters_Systemic1.r_renal_anterior_branch_R180, t = t)
     annotation (Placement(transformation(extent={{50,40},{70,35}})));
-    BG_Modules_cellml.pp_BC_type superior_segmental_T4_R182_module(u_out = 100, t = t, u_in = renal_anterior_branch_R180_module.u, l = 29.7263e-03, E = 0.4e+6, R_T = 0.527823e+9, C_T = 97.268e-12, r = 1.92732e-03)
+    BG_Modules_cellml.pp_BC_type superior_segmental_T4_R182_module(u_out = u_ivl, t = t, u_in = renal_anterior_branch_R180_module.u, l = Parameters_Systemic1.l_superior_segmental_T4_R182, E = Parameters_Systemic1.E_superior_segmental_T4_R182, R_T = Parameters_Systemic1.R_T_superior_segmental_T4_R182, C_T = Parameters_Systemic1.C_T_superior_segmental_T4_R182, r = Parameters_Systemic1.r_superior_segmental_T4_R182)
     annotation (Placement(transformation(extent={{75,40},{95,35}})));
-    BG_Modules_cellml.pp_BC_type inferior_segmental_T5_R184_module(u_out = 100, t = t, u_in = renal_anterior_branch_R180_module.u, l = 40.8756e-03, E = 0.4e+6, R_T = 0.527823e+9, C_T = 97.268e-12, r = 1.92732e-03)
+    BG_Modules_cellml.pp_BC_type inferior_segmental_T5_R184_module(u_out = u_ivl, t = t, u_in = renal_anterior_branch_R180_module.u, l = Parameters_Systemic1.l_inferior_segmental_T5_R184, E = Parameters_Systemic1.E_inferior_segmental_T5_R184, R_T = Parameters_Systemic1.R_T_inferior_segmental_T5_R184, C_T = Parameters_Systemic1.C_T_inferior_segmental_T5_R184, r = Parameters_Systemic1.r_inferior_segmental_T5_R184)
     annotation (Placement(transformation(extent={{-100,30},{-80,25}})));
-    BG_Modules_cellml.pp_BC_type renal_posterior_branch_T3_R186_module(u_out = 100, t = t, u_in = renal_R178_module.u, l = 22.36e-03, E = 0.4e+6, R_T = 0.934431e+9, C_T = 54.943e-12, r = 1.59319e-03)
+    BG_Modules_cellml.pp_BC_type renal_posterior_branch_T3_R186_module(u_out = u_ivl, t = t, u_in = renal_R178_module.u, l = Parameters_Systemic1.l_renal_posterior_branch_T3_R186, E = Parameters_Systemic1.E_renal_posterior_branch_T3_R186, R_T = Parameters_Systemic1.R_T_renal_posterior_branch_T3_R186, C_T = Parameters_Systemic1.C_T_renal_posterior_branch_T3_R186, r = Parameters_Systemic1.r_renal_posterior_branch_T3_R186)
     annotation (Placement(transformation(extent={{-75,30},{-55,25}})));
-    BG_Modules_cellml.pp_BC_type inferior_mesenteric_T5_C190_module(u_out = 100, t = t, u_in = abdominal_aorta_C188_module.u, l = 90.3282e-03, E = 0.4e+6, R_T = 2.16746e+9, C_T = 23.687e-12, r = 2.07748e-03)
+    BG_Modules_cellml.pp_BC_type inferior_mesenteric_T5_C190_module(u_out = u_ivl, t = t, u_in = abdominal_aorta_C188_module.u, l = Parameters_Systemic1.l_inferior_mesenteric_T5_C190, E = Parameters_Systemic1.E_inferior_mesenteric_T5_C190, R_T = Parameters_Systemic1.R_T_inferior_mesenteric_T5_C190, C_T = Parameters_Systemic1.C_T_inferior_mesenteric_T5_C190, r = Parameters_Systemic1.r_inferior_mesenteric_T5_C190)
     annotation (Placement(transformation(extent={{-50,30},{-30,25}})));
-    BG_Modules_cellml.pv_jII_type common_iliac_R216_module(u_in = abdominal_aorta_C192_module.u, v_out_1 = internal_iliac_T1_R218_module.v, v_out_2 = external_iliac_R220_module.v, l = 76.4393e-03, E = 0.4e+6, r = 4.30633e-03, t = t)
+    BG_Modules_cellml.pv_jII_type common_iliac_R216_module(u_in = abdominal_aorta_C192_module.u, v_out_1 = internal_iliac_T1_R218_module.v, v_out_2 = external_iliac_R220_module.v, l = Parameters_Systemic1.l_common_iliac_R216, E = Parameters_Systemic1.E_common_iliac_R216, r = Parameters_Systemic1.r_common_iliac_R216, t = t)
     annotation (Placement(transformation(extent={{-25,30},{-5,25}})));
-    BG_Modules_cellml.pp_BC_type internal_iliac_T1_R218_module(u_out = 100, t = t, u_in = common_iliac_R216_module.u, l = 72.5302e-03, E = 1.6e+6, R_T = 0.375754e+9, C_T = 136.63e-12, r = 2.81829e-03)
+    BG_Modules_cellml.pp_BC_type internal_iliac_T1_R218_module(u_out = u_ivl, t = t, u_in = common_iliac_R216_module.u, l = Parameters_Systemic1.l_internal_iliac_T1_R218, E = Parameters_Systemic1.E_internal_iliac_T1_R218, R_T = Parameters_Systemic1.R_T_internal_iliac_T1_R218, C_T = Parameters_Systemic1.C_T_internal_iliac_T1_R218, r = Parameters_Systemic1.r_internal_iliac_T1_R218)
     annotation (Placement(transformation(extent={{0,30},{20,25}})));
-    BG_Modules_cellml.pv_type external_iliac_R220_module(u_in = common_iliac_R216_module.u, v_out = femoral_R222_module.v, l = 102.358e-03, E = 0.8e+6, r = 3.28821e-03, t = t)
+    BG_Modules_cellml.pv_type external_iliac_R220_module(u_in = common_iliac_R216_module.u, v_out = femoral_R222_module.v, l = Parameters_Systemic1.l_external_iliac_R220, E = Parameters_Systemic1.E_external_iliac_R220, r = Parameters_Systemic1.r_external_iliac_R220, t = t)
     annotation (Placement(transformation(extent={{25,30},{45,25}})));
-    BG_Modules_cellml.pv_jII_type femoral_R222_module(v_out_1 = profundus_T2_R224_module.v, v_out_2 = femoral_R226_module.v, u_in = external_iliac_R220_module.u, l = 31.5982e-03, E = 0.8e+6, r = 3.17347e-03, t = t)
+    BG_Modules_cellml.pv_jII_type femoral_R222_module(v_out_1 = profundus_T2_R224_module.v, v_out_2 = femoral_R226_module.v, u_in = external_iliac_R220_module.u, l = Parameters_Systemic1.l_femoral_R222, E = Parameters_Systemic1.E_femoral_R222, r = Parameters_Systemic1.r_femoral_R222, t = t)
     annotation (Placement(transformation(extent={{50,30},{70,25}})));
-    BG_Modules_cellml.pp_BC_type profundus_T2_R224_module(u_out = 100, t = t, u_in = femoral_R222_module.u, l = 238.438e-03, E = 0.8e+6, R_T = 0.310612e+9, C_T = 165.29e-12, r = 2.14445e-03)
+    BG_Modules_cellml.pp_BC_type profundus_T2_R224_module(u_out = u_ivl, t = t, u_in = femoral_R222_module.u, l = Parameters_Systemic1.l_profundus_T2_R224, E = Parameters_Systemic1.E_profundus_T2_R224, R_T = Parameters_Systemic1.R_T_profundus_T2_R224, C_T = Parameters_Systemic1.C_T_profundus_T2_R224, r = Parameters_Systemic1.r_profundus_T2_R224)
     annotation (Placement(transformation(extent={{75,30},{95,25}})));
-    BG_Modules_cellml.pv_type femoral_R226_module(u_in = femoral_R222_module.u, v_out = popliteal_R228_module.v, l = 319.297e-03, E = 0.8e+6, r = 2.89103e-03, t = t)
+    BG_Modules_cellml.pv_type femoral_R226_module(u_in = femoral_R222_module.u, v_out = popliteal_R228_module.v, l = Parameters_Systemic1.l_femoral_R226, E = Parameters_Systemic1.E_femoral_R226, r = Parameters_Systemic1.r_femoral_R226, t = t)
     annotation (Placement(transformation(extent={{-100,20},{-80,15}})));
-    BG_Modules_cellml.pv_jII_type popliteal_R228_module(v_out_1 = anterior_tibial_T3_R230_module.v, v_out_2 = popliteal_R232_module.v, u_in = femoral_R226_module.u, l = 132.06e-03, E = 0.8e+6, r = 2.51554e-03, t = t)
+    BG_Modules_cellml.pv_jII_type popliteal_R228_module(v_out_1 = anterior_tibial_T3_R230_module.v, v_out_2 = popliteal_R232_module.v, u_in = femoral_R226_module.u, l = Parameters_Systemic1.l_popliteal_R228, E = Parameters_Systemic1.E_popliteal_R228, r = Parameters_Systemic1.r_popliteal_R228, t = t)
     annotation (Placement(transformation(extent={{-75,20},{-55,15}})));
-    BG_Modules_cellml.pp_BC_type anterior_tibial_T3_R230_module(u_out = 100, t = t, u_in = popliteal_R228_module.u, l = 386.388e-03, E = 1.6e+6, R_T = 2.22296e+9, C_T = 23.096e-12, r = 1.1663e-03)
+    BG_Modules_cellml.pp_BC_type anterior_tibial_T3_R230_module(u_out = u_ivl, t = t, u_in = popliteal_R228_module.u, l = Parameters_Systemic1.l_anterior_tibial_T3_R230, E = Parameters_Systemic1.E_anterior_tibial_T3_R230, R_T = Parameters_Systemic1.R_T_anterior_tibial_T3_R230, C_T = Parameters_Systemic1.C_T_anterior_tibial_T3_R230, r = Parameters_Systemic1.r_anterior_tibial_T3_R230)
     annotation (Placement(transformation(extent={{-50,20},{-30,15}})));
-    BG_Modules_cellml.pv_type popliteal_R232_module(u_in = popliteal_R228_module.u, v_out = tibiofibular_trunk_R234_module.v, l = 8.80051e-03, E = 1.6e+6, r = 2.35852e-03, t = t)
+    BG_Modules_cellml.pv_type popliteal_R232_module(u_in = popliteal_R228_module.u, v_out = tibiofibular_trunk_R234_module.v, l = Parameters_Systemic1.l_popliteal_R232, E = Parameters_Systemic1.E_popliteal_R232, r = Parameters_Systemic1.r_popliteal_R232, t = t)
     annotation (Placement(transformation(extent={{-25,20},{-5,15}})));
-    BG_Modules_cellml.pv_type tibiofibular_trunk_R234_module(u_in = popliteal_R232_module.u, v_out = posterior_tibial_T4_R236_module.v, l = 36.1667e-03, E = 1.6e+6, r = 2.34646e-03, t = t)
+    BG_Modules_cellml.pv_type tibiofibular_trunk_R234_module(u_in = popliteal_R232_module.u, v_out = posterior_tibial_T4_R236_module.v, l = Parameters_Systemic1.l_tibiofibular_trunk_R234, E = Parameters_Systemic1.E_tibiofibular_trunk_R234, r = Parameters_Systemic1.r_tibiofibular_trunk_R234, t = t)
     annotation (Placement(transformation(extent={{0,20},{20,15}})));
-    BG_Modules_cellml.pp_BC_type posterior_tibial_T4_R236_module(u_out = 100, t = t, u_in = tibiofibular_trunk_R234_module.u, l = 382.987e-03, E = 1.6e+6, R_T = 1.91761e+9, C_T = 26.773e-12, r = 1.22936e-03)
+    BG_Modules_cellml.pp_BC_type posterior_tibial_T4_R236_module(u_out = u_ivl, t = t, u_in = tibiofibular_trunk_R234_module.u, l = Parameters_Systemic1.l_posterior_tibial_T4_R236, E = Parameters_Systemic1.E_posterior_tibial_T4_R236, R_T = Parameters_Systemic1.R_T_posterior_tibial_T4_R236, C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_R236, r = Parameters_Systemic1.r_posterior_tibial_T4_R236)
     annotation (Placement(transformation(extent={{25,20},{45,15}})));
-    BG_Modules_cellml.pv_jII_type common_iliac_L194_module(u_in = abdominal_aorta_C192_module.u, v_out_1 = internal_iliac_T1_L196_module.v, v_out_2 = external_iliac_L198_module.v, l = 74.0524e-03, E = 0.4e+6, r = 4.28142e-03, t = t)
+    BG_Modules_cellml.pv_jII_type common_iliac_L194_module(u_in = abdominal_aorta_C192_module.u, v_out_1 = internal_iliac_T1_L196_module.v, v_out_2 = external_iliac_L198_module.v, l = Parameters_Systemic1.l_common_iliac_L194, E = Parameters_Systemic1.E_common_iliac_L194, r = Parameters_Systemic1.r_common_iliac_L194, t = t)
     annotation (Placement(transformation(extent={{50,20},{70,15}})));
-    BG_Modules_cellml.pp_BC_type internal_iliac_T1_L196_module(u_out = 100, t = t, u_in = common_iliac_L194_module.u, l = 72.5301e-03, E = 1.6e+6, R_T = 0.376879e+9, C_T = 136.23e-12, r = 2.81829e-03)
+    BG_Modules_cellml.pp_BC_type internal_iliac_T1_L196_module(u_out = u_ivl, t = t, u_in = common_iliac_L194_module.u, l = Parameters_Systemic1.l_internal_iliac_T1_L196, E = Parameters_Systemic1.E_internal_iliac_T1_L196, R_T = Parameters_Systemic1.R_T_internal_iliac_T1_L196, C_T = Parameters_Systemic1.C_T_internal_iliac_T1_L196, r = Parameters_Systemic1.r_internal_iliac_T1_L196)
     annotation (Placement(transformation(extent={{75,20},{95,15}})));
-    BG_Modules_cellml.pv_type external_iliac_L198_module(u_in = common_iliac_L194_module.u, v_out = femoral_L200_module.v, l = 102.358e-03, E = 0.8e+6, r = 3.28821e-03, t = t)
+    BG_Modules_cellml.pv_type external_iliac_L198_module(u_in = common_iliac_L194_module.u, v_out = femoral_L200_module.v, l = Parameters_Systemic1.l_external_iliac_L198, E = Parameters_Systemic1.E_external_iliac_L198, r = Parameters_Systemic1.r_external_iliac_L198, t = t)
     annotation (Placement(transformation(extent={{-100,10},{-80,5}})));
-    BG_Modules_cellml.pv_jII_type femoral_L200_module(v_out_1 = profundus_T2_L202_module.v, v_out_2 = femoral_L204_module.v, u_in = external_iliac_L198_module.u, l = 31.5982e-03, E = 0.8e+6, r = 3.17347e-03, t = t)
+    BG_Modules_cellml.pv_jII_type femoral_L200_module(v_out_1 = profundus_T2_L202_module.v, v_out_2 = femoral_L204_module.v, u_in = external_iliac_L198_module.u, l = Parameters_Systemic1.l_femoral_L200, E = Parameters_Systemic1.E_femoral_L200, r = Parameters_Systemic1.r_femoral_L200, t = t)
     annotation (Placement(transformation(extent={{-75,10},{-55,5}})));
-    BG_Modules_cellml.pp_BC_type profundus_T2_L202_module(u_out = 100, t = t, u_in = femoral_L200_module.u, l = 238.438e-03, E = 0.8e+6, R_T = 0.310778e+9, C_T = 165.2e-12, r = 2.14445e-03)
+    BG_Modules_cellml.pp_BC_type profundus_T2_L202_module(u_out = u_ivl, t = t, u_in = femoral_L200_module.u, l = Parameters_Systemic1.l_profundus_T2_L202, E = Parameters_Systemic1.E_profundus_T2_L202, R_T = Parameters_Systemic1.R_T_profundus_T2_L202, C_T = Parameters_Systemic1.C_T_profundus_T2_L202, r = Parameters_Systemic1.r_profundus_T2_L202)
     annotation (Placement(transformation(extent={{-50,10},{-30,5}})));
-    BG_Modules_cellml.pv_type femoral_L204_module(u_in = femoral_L200_module.u, v_out = popliteal_L206_module.v, l = 319.297e-03, E = 0.8e+6, r = 2.89103e-03, t = t)
+    BG_Modules_cellml.pv_type femoral_L204_module(u_in = femoral_L200_module.u, v_out = popliteal_L206_module.v, l = Parameters_Systemic1.l_femoral_L204, E = Parameters_Systemic1.E_femoral_L204, r = Parameters_Systemic1.r_femoral_L204, t = t)
     annotation (Placement(transformation(extent={{-25,10},{-5,5}})));
-    BG_Modules_cellml.pv_jII_type popliteal_L206_module(v_out_1 = anterior_tibial_T3_L208_module.v, v_out_2 = popliteal_L210_module.v, u_in = femoral_L204_module.u, l = 132.059e-03, E = 0.8e+6, r = 2.51554e-03, t = t)
+    BG_Modules_cellml.pv_jII_type popliteal_L206_module(v_out_1 = anterior_tibial_T3_L208_module.v, v_out_2 = popliteal_L210_module.v, u_in = femoral_L204_module.u, l = Parameters_Systemic1.l_popliteal_L206, E = Parameters_Systemic1.E_popliteal_L206, r = Parameters_Systemic1.r_popliteal_L206, t = t)
     annotation (Placement(transformation(extent={{0,10},{20,5}})));
-    BG_Modules_cellml.pp_BC_type anterior_tibial_T3_L208_module(u_out = 100, t = t, u_in = popliteal_L206_module.u, l = 386.389e-03, E = 1.6e+6, R_T = 2.22365e+9, C_T = 23.088e-12, r = 1.1663e-03)
+    BG_Modules_cellml.pp_BC_type anterior_tibial_T3_L208_module(u_out = u_ivl, t = t, u_in = popliteal_L206_module.u, l = Parameters_Systemic1.l_anterior_tibial_T3_L208, E = Parameters_Systemic1.E_anterior_tibial_T3_L208, R_T = Parameters_Systemic1.R_T_anterior_tibial_T3_L208, C_T = Parameters_Systemic1.C_T_anterior_tibial_T3_L208, r = Parameters_Systemic1.r_anterior_tibial_T3_L208)
     annotation (Placement(transformation(extent={{25,10},{45,5}})));
-    BG_Modules_cellml.pv_type popliteal_L210_module(u_in = popliteal_L206_module.u, v_out = tibiofibular_trunk_L212_module.v, l = 8.80046e-03, E = 1.6e+6, r = 2.35852e-03, t = t)
+    BG_Modules_cellml.pv_type popliteal_L210_module(u_in = popliteal_L206_module.u, v_out = tibiofibular_trunk_L212_module.v, l = Parameters_Systemic1.l_popliteal_L210, E = Parameters_Systemic1.E_popliteal_L210, r = Parameters_Systemic1.r_popliteal_L210, t = t)
     annotation (Placement(transformation(extent={{50,10},{70,5}})));
-    BG_Modules_cellml.pv_type tibiofibular_trunk_L212_module(u_in = popliteal_L210_module.u, v_out = posterior_tibial_T4_L214_module.v, l = 36.1676e-03, E = 1.6e+6, r = 2.34646e-03, t = t)
+    BG_Modules_cellml.pv_type tibiofibular_trunk_L212_module(u_in = popliteal_L210_module.u, v_out = posterior_tibial_T4_L214_module.v, l = Parameters_Systemic1.l_tibiofibular_trunk_L212, E = Parameters_Systemic1.E_tibiofibular_trunk_L212, r = Parameters_Systemic1.r_tibiofibular_trunk_L212, t = t)
     annotation (Placement(transformation(extent={{75,10},{95,5}})));
-    BG_Modules_cellml.pp_BC_type posterior_tibial_T4_L214_module(u_out = 100, t = t, u_in = tibiofibular_trunk_L212_module.u, l = 382.987e-03, E = 1.6e+6, R_T = 1.91845e+9, C_T = 26.761e-12, r = 1.22936e-03)
+    BG_Modules_cellml.pp_BC_type posterior_tibial_T4_L214_module(u_out = u_ivl, t = t, u_in = tibiofibular_trunk_L212_module.u, l = Parameters_Systemic1.l_posterior_tibial_T4_L214, E = Parameters_Systemic1.E_posterior_tibial_T4_L214, R_T = Parameters_Systemic1.R_T_posterior_tibial_T4_L214, C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_L214, r = Parameters_Systemic1.r_posterior_tibial_T4_L214)
     annotation (Placement(transformation(extent={{-100,0},{-80,-5}})));
-    BG_Modules_cellml.pv_jII_type subclavian_R28_module(u_in = brachiocephalic_trunk_C4_module.u, v_out_1 = subclavian_R30_module.v, v_out_2 = vertebral_R272_module.v, l = 15.7469e-03, E = 0.4e+6, r = 4.52027e-03, t = t)
+    BG_Modules_cellml.pv_jII_type subclavian_R28_module(u_in = brachiocephalic_trunk_C4_module.u, v_out_1 = subclavian_R30_module.v, v_out_2 = vertebral_R272_module.v, l = Parameters_Systemic1.l_subclavian_R28, E = Parameters_Systemic1.E_subclavian_R28, r = Parameters_Systemic1.r_subclavian_R28, t = t)
     annotation (Placement(transformation(extent={{-75,0},{-55,-5}})));
-    BG_Modules_cellml.pv_type subclavian_R30_module(u_in = subclavian_R28_module.u, v_out = axillary_R32_module.v, l = 41.1419e-03, E = 0.4e+6, r = 3.32268e-03, t = t)
+    BG_Modules_cellml.pv_type subclavian_R30_module(u_in = subclavian_R28_module.u, v_out = axillary_R32_module.v, l = Parameters_Systemic1.l_subclavian_R30, E = Parameters_Systemic1.E_subclavian_R30, r = Parameters_Systemic1.r_subclavian_R30, t = t)
     annotation (Placement(transformation(extent={{-50,0},{-30,-5}})));
-    BG_Modules_cellml.pv_type axillary_R32_module(u_in = subclavian_R30_module.u, v_out = brachial_R34_module.v, l = 120.021e-03, E = 0.4e+6, r = 2.18463e-03, t = t)
+    BG_Modules_cellml.pv_type axillary_R32_module(u_in = subclavian_R30_module.u, v_out = brachial_R34_module.v, l = Parameters_Systemic1.l_axillary_R32, E = Parameters_Systemic1.E_axillary_R32, r = Parameters_Systemic1.r_axillary_R32, t = t)
     annotation (Placement(transformation(extent={{-25,0},{-5,-5}})));
-    BG_Modules_cellml.pv_jII_type brachial_R34_module(v_out_1 = ulnar_T2_R36_module.v, v_out_2 = radial_T1_R44_module.v, u_in = axillary_R32_module.u, l = 223.119e-03, E = 0.4e+6, r = 1.96732e-03, t = t)
+    BG_Modules_cellml.pv_jII_type brachial_R34_module(v_out_1 = ulnar_T2_R36_module.v, v_out_2 = radial_T1_R44_module.v, u_in = axillary_R32_module.u, l = Parameters_Systemic1.l_brachial_R34, E = Parameters_Systemic1.E_brachial_R34, r = Parameters_Systemic1.r_brachial_R34, t = t)
     annotation (Placement(transformation(extent={{0,0},{20,-5}})));
-    BG_Modules_cellml.pv_jII_type ulnar_T2_R36_module(u_in = brachial_R34_module.u, v_out_1 = common_interosseous_R38_module.v, v_out_2 = ulnar_T2_R42_module.v, l = 29.7599e-03, E = 0.8e+6, r = 1.408e-03, t = t)
+    BG_Modules_cellml.pv_jII_type ulnar_T2_R36_module(u_in = brachial_R34_module.u, v_out_1 = common_interosseous_R38_module.v, v_out_2 = ulnar_T2_R42_module.v, l = Parameters_Systemic1.l_ulnar_T2_R36, E = Parameters_Systemic1.E_ulnar_T2_R36, r = Parameters_Systemic1.r_ulnar_T2_R36, t = t)
     annotation (Placement(transformation(extent={{25,0},{45,-5}})));
-    BG_Modules_cellml.pv_type common_interosseous_R38_module(u_in = ulnar_T2_R36_module.u, v_out = posterior_interosseous_T3_R40_module.v, l = 16.2682e-03, E = 1.6e+6, r = 0.959006e-03, t = t)
+    BG_Modules_cellml.pv_type common_interosseous_R38_module(u_in = ulnar_T2_R36_module.u, v_out = posterior_interosseous_T3_R40_module.v, l = Parameters_Systemic1.l_common_interosseous_R38, E = Parameters_Systemic1.E_common_interosseous_R38, r = Parameters_Systemic1.r_common_interosseous_R38, t = t)
     annotation (Placement(transformation(extent={{50,0},{70,-5}})));
-    BG_Modules_cellml.pp_BC_type posterior_interosseous_T3_R40_module(u_out = 100, t = t, u_in = common_interosseous_R38_module.u, l = 231.694e-03, E = 1.6e+6, R_T = 4.33378e+9, C_T = 11.847e-12, r = 0.675992e-03)
+    BG_Modules_cellml.pp_BC_type posterior_interosseous_T3_R40_module(u_out = u_svl, t = t, u_in = common_interosseous_R38_module.u, l = Parameters_Systemic1.l_posterior_interosseous_T3_R40, E = Parameters_Systemic1.E_posterior_interosseous_T3_R40, R_T = Parameters_Systemic1.R_T_posterior_interosseous_T3_R40, C_T = Parameters_Systemic1.C_T_posterior_interosseous_T3_R40, r = Parameters_Systemic1.r_posterior_interosseous_T3_R40)
     annotation (Placement(transformation(extent={{75,0},{95,-5}})));
-    BG_Modules_cellml.pp_BC_type ulnar_T2_R42_module(u_out = 100, t = t, u_in = ulnar_T2_R36_module.u, l = 239.276e-03, E = 0.8e+6, R_T = 1.0649e+9, C_T = 48.212e-12, r = 1.408e-03)
+    BG_Modules_cellml.pp_BC_type ulnar_T2_R42_module(u_out = u_svl, t = t, u_in = ulnar_T2_R36_module.u, l = Parameters_Systemic1.l_ulnar_T2_R42, E = Parameters_Systemic1.E_ulnar_T2_R42, R_T = Parameters_Systemic1.R_T_ulnar_T2_R42, C_T = Parameters_Systemic1.C_T_ulnar_T2_R42, r = Parameters_Systemic1.r_ulnar_T2_R42)
     annotation (Placement(transformation(extent={{-100,-10},{-80,-15}})));
-    BG_Modules_cellml.pp_BC_type radial_T1_R44_module(u_out = 100, t = t, u_in = brachial_R34_module.u, l = 302.156e-03, E = 0.8e+6, R_T = 1.04588e+9, C_T = 49.088e-12, r = 1.378e-03)
+    BG_Modules_cellml.pp_BC_type radial_T1_R44_module(u_out = u_svl, t = t, u_in = brachial_R34_module.u, l = Parameters_Systemic1.l_radial_T1_R44, E = Parameters_Systemic1.E_radial_T1_R44, R_T = Parameters_Systemic1.R_T_radial_T1_R44, C_T = Parameters_Systemic1.C_T_radial_T1_R44, r = Parameters_Systemic1.r_radial_T1_R44)
     annotation (Placement(transformation(extent={{-75,-10},{-55,-15}})));
-    BG_Modules_cellml.pv_jII_type subclavian_L66_module(u_in = aortic_arch_C64_module.u, v_out_1 = subclavian_L78_module.v, v_out_2 = vertebral_L2_module.v, l = 49.4669e-03, E = 0.4e+6, r = 3.99235e-03, t = t)
+    BG_Modules_cellml.pv_jII_type subclavian_L66_module(u_in = aortic_arch_C64_module.u, v_out_1 = subclavian_L78_module.v, v_out_2 = vertebral_L2_module.v, l = Parameters_Systemic1.l_subclavian_L66, E = Parameters_Systemic1.E_subclavian_L66, r = Parameters_Systemic1.r_subclavian_L66, t = t)
     annotation (Placement(transformation(extent={{-50,-10},{-30,-15}})));
-    BG_Modules_cellml.pv_type subclavian_L78_module(u_in = subclavian_L66_module.u, v_out = axillary_L80_module.v, l = 41.1396e-03, E = 0.4e+6, r = 2.90824e-03, t = t)
+    BG_Modules_cellml.pv_type subclavian_L78_module(u_in = subclavian_L66_module.u, v_out = axillary_L80_module.v, l = Parameters_Systemic1.l_subclavian_L78, E = Parameters_Systemic1.E_subclavian_L78, r = Parameters_Systemic1.r_subclavian_L78, t = t)
     annotation (Placement(transformation(extent={{-25,-10},{-5,-15}})));
-    BG_Modules_cellml.pv_type axillary_L80_module(u_in = subclavian_L78_module.u, v_out = brachial_L82_module.v, l = 120.021e-03, E = 0.4e+6, r = 2.18463e-03, t = t)
+    BG_Modules_cellml.pv_type axillary_L80_module(u_in = subclavian_L78_module.u, v_out = brachial_L82_module.v, l = Parameters_Systemic1.l_axillary_L80, E = Parameters_Systemic1.E_axillary_L80, r = Parameters_Systemic1.r_axillary_L80, t = t)
     annotation (Placement(transformation(extent={{0,-10},{20,-15}})));
-    BG_Modules_cellml.pv_jII_type brachial_L82_module(v_out_1 = ulnar_T2_L84_module.v, v_out_2 = radial_T1_L92_module.v, u_in = axillary_L80_module.u, l = 223.119e-03, E = 0.4e+6, r = 1.96732e-03, t = t)
+    BG_Modules_cellml.pv_jII_type brachial_L82_module(v_out_1 = ulnar_T2_L84_module.v, v_out_2 = radial_T1_L92_module.v, u_in = axillary_L80_module.u, l = Parameters_Systemic1.l_brachial_L82, E = Parameters_Systemic1.E_brachial_L82, r = Parameters_Systemic1.r_brachial_L82, t = t)
     annotation (Placement(transformation(extent={{25,-10},{45,-15}})));
-    BG_Modules_cellml.pv_jII_type ulnar_T2_L84_module(u_in = brachial_L82_module.u, v_out_1 = common_interosseous_L86_module.v, v_out_2 = ulnar_T2_L90_module.v, l = 29.7594e-03, E = 0.8e+6, r = 1.408e-03, t = t)
+    BG_Modules_cellml.pv_jII_type ulnar_T2_L84_module(u_in = brachial_L82_module.u, v_out_1 = common_interosseous_L86_module.v, v_out_2 = ulnar_T2_L90_module.v, l = Parameters_Systemic1.l_ulnar_T2_L84, E = Parameters_Systemic1.E_ulnar_T2_L84, r = Parameters_Systemic1.r_ulnar_T2_L84, t = t)
     annotation (Placement(transformation(extent={{50,-10},{70,-15}})));
-    BG_Modules_cellml.pv_type common_interosseous_L86_module(u_in = ulnar_T2_L84_module.u, v_out = posterior_interosseous_T3_L88_module.v, l = 16.2681e-03, E = 1.6e+6, r = 0.959006e-03, t = t)
+    BG_Modules_cellml.pv_type common_interosseous_L86_module(u_in = ulnar_T2_L84_module.u, v_out = posterior_interosseous_T3_L88_module.v, l = Parameters_Systemic1.l_common_interosseous_L86, E = Parameters_Systemic1.E_common_interosseous_L86, r = Parameters_Systemic1.r_common_interosseous_L86, t = t)
     annotation (Placement(transformation(extent={{75,-10},{95,-15}})));
-    BG_Modules_cellml.pp_BC_type posterior_interosseous_T3_L88_module(u_out = 100, t = t, u_in = common_interosseous_L86_module.u, l = 231.695e-03, E = 1.6e+6, R_T = 4.34948e+9, C_T = 11.804e-12, r = 0.675992e-03)
+    BG_Modules_cellml.pp_BC_type posterior_interosseous_T3_L88_module(u_out = u_svl, t = t, u_in = common_interosseous_L86_module.u, l = Parameters_Systemic1.l_posterior_interosseous_T3_L88, E = Parameters_Systemic1.E_posterior_interosseous_T3_L88, R_T = Parameters_Systemic1.R_T_posterior_interosseous_T3_L88, C_T = Parameters_Systemic1.C_T_posterior_interosseous_T3_L88, r = Parameters_Systemic1.r_posterior_interosseous_T3_L88)
     annotation (Placement(transformation(extent={{-100,-20},{-80,-25}})));
-    BG_Modules_cellml.pp_BC_type ulnar_T2_L90_module(u_out = 100, t = t, u_in = ulnar_T2_L84_module.u, l = 239.277e-03, E = 0.8e+6, R_T = 1.08553e+9, C_T = 47.295e-12, r = 1.408e-03)
+    BG_Modules_cellml.pp_BC_type ulnar_T2_L90_module(u_out = u_svl, t = t, u_in = ulnar_T2_L84_module.u, l = Parameters_Systemic1.l_ulnar_T2_L90, E = Parameters_Systemic1.E_ulnar_T2_L90, R_T = Parameters_Systemic1.R_T_ulnar_T2_L90, C_T = Parameters_Systemic1.C_T_ulnar_T2_L90, r = Parameters_Systemic1.r_ulnar_T2_L90)
     annotation (Placement(transformation(extent={{-75,-20},{-55,-25}})));
-    BG_Modules_cellml.pp_BC_type radial_T1_L92_module(u_out = 100, t = t, u_in = brachial_L82_module.u, l = 302.155e-03, E = 0.8e+6, R_T = 1.02715e+9, C_T = 49.983e-12, r = 1.378e-03)
+    BG_Modules_cellml.pp_BC_type radial_T1_L92_module(u_out = u_svl, t = t, u_in = brachial_L82_module.u, l = Parameters_Systemic1.l_radial_T1_L92, E = Parameters_Systemic1.E_radial_T1_L92, R_T = Parameters_Systemic1.R_T_radial_T1_L92, C_T = Parameters_Systemic1.C_T_radial_T1_L92, r = Parameters_Systemic1.r_radial_T1_L92)
     annotation (Placement(transformation(extent={{-50,-20},{-30,-25}})));
-    BG_Modules_cellml.pv_type common_carotid_R6_A_module(u_in = brachiocephalic_trunk_C4_module.u, v_out = common_carotid_R6_B_module.v, l = 27.0844e-03, E = 0.2e+6, r = 4.43053e-03, t = t)
+    BG_Modules_cellml.pv_type common_carotid_R6_A_module(u_in = brachiocephalic_trunk_C4_module.u, v_out = common_carotid_R6_B_module.v, l = Parameters_Systemic1.l_common_carotid_R6_A, E = Parameters_Systemic1.E_common_carotid_R6_A, r = Parameters_Systemic1.r_common_carotid_R6_A, t = t)
     annotation (Placement(transformation(extent={{-25,-20},{-5,-25}})));
-    BG_Modules_cellml.pv_type common_carotid_R6_B_module(u_in = common_carotid_R6_A_module.u, v_out = common_carotid_R6_C_module.v, l = 27.0844e-03, E = 0.2e+6, r = 4.137e-03, t = t)
+    BG_Modules_cellml.pv_type common_carotid_R6_B_module(u_in = common_carotid_R6_A_module.u, v_out = common_carotid_R6_C_module.v, l = Parameters_Systemic1.l_common_carotid_R6_B, E = Parameters_Systemic1.E_common_carotid_R6_B, r = Parameters_Systemic1.r_common_carotid_R6_B, t = t)
     annotation (Placement(transformation(extent={{0,-20},{20,-25}})));
-    BG_Modules_cellml.pv_jII_type common_carotid_R6_C_module(v_out_1 = internal_carotid_R8_A_module.v, v_out_2 = external_carotid_T2_R26_module.v, u_in = common_carotid_R6_B_module.u, l = 27.0844e-03, E = 0.2e+6, r = 3.64938e-03, t = t)
+    BG_Modules_cellml.pv_jII_type common_carotid_R6_C_module(v_out_1 = internal_carotid_R8_A_module.v, v_out_2 = external_carotid_T2_R26_module.v, u_in = common_carotid_R6_B_module.u, l = Parameters_Systemic1.l_common_carotid_R6_C, E = Parameters_Systemic1.E_common_carotid_R6_C, r = Parameters_Systemic1.r_common_carotid_R6_C, t = t)
     annotation (Placement(transformation(extent={{25,-20},{45,-25}})));
-    BG_Modules_cellml.pv_type internal_carotid_R8_A_module(u_in = common_carotid_R6_C_module.u, v_out = internal_carotid_R8_B_module.v, l = 45.036e-03, E = 0.8e+6, r = 2.53763e-03, t = t)
+    replaceable BG_Modules_cellml.pv_type internal_carotid_R8_A_module(u_in = common_carotid_R6_C_module.u, v_out = internal_carotid_R8_B_module.v, l = Parameters_Systemic1.l_internal_carotid_R8_A, E = Parameters_Systemic1.E_internal_carotid_R8_A, r = Parameters_Systemic1.r_internal_carotid_R8_A, t = t)
     annotation (Placement(transformation(extent={{50,-20},{70,-25}})));
-    BG_Modules_cellml.pv_type internal_carotid_R8_B_module(u_in = internal_carotid_R8_A_module.u, v_out = internal_carotid_R8_C_module.v, l = 45.036e-03, E = 0.8e+6, r = 2.04793e-03, t = t)
+    BG_Modules_cellml.pv_type internal_carotid_R8_B_module(u_in = internal_carotid_R8_A_module.u, v_out = internal_carotid_R8_C_module.v, l = Parameters_Systemic1.l_internal_carotid_R8_B, E = Parameters_Systemic1.E_internal_carotid_R8_B, r = Parameters_Systemic1.r_internal_carotid_R8_B, t = t)
     annotation (Placement(transformation(extent={{75,-20},{95,-25}})));
-    BG_Modules_cellml.pp_BC_type internal_carotid_R8_C_module(u_out = 100, t = t, u_in = internal_carotid_R8_B_module.u, l = 45.036e-03, E = 1.6e+6, R_T = 0.851183e+9, C_T = 60.317e-12, r = 1.56726e-03)
+    BG_Modules_cellml.pp_BC_type internal_carotid_R8_C_module(u_out = u_svl, t = t, u_in = internal_carotid_R8_B_module.u, l = Parameters_Systemic1.l_internal_carotid_R8_C, E = Parameters_Systemic1.E_internal_carotid_R8_C, R_T = Parameters_Systemic1.R_T_internal_carotid_R8_C, C_T = Parameters_Systemic1.C_T_internal_carotid_R8_C, r = Parameters_Systemic1.r_internal_carotid_R8_C)
     annotation (Placement(transformation(extent={{-100,-30},{-80,-35}})));
-    BG_Modules_cellml.pp_BC_type external_carotid_T2_R26_module(u_out = 100, t = t, u_in = common_carotid_R6_C_module.u, l = 61.0125e-03, E = 0.8e+6, R_T = 0.851183e+9, C_T = 60.317e-12, r = 2.26547e-03)
+    BG_Modules_cellml.pp_BC_type external_carotid_T2_R26_module(u_out = u_svl, t = t, u_in = common_carotid_R6_C_module.u, l = Parameters_Systemic1.l_external_carotid_T2_R26, E = Parameters_Systemic1.E_external_carotid_T2_R26, R_T = Parameters_Systemic1.R_T_external_carotid_T2_R26, C_T = Parameters_Systemic1.C_T_external_carotid_T2_R26, r = Parameters_Systemic1.r_external_carotid_T2_R26)
     annotation (Placement(transformation(extent={{-75,-30},{-55,-35}})));
-    BG_Modules_cellml.pv_type common_carotid_L48_A_module(u_in = aortic_arch_C46_module.u, v_out = common_carotid_L48_B_module.v, l = 30.339e-03, E = 0.2e+6, r = 4.36635e-03, t = t)
+    BG_Modules_cellml.pv_type common_carotid_L48_A_module(u_in = aortic_arch_C46_module.u, v_out = common_carotid_L48_B_module.v, l = Parameters_Systemic1.l_common_carotid_L48_A, E = Parameters_Systemic1.E_common_carotid_L48_A, r = Parameters_Systemic1.r_common_carotid_L48_A, t = t)
     annotation (Placement(transformation(extent={{-50,-30},{-30,-35}})));
-    BG_Modules_cellml.pv_type common_carotid_L48_B_module(u_in = common_carotid_L48_A_module.u, v_out = common_carotid_L48_C_module.v, l = 30.339e-03, E = 0.2e+6, r = 4.12756e-03, t = t)
+    BG_Modules_cellml.pv_type common_carotid_L48_B_module(u_in = common_carotid_L48_A_module.u, v_out = common_carotid_L48_C_module.v, l = Parameters_Systemic1.l_common_carotid_L48_B, E = Parameters_Systemic1.E_common_carotid_L48_B, r = Parameters_Systemic1.r_common_carotid_L48_B, t = t)
     annotation (Placement(transformation(extent={{-25,-30},{-5,-35}})));
-    BG_Modules_cellml.pv_type common_carotid_L48_C_module(u_in = common_carotid_L48_B_module.u, v_out = common_carotid_L48_D_module.v, l = 30.339e-03, E = 0.2e+6, r = 3.92047e-03, t = t)
+    BG_Modules_cellml.pv_type common_carotid_L48_C_module(u_in = common_carotid_L48_B_module.u, v_out = common_carotid_L48_D_module.v, l = Parameters_Systemic1.l_common_carotid_L48_C, E = Parameters_Systemic1.E_common_carotid_L48_C, r = Parameters_Systemic1.r_common_carotid_L48_C, t = t)
     annotation (Placement(transformation(extent={{0,-30},{20,-35}})));
-    BG_Modules_cellml.pv_jII_type common_carotid_L48_D_module(v_out_1 = internal_carotid_L50_A_module.v, v_out_2 = external_carotid_T2_L62_module.v, u_in = common_carotid_L48_C_module.u, l = 30.339e-03, E = 0.2e+6, r = 3.57978e-03, t = t)
+    BG_Modules_cellml.pv_jII_type common_carotid_L48_D_module(v_out_1 = internal_carotid_L50_A_module.v, v_out_2 = external_carotid_T2_L62_module.v, u_in = common_carotid_L48_C_module.u, l = Parameters_Systemic1.l_common_carotid_L48_D, E = Parameters_Systemic1.E_common_carotid_L48_D, r = Parameters_Systemic1.r_common_carotid_L48_D, t = t)
     annotation (Placement(transformation(extent={{25,-30},{45,-35}})));
-    BG_Modules_cellml.pv_type internal_carotid_L50_A_module(u_in = common_carotid_L48_D_module.u, v_out = internal_carotid_L50_B_module.v, l = 45.036e-03, E = 0.8e+6, r = 2.53763e-03, t = t)
+    BG_Modules_cellml.pv_type internal_carotid_L50_A_module(u_in = common_carotid_L48_D_module.u, v_out = internal_carotid_L50_B_module.v, l = Parameters_Systemic1.l_internal_carotid_L50_A, E = Parameters_Systemic1.E_internal_carotid_L50_A, r = Parameters_Systemic1.r_internal_carotid_L50_A, t = t)
     annotation (Placement(transformation(extent={{50,-30},{70,-35}})));
-    BG_Modules_cellml.pv_type internal_carotid_L50_B_module(u_in = internal_carotid_L50_A_module.u, v_out = internal_carotid_L50_C_module.v, l = 45.036e-03, E = 0.8e+6, r = 2.04793e-03, t = t)
+    BG_Modules_cellml.pv_type internal_carotid_L50_B_module(u_in = internal_carotid_L50_A_module.u, v_out = internal_carotid_L50_C_module.v, l = Parameters_Systemic1.l_internal_carotid_L50_B, E = Parameters_Systemic1.E_internal_carotid_L50_B, r = Parameters_Systemic1.r_internal_carotid_L50_B, t = t)
     annotation (Placement(transformation(extent={{75,-30},{95,-35}})));
-    BG_Modules_cellml.pp_BC_type internal_carotid_L50_C_module(u_out = 100, t = t, u_in = internal_carotid_L50_B_module.u, l = 45.036e-03, E = 1.6e+6, R_T = 0.854183e+9, C_T = 60.105e-12, r = 1.56726e-03)
+    BG_Modules_cellml.pp_BC_type internal_carotid_L50_C_module(u_out = u_svl, t = t, u_in = internal_carotid_L50_B_module.u, l = Parameters_Systemic1.l_internal_carotid_L50_C, E = Parameters_Systemic1.E_internal_carotid_L50_C, R_T = Parameters_Systemic1.R_T_internal_carotid_L50_C, C_T = Parameters_Systemic1.C_T_internal_carotid_L50_C, r = Parameters_Systemic1.r_internal_carotid_L50_C)
     annotation (Placement(transformation(extent={{-100,-40},{-80,-45}})));
-    BG_Modules_cellml.pp_BC_type external_carotid_T2_L62_module(u_out = 100, t = t, u_in = common_carotid_L48_D_module.u, l = 61.0127e-03, E = 0.8e+6, R_T = 0.854183e+9, C_T = 60.105e-12, r = 2.26547e-03)
+    BG_Modules_cellml.pp_BC_type external_carotid_T2_L62_module(u_out = u_svl, t = t, u_in = common_carotid_L48_D_module.u, l = Parameters_Systemic1.l_external_carotid_T2_L62, E = Parameters_Systemic1.E_external_carotid_T2_L62, R_T = Parameters_Systemic1.R_T_external_carotid_T2_L62, C_T = Parameters_Systemic1.C_T_external_carotid_T2_L62, r = Parameters_Systemic1.r_external_carotid_T2_L62)
     annotation (Placement(transformation(extent={{-75,-40},{-55,-45}})));
-    BG_Modules_cellml.pp_BC_type vertebral_L2_module(u_out = 100, t = t, u_in = subclavian_L66_module.u, l = 20.9765e-2, E = 0.8e+6, R_T = 0.854183e+9, C_T = 60.105e-12, r = 0.133527e-2)
+    BG_Modules_cellml.pp_BC_type vertebral_L2_module(u_out = u_svl, t = t, u_in = subclavian_L66_module.u, l = Parameters_Systemic1.l_vertebral_L2, E = Parameters_Systemic1.E_vertebral_L2, R_T = Parameters_Systemic1.R_T_vertebral_L2, C_T = Parameters_Systemic1.C_T_vertebral_L2, r = Parameters_Systemic1.r_vertebral_L2)
     annotation (Placement(transformation(extent={{-50,-40},{-30,-45}})));
-    BG_Modules_cellml.pp_BC_type vertebral_R272_module(u_out = 100, t = t, u_in = subclavian_R28_module.u, l = 21.0146e-2, E = 0.8e+6, R_T = 0.851183e+9, C_T = 60.317e-12, r = 0.133527e-2)
+    BG_Modules_cellml.pp_BC_type vertebral_R272_module(u_out = u_svl, t = t, u_in = subclavian_R28_module.u, l = Parameters_Systemic1.l_vertebral_R272, E = Parameters_Systemic1.E_vertebral_R272, R_T = Parameters_Systemic1.R_T_vertebral_R272, C_T = Parameters_Systemic1.C_T_vertebral_R272, r = Parameters_Systemic1.r_vertebral_R272)
     annotation (Placement(transformation(extent={{-25,-40},{-5,-45}})));
     input Real t;
     Real C_svl;
@@ -2688,68 +2687,68 @@ package main_ADAN_86_cellml
     input Real v_aux;
     Real u_root;
   equation
-    C_svl = 0.0037509e-6
-    C_svn = 0.1125281e-6
-    C_svc = 0.0375094e-6
-    C_ivl = 0.0112528e-6
-    C_ivn = 0.5626407e-6
-    C_ivc = 0.1125281e-6
-    R_svl = 18.662e+6
-    R_svn = 3.999e+6
-    R_svc = 0.06665e+6
-    R_ivl = 5.332e+6
-    R_ivn = 1.1997e+6
-    R_ivc = 0.06665e+6
-    I_svl = 0.1333e+6
-    I_svn = 0.06665e+6
-    I_svc = 0.06665e+6
-    I_ivl = 0.1333e+6
-    I_ivn = 0.06665e+6
-    I_ivc = 0.06665e+6
-    v_posterior_intercostal_T1_R98 = posterior_intercostal_T1_R98_module.v_T
-    v_posterior_intercostal_T1_L102 = posterior_intercostal_T1_L102_module.v_T
-    v_posterior_intercostal_T2_R106 = posterior_intercostal_T2_R106_module.v_T
-    v_posterior_intercostal_T2_L110 = posterior_intercostal_T2_L110_module.v_T
-    v_left_gastric_T3_C120 = left_gastric_T3_C120_module.v_T
-    v_dorsal_pancreatic_T1_C124 = dorsal_pancreatic_T1_C124_module.v_T
-    v_splenic_T2_C126 = splenic_T2_C126_module.v_T
-    v_hepatic_artery_proper_left_branch_C132 = hepatic_artery_proper_left_branch_C132_module.v_T
-    v_hepatic_artery_proper_right_branch_C134 = hepatic_artery_proper_right_branch_C134_module.v_T
-    v_middle_colic_T8_C140 = middle_colic_T8_C140_module.v_T
-    v_jejunal_3_T10_C144 = jejunal_3_T10_C144_module.v_T
-    v_jejunal_6_T11_C148 = jejunal_6_T11_C148_module.v_T
-    v_ileocolic_T9_C152 = ileocolic_T9_C152_module.v_T
-    v_ileal_4_T12_C156 = ileal_4_T12_C156_module.v_T
-    v_ileal_6_T13_C160 = ileal_6_T13_C160_module.v_T
-    v_superior_mesenteric_T4_C162 = superior_mesenteric_T4_C162_module.v_T
-    v_inferior_segmental_T5_L170 = inferior_segmental_T5_L170_module.v_T
-    v_superior_segmental_T4_L172 = superior_segmental_T4_L172_module.v_T
-    v_renal_posterior_branch_T3_L174 = renal_posterior_branch_T3_L174_module.v_T
-    v_superior_segmental_T4_R182 = superior_segmental_T4_R182_module.v_T
-    v_inferior_segmental_T5_R184 = inferior_segmental_T5_R184_module.v_T
-    v_renal_posterior_branch_T3_R186 = renal_posterior_branch_T3_R186_module.v_T
-    v_inferior_mesenteric_T5_C190 = inferior_mesenteric_T5_C190_module.v_T
-    v_internal_iliac_T1_R218 = internal_iliac_T1_R218_module.v_T
-    v_profundus_T2_R224 = profundus_T2_R224_module.v_T
-    v_anterior_tibial_T3_R230 = anterior_tibial_T3_R230_module.v_T
-    v_posterior_tibial_T4_R236 = posterior_tibial_T4_R236_module.v_T
-    v_internal_iliac_T1_L196 = internal_iliac_T1_L196_module.v_T
-    v_profundus_T2_L202 = profundus_T2_L202_module.v_T
-    v_anterior_tibial_T3_L208 = anterior_tibial_T3_L208_module.v_T
-    v_posterior_tibial_T4_L214 = posterior_tibial_T4_L214_module.v_T
-    v_posterior_interosseous_T3_R40 = posterior_interosseous_T3_R40_module.v_T
-    v_ulnar_T2_R42 = ulnar_T2_R42_module.v_T
-    v_radial_T1_R44 = radial_T1_R44_module.v_T
-    v_posterior_interosseous_T3_L88 = posterior_interosseous_T3_L88_module.v_T
-    v_ulnar_T2_L90 = ulnar_T2_L90_module.v_T
-    v_radial_T1_L92 = radial_T1_L92_module.v_T
-    v_external_carotid_T2_R26 = external_carotid_T2_R26_module.v_T
-    v_external_carotid_T2_L62 = external_carotid_T2_L62_module.v_T
-    v_internal_carotid_R8_C = internal_carotid_R8_C_module.v_T
-    v_internal_carotid_L50_C = internal_carotid_L50_C_module.v_T
-    v_vertebral_R272 = vertebral_R272_module.v_T
-    v_vertebral_L2 = vertebral_L2_module.v_T
-    u_root = ascending_aorta_A_module.u_C
+    C_svl = Parameters_Systemic1.C_svl;
+    C_svn = Parameters_Systemic1.C_svn;
+    C_svc = Parameters_Systemic1.C_svc;
+    C_ivl = Parameters_Systemic1.C_ivl;
+    C_ivn = Parameters_Systemic1.C_ivn;
+    C_ivc = Parameters_Systemic1.C_ivc;
+    R_svl = Parameters_Systemic1.R_svl;
+    R_svn = Parameters_Systemic1.R_svn;
+    R_svc = Parameters_Systemic1.R_svc;
+    R_ivl = Parameters_Systemic1.R_ivl;
+    R_ivn = Parameters_Systemic1.R_ivn;
+    R_ivc = Parameters_Systemic1.R_ivc;
+    I_svl = Parameters_Systemic1.I_svl;
+    I_svn = Parameters_Systemic1.I_svn;
+    I_svc = Parameters_Systemic1.I_svc;
+    I_ivl = Parameters_Systemic1.I_ivl;
+    I_ivn = Parameters_Systemic1.I_ivn;
+    I_ivc = Parameters_Systemic1.I_ivc;
+    v_posterior_intercostal_T1_R98 = posterior_intercostal_T1_R98_module.v_T;
+    v_posterior_intercostal_T1_L102 = posterior_intercostal_T1_L102_module.v_T;
+    v_posterior_intercostal_T2_R106 = posterior_intercostal_T2_R106_module.v_T;
+    v_posterior_intercostal_T2_L110 = posterior_intercostal_T2_L110_module.v_T;
+    v_left_gastric_T3_C120 = left_gastric_T3_C120_module.v_T;
+    v_dorsal_pancreatic_T1_C124 = dorsal_pancreatic_T1_C124_module.v_T;
+    v_splenic_T2_C126 = splenic_T2_C126_module.v_T;
+    v_hepatic_artery_proper_left_branch_C132 = hepatic_artery_proper_left_branch_C132_module.v_T;
+    v_hepatic_artery_proper_right_branch_C134 = hepatic_artery_proper_right_branch_C134_module.v_T;
+    v_middle_colic_T8_C140 = middle_colic_T8_C140_module.v_T;
+    v_jejunal_3_T10_C144 = jejunal_3_T10_C144_module.v_T;
+    v_jejunal_6_T11_C148 = jejunal_6_T11_C148_module.v_T;
+    v_ileocolic_T9_C152 = ileocolic_T9_C152_module.v_T;
+    v_ileal_4_T12_C156 = ileal_4_T12_C156_module.v_T;
+    v_ileal_6_T13_C160 = ileal_6_T13_C160_module.v_T;
+    v_superior_mesenteric_T4_C162 = superior_mesenteric_T4_C162_module.v_T;
+    v_inferior_segmental_T5_L170 = inferior_segmental_T5_L170_module.v_T;
+    v_superior_segmental_T4_L172 = superior_segmental_T4_L172_module.v_T;
+    v_renal_posterior_branch_T3_L174 = renal_posterior_branch_T3_L174_module.v_T;
+    v_superior_segmental_T4_R182 = superior_segmental_T4_R182_module.v_T;
+    v_inferior_segmental_T5_R184 = inferior_segmental_T5_R184_module.v_T;
+    v_renal_posterior_branch_T3_R186 = renal_posterior_branch_T3_R186_module.v_T;
+    v_inferior_mesenteric_T5_C190 = inferior_mesenteric_T5_C190_module.v_T;
+    v_internal_iliac_T1_R218 = internal_iliac_T1_R218_module.v_T;
+    v_profundus_T2_R224 = profundus_T2_R224_module.v_T;
+    v_anterior_tibial_T3_R230 = anterior_tibial_T3_R230_module.v_T;
+    v_posterior_tibial_T4_R236 = posterior_tibial_T4_R236_module.v_T;
+    v_internal_iliac_T1_L196 = internal_iliac_T1_L196_module.v_T;
+    v_profundus_T2_L202 = profundus_T2_L202_module.v_T;
+    v_anterior_tibial_T3_L208 = anterior_tibial_T3_L208_module.v_T;
+    v_posterior_tibial_T4_L214 = posterior_tibial_T4_L214_module.v_T;
+    v_posterior_interosseous_T3_R40 = posterior_interosseous_T3_R40_module.v_T;
+    v_ulnar_T2_R42 = ulnar_T2_R42_module.v_T;
+    v_radial_T1_R44 = radial_T1_R44_module.v_T;
+    v_posterior_interosseous_T3_L88 = posterior_interosseous_T3_L88_module.v_T;
+    v_ulnar_T2_L90 = ulnar_T2_L90_module.v_T;
+    v_radial_T1_L92 = radial_T1_L92_module.v_T;
+    v_external_carotid_T2_R26 = external_carotid_T2_R26_module.v_T;
+    v_external_carotid_T2_L62 = external_carotid_T2_L62_module.v_T;
+    v_internal_carotid_R8_C = internal_carotid_R8_C_module.v_T;
+    v_internal_carotid_L50_C = internal_carotid_L50_C_module.v_T;
+    v_vertebral_R272 = vertebral_R272_module.v_T;
+    v_vertebral_L2 = vertebral_L2_module.v_T;
+    u_root = ascending_aorta_A_module.u_C;
 
 
 
@@ -2798,17 +2797,17 @@ package main_ADAN_86_cellml
     Real v_pvn(start = 0.0);
     input Real v_rv;
   equation
-    C_par = 0.0232e-6
-    C_ppr = 0.04276e-6
-    C_psh = 0.00073957e-6
-    C_pvn = 0.15376e-6
-    R_par = 6.666e+6
-    R_ppr = 12.119e+6
-    R_psh = 701.11e+6
-    R_pvn = 0.8e+6
-    I_par = 1e-12
-    I_ppr = 1.0e-6
-    I_pvn = 1e-12
+    C_par = Parameters_Pulmonary1.C_par;
+    C_ppr = Parameters_Pulmonary1.C_ppr;
+    C_psh = Parameters_Pulmonary1.C_psh;
+    C_pvn = Parameters_Pulmonary1.C_pvn;
+    R_par = Parameters_Pulmonary1.R_par;
+    R_ppr = Parameters_Pulmonary1.R_ppr;
+    R_psh = Parameters_Pulmonary1.R_psh;
+    R_pvn = Parameters_Pulmonary1.R_pvn;
+    I_par = Parameters_Pulmonary1.I_par;
+    I_ppr = Parameters_Pulmonary1.I_ppr;
+    I_pvn = Parameters_Pulmonary1.I_pvn;
 
 
 
@@ -2874,29 +2873,29 @@ package main_ADAN_86_cellml
     Real q_lv(start = 500.0e-6);
     Real v_aux;
   equation
-    T = 1.0
-    t_ac = 0.80
-    t_ar = 0.97
-    T_ac = 0.17
-    T_ar = 0.17
-    T_vc = 0.3
-    T_vr = 0.15
-    CV_ra = 34.6427e-6
-    CV_rv = 30.3124e-6
-    CV_la = 34.6427e-6
-    CV_lv = 30.3124e-6
-    E_lv_A = 366.575e+6
-    E_lv_B = 10.664e+6
-    E_la_A = 9.331e+6
-    E_la_B = 11.997e+6
-    E_rv_A = 73.315e+6
-    E_rv_B = 6.665e+6
-    E_ra_A = 7.998e+6
-    E_ra_B = 9.331e+6
-    q_ra_0 = 4.0e-6
-    q_rv_0 = 10.0e-6
-    q_la_0 = 4.0e-6
-    q_lv_0 = 5.0e-6
+    T = Parameters_Heart1.T;
+    t_ac = Parameters_Heart1.t_ac;
+    t_ar = Parameters_Heart1.t_ar;
+    T_ac = Parameters_Heart1.T_ac;
+    T_ar = Parameters_Heart1.T_ar;
+    T_vc = Parameters_Heart1.T_vc;
+    T_vr = Parameters_Heart1.T_vr;
+    CV_ra = Parameters_Heart1.CV_ra;
+    CV_rv = Parameters_Heart1.CV_rv;
+    CV_la = Parameters_Heart1.CV_la;
+    CV_lv = Parameters_Heart1.CV_lv;
+    E_lv_A = Parameters_Heart1.E_lv_A;
+    E_lv_B = Parameters_Heart1.E_lv_B;
+    E_la_A = Parameters_Heart1.E_la_A;
+    E_la_B = Parameters_Heart1.E_la_B;
+    E_rv_A = Parameters_Heart1.E_rv_A;
+    E_rv_B = Parameters_Heart1.E_rv_B;
+    E_ra_A = Parameters_Heart1.E_ra_A;
+    E_ra_B = Parameters_Heart1.E_ra_B;
+    q_ra_0 = Parameters_Heart1.q_ra_0;
+    q_rv_0 = Parameters_Heart1.q_rv_0;
+    q_la_0 = Parameters_Heart1.q_la_0;
+    q_lv_0 = Parameters_Heart1.q_lv_0;
 
 
 
@@ -2906,66 +2905,42 @@ package main_ADAN_86_cellml
 
         mt = t-T*floor(t/T);
 
-        e_a = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
+        e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
                 0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
             elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
                 0
             elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
                 0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
             else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T))));
 
-        e_v = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
-                0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
-                0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
-                0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+        e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then 
+                0.5*(1-cos(Modelica.Constants.pi*mt/(T_vc*T)))
+            elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then 
+                0.5*(1+cos(Modelica.Constants.pi*(mt-T_vc*T)/(T_vr*T)))
+            else /*  (mt > (T_vc+T_vr)*T) and (mt < T) */ 
+                0);
 
 
-        v_ra = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
-                0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
-                0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
-                0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+        v_ra = noEvent(if u_ra >= u_rv then 
+                CV_ra*sqrt(u_ra-u_rv)
+            else /*  u_ra < u_rv */ 
+                0);
 
-        v_rv = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
-                0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
-                0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
-                0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+        v_rv = noEvent(if u_rv >= u_par then 
+                CV_rv*sqrt(u_rv-u_par)
+            else /*  u_rv < u_par */ 
+                0);
 
-        v_la = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
-                0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
-                0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
-                0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+        v_la = noEvent(if u_la >= u_lv then 
+                CV_la*sqrt(u_la-u_lv)
+            else /*  u_la < u_lv */ 
+                0);
 
-        v_lv = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
-                0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
-                0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
-                0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+        v_lv = noEvent(if u_lv >= u_root then 
+                CV_lv*sqrt(u_lv-u_root)
+            else /*  u_lv < u_root */ 
+                0);
 
         u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0);
         u_rv = (e_v*E_rv_A+E_rv_B)*(q_rv-q_rv_0);
@@ -2979,20 +2954,55 @@ package main_ADAN_86_cellml
         der(q_lv) = v_la-v_lv;
 
 
-        v_aux = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
-                0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
-                0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
-                0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
-                0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)))
-;
+        v_aux = noEvent(if (mt >= 0.0) and (mt <= 0.03) then 
+                0.0
+            elseif  (mt > 0.03) and (mt <= 0.046) then 
+                11860.05e-6*mt-343.94e-6
+            elseif  (mt > 0.046) and (mt <= 0.057) then 
+                9479.17e-6*mt-234.42e-6
+            elseif  (mt > 0.057) and (mt <= 0.071) then 
+                6653.03e-6*mt-73.33e-6
+            elseif  (mt > 0.071) and (mt <= 0.082) then 
+                4787.18e-6*mt+59.14e-6
+            elseif  (mt > 0.082) and (mt <= 0.088) then 
+                3997.84e-6*mt+123.87e-6
+            elseif  (mt > 0.088) and (mt <= 0.097) then 
+                2912.72e-6*mt+219.36e-6
+            elseif  (mt > 0.097) and (mt <= 0.105) then 
+                2333.06e-6*mt+275.59e-6
+            elseif  (mt > 0.105) and (mt <= 0.112) then 
+                1416.84e-6*mt+371.79e-6
+            elseif  (mt > 0.112) and (mt <= 0.129) then 
+                567.9e-6*mt+466.87e-6
+            elseif  (mt > 0.129) and (mt <= 0.139) then 
+                -64.04e-6*mt+548.39e-6
+            elseif  (mt > 0.139) and (mt <= 0.149) then 
+                -450.47e-6*mt+602.11e-6
+            elseif  (mt >= 0.149) and (mt <= 0.157) then 
+                -645.15e-6*mt+631.11e-6
+            elseif  (mt > 0.157) and (mt <= 0.165) then 
+                -1252.17e-6*mt+726.42e-6
+            elseif  (mt > 0.165) and (mt <= 0.175) then 
+                -1914.56e-6*mt+835.71e-6
+            elseif  (mt > 0.175) and (mt <= 0.212) then 
+                -2666.76e-6*mt+967.34e-6
+            elseif  (mt > 0.212) and (mt <= 0.246) then 
+                -2981.21e-6*mt+1034.01e-6
+            elseif  (mt > 0.246) and (mt <= 0.295) then 
+                -2075.32e-6*mt+811.16e-6
+            elseif  (mt > 0.295) and (mt <= 0.373) then 
+                -1583.28e-6*mt+666.01e-6
+            elseif  (mt > 0.373) and (mt <= 0.41) then 
+                -5855.6e-6*mt+2259.58e-6
+            elseif  (mt > 0.41) and (mt <= 0.43) then 
+                7060.64e-6*mt-3036.08e-6
+            else /*  (mt > 0.43) and (mt <= 1.0) */ 
+                0.0);
     
 
   end Heart;
 end main_ADAN_86_cellml;
-  model CardiovascularSystem
+  model CardiovascularSystemMain
     main_ADAN_86_cellml.environment environment1()
     annotation (Placement(transformation(extent={{-100,100},{-80,80}})));
     main_ADAN_86_cellml.Systemic Systemic1(u_ra = Heart1.u_ra, v_aux = Heart1.v_aux, t = environment1.time_)
@@ -3003,5 +3013,5 @@ end main_ADAN_86_cellml;
     annotation (Placement(transformation(extent={{-10,100},{10,80}})));
   equation
 
-  end CardiovascularSystem;
+  end CardiovascularSystemMain;
 end main_ADAN_86_cellml_converted;

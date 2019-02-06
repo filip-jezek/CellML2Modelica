@@ -223,6 +223,7 @@ class Object:
         self.variables = list()
         self.equations = ""
         self.SkipComponent = False
+        self.replaceable = False
 
     # def newObject(self, name, text = None, package_name = None, instance_name = None):
     #     "All new objects shall be called using this function, as it may be retyped by child class"
@@ -284,7 +285,8 @@ class Object:
                 obj = [oo for oo in self.children if oo.package_name == pckg and oo.name == il[1]]
                 inst = copy.deepcopy(obj[0])
                 inst.instance_name = il[0]
-                # o.imported_instances.append(inst)
+                # for inherited use - may also set the component to None, thus preventing it from adding
+                self.postProcessComponent(inst)
                 self.instances.append(inst)
 
     @classmethod
@@ -424,6 +426,8 @@ class Object:
                     child.instance_name = encaps_comp
                     if self.VERBOSE:
                         print(" > Encaps in " + parent.name + ": "  + child.name + ' ' + child.instance_name + ';' )
+                    # for inherited use - may also set the component to None, thus preventing it from adding
+                    self.postProcessComponent(child)
                     parent.instances.append(child)
                     
                     # now remove it from instances, as it is encapsulated and thus not on big scene anymore
@@ -608,7 +612,9 @@ class Object:
                 if m.mappingType == MappingType.BINDING:
                     if Object.VERBOSE: print( ' >>> binding ' + str(m))
                     map_string.append(str(m))
-            text += '    ' + gc.package_name + '.' + gc.name + ' ' + gc.instance_id \
+            text += '    ' \
+                    + ('replaceable ' if gc.replaceable else '') \
+                    + gc.package_name + '.' + gc.name + ' ' + gc.instance_id \
                     + ( '(' + ', '.join(map_string) + ')' if map_string is not None else '') \
                     + Object.buildAnnotation(i, len(self.instances)) \
                     + ';\n'

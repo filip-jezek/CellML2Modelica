@@ -1,4 +1,5 @@
 import DataStructure as ds
+import re
 
 class ADANModel(ds.Object):
 
@@ -19,8 +20,14 @@ class ADANModel(ds.Object):
     def postProcessComponent(self, c:ds.Object):
         
         # skip the annoying components without the _module stuff
-        if self.package_name == 'main_ADAN_86_cellml' and ('_' in c.name):
+        if c.package_name == 'main_ADAN_86_cellml' and ('_' in c.name) and re.match(r'.+[A-D\d]', c.name) is not None:
             c.SkipComponent = True
+        
+        if c.instance_name == 'aortic_arch_C46_module':
+            c.replaceable = True
+        if c.instance_name == 'internal_carotid_R8_A_module':
+            c.replaceable = True
+        
 
     # def getMappings(self):
     #     super(ds.Object, self).getMappings()

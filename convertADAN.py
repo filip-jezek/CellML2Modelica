@@ -51,20 +51,24 @@ class ADANModel(ds.Object):
                     thoracic_aorta_C112_module"""
 
         # get rid of whitespaces - just for being able to have nicer formatting here
-        intrathoracic_arteries = re.sub(r'[\s\t]', '', intrathoracic_arteries)
+        intrathoracic_arteries = re.sub(r'[ \t]', '', intrathoracic_arteries)
         
         ia = intrathoracic_arteries.splitlines()
 
-        if c.instance_name in ia:
+        if self.instance_name == 'Systemic' and c.instance_name in ia:
             print("***")
             c.package_name = 'ADAN_main.BG_Modules_extended'
             v_own = ds.Variable('thoracic_pressure')
-            v_own.pubIn = True
             v_target = ds.Variable('thoracic_pressure')
-            v_target.privOut = True
             m = ds.Mapping(c, v_own, self, v_target)
+            m.instantiateType = ds.InstantiateType.ENCAPSULATION
+            m.mappingType = ds.MappingType.BINDING
+            c.mappings.append(m)
 
-            # c.name = ''
+        if c.instance_name == 'Systemic':
+            c.head += """    Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+        transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent
+          ={{-120,-20},{-80,20}})));\n"""
 
         
         

@@ -22,3 +22,5 @@ dsa.ADANModel.UseConnectionMapping = False
 dsa.ADANModel.convertCellML('main_ADAN-86.cellml')
 print('Done Johne')
 
+# TODO thoracic arteries
+

@@ -7,6 +7,7 @@ import math
 import json
 
 class MappingType(Enum):
+    UNKNOWN = 0
     BINDING = 1
     EQUATION = 2
     CONNECTION = 3
@@ -139,7 +140,6 @@ class Mapping:
             self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding()
         elif x.pubIn and y.pubOut:
             # E
             self.mappingType = MappingType.BINDING
@@ -148,7 +148,6 @@ class Mapping:
             self.ownerVariable = x
             self.targetInstance = YY
             self.targetVariable = y
-            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         elif x.pubOut and y.pubIn:
             # F
             self.mappingType = MappingType.BINDING
@@ -157,9 +156,13 @@ class Mapping:
             self.ownerVariable = y
             self.targetInstance = XX
             self.targetVariable = x
-            # self.writeOutput = self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.uniqueInstanceName)
         else:
-            raise ValueError('Sumfin wen wong in mappings! Cannot recognize the type')
+            self.mappingType = MappingType.UNKNOWN
+            self.instantiateType = InstantiateType.SIBLINGS
+            self.ownerInstance = XX
+            self.ownerVariable = x
+            self.targetInstance = YY
+            self.targetVariable = y
 
     def writeMappingType(self):
         if self.mappingType == MappingType.BINDING:
@@ -444,7 +447,7 @@ class Object:
                     if self.VERBOSE:
                         print(" > Encaps in " + parent.name + ": "  + child.name + ' ' + child.instance_name + ';' )
                     # for inherited use - may also set the component to None, thus preventing it from adding
-                    self.postProcessComponent(child)
+                    parent.postProcessComponent(child)
                     parent.instances.append(child)
                     
                     # now remove it from instances, as it is encapsulated and thus not on big scene anymore

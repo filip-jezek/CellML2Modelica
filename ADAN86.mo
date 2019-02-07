@@ -24,7 +24,7 @@ package ADAN_main
     end Baroreceptor;
 
   model pv_jII_type_baroreceptor
-    extends main_ADAN_86_cellml_converted.BG_Modules_cellml.pv_jII_type;
+    extends ADAN_main.BG_Modules_extended.pv_jII_type;
 
     Physiolibrary.Types.Volume volume = u_C*C;
     Physiolibrary.Types.Volume v0 = Modelica.Constants.pi*(r^2) *l;
@@ -38,6 +38,7 @@ package ADAN_main
 
     model pv_type_baroreceptor
       extends main_ADAN_86_cellml_converted.BG_Modules_cellml.pv_type;
+
 
         Physiolibrary.Types.Volume volume = u_C*C;
       Physiolibrary.Types.Volume v0 = Modelica.Constants.pi*(r^2) *l;
@@ -281,6 +282,158 @@ package ADAN_main
                    /*  (mt > 0.43) and (mt <= 1.0) */
 
     end Heart_ADAN_orig;
+
+    model Heart_ADAN_Heart
+      main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Heart Parameters_Heart1
+        annotation (Placement(transformation(extent={{-100,100},{-80,80}})));
+      input Real t(unit = "s");
+      Real mt(unit = "s");
+      Real e_a(unit = "1");
+      Real e_v(unit = "1");
+      Real T(unit = "s");
+      Real t_ac(unit = "1");
+      Real t_ar(unit = "1");
+      Real T_ac(unit = "1");
+      Real T_ar(unit = "1");
+      Real T_vc(unit = "1");
+      Real T_vr(unit = "1");
+      Real R_trv(unit = "J.s.m-6");
+      Real R_puv(unit = "J.s.m-6");
+      Real R_miv(unit = "J.s.m-6");
+      Real R_aov(unit = "J.s.m-6");
+      Real B_trv(unit = "J.s2.m-9");
+      Real B_puv(unit = "J.s2.m-9");
+      Real B_miv(unit = "J.s2.m-9");
+      Real B_aov(unit = "J.s2.m-9");
+      Real L_trv(unit = "J.s2.m-6");
+      Real L_puv(unit = "J.s2.m-6");
+      Real L_miv(unit = "J.s2.m-6");
+      Real L_aov(unit = "J.s2.m-6");
+      Real E_lv_A(unit = "J.m-6");
+      Real E_lv_B(unit = "J.m-6");
+      Real E_la_A(unit = "J.m-6");
+      Real E_la_B(unit = "J.m-6");
+      Real E_rv_A(unit = "J.m-6");
+      Real E_rv_B(unit = "J.m-6");
+      Real E_ra_A(unit = "J.m-6");
+      Real E_ra_B(unit = "J.m-6");
+      Real q_ra_0(unit = "m3");
+      Real q_rv_0(unit = "m3");
+      Real q_la_0(unit = "m3");
+      Real q_lv_0(unit = "m3");
+      Real u_ra(unit = "Pa");
+      Real u_rv(unit = "Pa");
+      Real u_la(unit = "Pa");
+      Real u_lv(unit = "Pa");
+      input Real u_sas(unit = "Pa");
+      input Real u_par(unit = "Pa");
+      Real v_trv(unit = "m3.s-1", start = 0);
+      Real v_puv(unit = "m3.s-1", start = 0);
+      Real v_miv(unit = "m3.s-1", start = 0);
+      Real v_aov(unit = "m3.s-1", start = 0);
+      input Real v_sup_venacava(unit = "m3.s-1");
+      input Real v_inf_venacava(unit = "m3.s-1");
+      input Real v_pvn(unit = "m3.s-1");
+      Real q_ra(unit = "m3", start = 20.0e-6);
+      Real q_rv(unit = "m3", start = 500.0e-6);
+      Real q_la(unit = "m3", start = 20.0e-6);
+      Real q_lv(unit = "m3", start = 500.0e-6);
+      Physiolibrary.Types.RealIO.FrequencyInput frequency annotation (Placement(
+            transformation(extent={{-126,-20},{-86,20}}), iconTransformation(extent=
+               {{-170,-20},{-130,20}})));
+
+      Real int_f;
+    equation
+      T = Parameters_Heart1.T;
+      t_ac = Parameters_Heart1.t_ac;
+      t_ar = Parameters_Heart1.t_ar;
+      T_ac = Parameters_Heart1.T_ac;
+      T_ar = Parameters_Heart1.T_ar;
+      T_vc = Parameters_Heart1.T_vc;
+      T_vr = Parameters_Heart1.T_vr;
+      R_trv = Parameters_Heart1.R_trv;
+      R_puv = Parameters_Heart1.R_puv;
+      R_miv = Parameters_Heart1.R_miv;
+      R_aov = Parameters_Heart1.R_aov;
+      B_trv = Parameters_Heart1.B_trv;
+      B_puv = Parameters_Heart1.B_puv;
+      B_miv = Parameters_Heart1.B_miv;
+      B_aov = Parameters_Heart1.B_aov;
+      L_trv = Parameters_Heart1.L_trv;
+      L_puv = Parameters_Heart1.L_puv;
+      L_miv = Parameters_Heart1.L_miv;
+      L_aov = Parameters_Heart1.L_aov;
+      E_lv_A = Parameters_Heart1.E_lv_A;
+      E_lv_B = Parameters_Heart1.E_lv_B;
+      E_la_A = Parameters_Heart1.E_la_A;
+      E_la_B = Parameters_Heart1.E_la_B;
+      E_rv_A = Parameters_Heart1.E_rv_A;
+      E_rv_B = Parameters_Heart1.E_rv_B;
+      E_ra_A = Parameters_Heart1.E_ra_A;
+      E_ra_B = Parameters_Heart1.E_ra_B;
+      q_ra_0 = Parameters_Heart1.q_ra_0;
+      q_rv_0 = Parameters_Heart1.q_rv_0;
+      q_la_0 = Parameters_Heart1.q_la_0;
+      q_lv_0 = Parameters_Heart1.q_lv_0;
+
+      der(int_f) = frequency;
+      mt = int_f - floor(int_f);
+
+    //       mt = t-T*floor(t/T);
+
+          e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
+                  0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
+              elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then
+                  0
+              elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then
+                  0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
+              else
+                  0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T))));
+                   /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */
+
+          e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then
+                  0.5*(1-cos(Modelica.Constants.pi*mt/(T_vc*T)))
+              elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then
+                  0.5*(1+cos(Modelica.Constants.pi*(mt-T_vc*T)/(T_vr*T)))
+              else
+                  0);
+                   /*  (mt > (T_vc+T_vr)*T) and (mt < T) */
+
+          der(v_trv) = noEvent(if u_ra >= u_rv then
+                  (u_ra-u_rv-(R_trv+B_trv*abs(v_trv))*v_trv)/L_trv
+              else
+                  -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv);
+                   /*  u_ra < u_rv */
+
+          der(v_puv) = noEvent(if u_rv >= u_par then
+                  (u_rv-u_par-(R_puv+B_puv*abs(v_puv))*v_puv)/L_puv
+              else
+                  -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv);
+                   /*  u_rv < u_par */
+
+          der(v_miv) = noEvent(if u_la >= u_lv then
+                  (u_la-u_lv-(R_miv+B_miv*abs(v_miv))*v_miv)/L_miv
+              else
+                  -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv);
+                   /*  u_la < u_lv */
+
+          der(v_aov) = noEvent(if u_lv >= u_sas then
+                  (u_lv-u_sas-(R_aov+B_aov*abs(v_aov))*v_aov)/L_aov
+              else
+                  -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov);
+                   /*  u_lv < u_sas */
+
+          u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0);
+          u_rv = (e_v*E_rv_A+E_rv_B)*(q_rv-q_rv_0);
+          u_la = (e_a*E_la_A+E_la_B)*(q_la-q_la_0);
+          u_lv = (e_v*E_lv_A+E_lv_B)*(q_lv-q_lv_0);
+
+          der(q_ra) = v_sup_venacava+v_inf_venacava-v_trv;
+          der(q_rv) = v_trv-v_puv;
+          der(q_la) = v_pvn-v_miv;
+          der(q_lv) = v_miv-v_aov;
+
+    end Heart_ADAN_Heart;
   end Auxiliary;
 
 package BG_Modules_extended
@@ -425,24 +578,57 @@ end BG_Modules_extended;
   model Cardiovascular_ADAN86
     extends main_ADAN_86_cellml_converted.CardiovascularSystemMain(redeclare
         Auxiliary.SystemicExtension Systemic1, redeclare
-        Auxiliary.Heart_ADAN_orig Heart1);
+        ADAN_main.Auxiliary.Heart_ADAN_orig Heart1);
     Modelica.Blocks.Sources.Sine breathing_sine(
-      amplitude=-250,
+      amplitude=-500,
       freqHz=0.2,
-      offset=-250)
+      offset=0,
+      startTime=10)
       annotation (Placement(transformation(extent={{-100,20},{-80,40}})));
-    Modelica.Blocks.Sources.Constant breathing_sine1(k=-4)
+    Modelica.Blocks.Sources.Ramp breathing_sine1(
+      height=-1,
+      duration=2,
+      offset=0,
+      startTime=0)
       annotation (Placement(transformation(extent={{-100,50},{-80,70}})));
   equation
-    connect(Systemic1.HR, Heart1.frequency) annotation (Line(points={{-49.8,90},
-            {-42,90},{-42,64},{-15,64},{-15,90}}, color={0,0,127}));
-    connect(breathing_sine1.y, Systemic1.thoracic_pressure)
-      annotation (Line(points={{-79,60},{-70,60},{-70,90}}, color={0,0,127}));
+    connect(Systemic1.HR, Heart1.frequency) annotation (Line(points={{-49.8,90},{-42,
+            90},{-42,64},{-15,64},{-15,90}}, color={0,0,127}));
+    connect(breathing_sine.y, Systemic1.thoracic_pressure) annotation (Line(
+          points={{-79,30},{-74,30},{-74,62},{-70,62},{-70,90}}, color={0,0,127}));
     annotation (experiment(
         StopTime=100,
         __Dymola_NumberOfIntervals=1500,
         __Dymola_Algorithm="Dassl"));
   end Cardiovascular_ADAN86;
+
+  model Cardiovascular_ADAN86_heart
+    extends main_ADAN_86_Heart_cellml_converted.CardiovascularSystem(redeclare
+        main_ADAN_86_Heart_cellml_converted.main_ADAN_86_Heart_cellml.Systemic
+                                    Systemic1, redeclare
+        ADAN_main.Auxiliary.Heart_ADAN_Heart Heart1);
+    Modelica.Blocks.Sources.Ramp breathing_sine1(
+      height=0,
+      duration=0,
+      offset=0,
+      startTime=0)
+      annotation (Placement(transformation(extent={{-100,50},{-80,70}})));
+    Modelica.Blocks.Sources.Ramp breathing_sine2(
+      height=1.2,
+      duration=10,
+      offset=1.2,
+      startTime=80)
+      annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
+  equation
+    connect(Systemic1.thoracic_pressure, breathing_sine1.y) annotation (Line(
+          points={{-70,90},{-74,90},{-74,60},{-79,60}}, color={0,0,127}));
+    connect(breathing_sine2.y, Heart1.frequency) annotation (Line(points={{-39,
+            50},{-28,50},{-28,48},{-15,48},{-15,90}}, color={0,0,127}));
+    annotation (experiment(
+        StopTime=100,
+        __Dymola_NumberOfIntervals=1500,
+        __Dymola_Algorithm="Dassl"));
+  end Cardiovascular_ADAN86_heart;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
             "3.2.2")));
 end ADAN_main;

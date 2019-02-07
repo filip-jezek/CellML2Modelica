@@ -2385,7 +2385,7 @@ package main_ADAN_86_cellml
     annotation (Placement(transformation(extent={{25,100},{45,95}})));
     ADAN_main.BG_Modules_extended.pv_jII_type brachiocephalic_trunk_C4_module(thoracic_pressure = thoracic_pressure, u_in = aortic_arch_C2_module.u, v_out_1 = common_carotid_R6_A_module.v, v_out_2 = subclavian_R28_module.v, l = Parameters_Systemic1.l_brachiocephalic_trunk_C4, E = Parameters_Systemic1.E_brachiocephalic_trunk_C4, r = Parameters_Systemic1.r_brachiocephalic_trunk_C4, t = t)
     annotation (Placement(transformation(extent={{50,100},{70,95}})));
-    replaceable BG_Modules_cellml.pv_jII_type aortic_arch_C46_module(u_in = aortic_arch_C2_module.u, v_out_1 = aortic_arch_C64_module.v, v_out_2 = common_carotid_L48_A_module.v, l = Parameters_Systemic1.l_aortic_arch_C46, E = Parameters_Systemic1.E_aortic_arch_C46, r = Parameters_Systemic1.r_aortic_arch_C46, t = t)
+    replaceable ADAN_main.BG_Modules_extended.pv_jII_type aortic_arch_C46_module(thoracic_pressure = thoracic_pressure, u_in = aortic_arch_C2_module.u, v_out_1 = aortic_arch_C64_module.v, v_out_2 = common_carotid_L48_A_module.v, l = Parameters_Systemic1.l_aortic_arch_C46, E = Parameters_Systemic1.E_aortic_arch_C46, r = Parameters_Systemic1.r_aortic_arch_C46, t = t)
     annotation (Placement(transformation(extent={{75,100},{95,95}})));
     ADAN_main.BG_Modules_extended.pv_jII_type aortic_arch_C64_module(thoracic_pressure = thoracic_pressure, u_in = aortic_arch_C46_module.u, v_out_1 = aortic_arch_C94_module.v, v_out_2 = subclavian_L66_module.v, l = Parameters_Systemic1.l_aortic_arch_C64, E = Parameters_Systemic1.E_aortic_arch_C64, r = Parameters_Systemic1.r_aortic_arch_C64, t = t)
     annotation (Placement(transformation(extent={{-100,90},{-80,85}})));

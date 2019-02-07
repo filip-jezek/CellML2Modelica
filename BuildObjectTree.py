@@ -19,7 +19,7 @@ ds.Variable.EvaluateParameters = False
 ds.Variable.UseUnits = True
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 dsa.ADANModel.UseConnectionMapping = False
-dsa.ADANModel.convertCellML('main_ADAN-86.cellml')
+dsa.ADANModel.convertCellML('main_ADAN-86-Heart.cellml')
 print('Done Johne')
 
 # TODO thoracic arteries

@@ -41,7 +41,7 @@ class ADANModel(ds.Object):
                     ascending_aorta_D_module
                     aortic_arch_C2_module
                     brachiocephalic_trunk_C4_module
-                    replaceable aortic_arch_C46_module
+                    aortic_arch_C46_module
                     aortic_arch_C64_module
                     aortic_arch_C94_module
                     thoracic_aorta_C96_module

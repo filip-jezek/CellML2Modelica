@@ -612,8 +612,8 @@ class Object:
 
 
         return "\n    annotation (Placement(transformation(extent={{" \
-            + str(position[0]) + ',' + str(position[1]) + '},{' \
-            + str(position[0] + size[0])  + ',' + str(position[1] - size[1]) + '}})))'
+            + str(position[0]) + ',' + str(position[1] - size[1]) + '},{' \
+            + str(position[0] + size[0])  + ',' + str(position[1]) + '}})))'
 
     def printObject(self):
         if self.SkipComponent:
@@ -636,7 +636,7 @@ class Object:
             text += '    ' \
                     + ('replaceable ' if gc.replaceable else '') \
                     + gc.package_name + '.' + gc.name + ' ' + gc.instance_id \
-                    + ( '(' + ', '.join(map_string) + ')' if map_string is not None else '') \
+                    + ( '(\n        ' + ',\n        '.join(map_string) + ')' if map_string is not None else '') \
                     + Object.buildAnnotation(i, len(self.instances)) \
                     + ';\n'
             i += 1

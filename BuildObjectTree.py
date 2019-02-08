@@ -1,12 +1,10 @@
 import DataStructure as ds
 import convertADAN as dsa
 import json
-# TODO variables with equations are parameters
-# TODO time in environment does not have equation
 
-# TODO rework the children model to package - top level, children 
-# TODO annotations
-# TODO 
+# general 
+# TODO containment
+# TODO {id_sdfsf} in comp name - solvable by e.g. stripping out comp(\{\w+\})?
 
 
 # o = buildFile('sodium_ion_channel.cellml')
@@ -20,7 +18,9 @@ ds.Variable.UseUnits = True
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 dsa.ADANModel.UseConnectionMapping = False
 dsa.ADANModel.convertCellML('main_ADAN-86-Heart.cellml')
+# dsa.ADANModel.convertCellML('tentusscher_2004_endo_cell.cellml')
 print('Done Johne')
 
 # TODO thoracic arteries
+
 

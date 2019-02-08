@@ -22,11 +22,13 @@ class ADANModel(ds.Object):
     def postProcessComponent(self, c:ds.Object):
         
         # skip the annoying components without the _module stuff
-        if c.package_name == 'main_ADAN_86_cellml' and ('_' in c.name) and re.match(r'.+[A-D\d]', c.name) is not None:
+        if 'main_ADAN_86' in c.package_name and ('_' in c.name) and re.match(r'.+[A-D\d]', c.name) is not None:
             c.SkipComponent = True
         
         # set some components replaceable
         if c.instance_id == 'Heart1':
+            c.replaceable = True
+        if c.instance_id == 'Pulmonary1':
             c.replaceable = True
         if c.instance_id == 'Systemic1':
             c.replaceable = True
@@ -35,6 +37,10 @@ class ADANModel(ds.Object):
         if c.instance_name == 'internal_carotid_R8_A_module':
             c.replaceable = True
 
+        self.intraThoracicPressure(c)
+
+    def intraThoracicPressure(self, c):
+        # make thoracic arteries dependent on the intrathoracic pressure
         intrathoracic_arteries = """ascending_aorta_A_module
                     ascending_aorta_B_module
                     ascending_aorta_C_module
@@ -52,7 +58,7 @@ class ADANModel(ds.Object):
 
         # get rid of whitespaces - just for being able to have nicer formatting here
         intrathoracic_arteries = re.sub(r'[ \t]', '', intrathoracic_arteries)
-        
+
         ia = intrathoracic_arteries.splitlines()
 
         if self.instance_name == 'Systemic' and c.instance_name in ia:

@@ -47,7 +47,8 @@ end
 P_ta = V_ta/C_ta + Pth;
 P_sa = V_sa/C_sa;
 P_sv = V_sv/C_sv;
-P_tv = V_tv/C_tv + Pth;
+% P_tv = V_tv/C_tv + Pth;
+P_tv = 2.2;
 P_pa = V_pa/C_pa + Pth;
 P_pv = V_pv/C_pv + 1.05*Pth;
 

@@ -47,5 +47,15 @@ P_tv = V_tv./C_tv + Pth;
 P_pa = V_pa./C_pa + Pth;
 P_pv = V_pv./C_pv + 1.0*Pth;
 
-figure(1); plot(t,P_sa)
-figure(2); plot(t,V_tv)
+figure(1); clf; hold on; 
+plot(t,P_sa)
+plot(t,P_tv)
+legend('Psa', 'Ptv')
+figure(2); clf; hold on; 
+plot(t,V_ta);
+plot(t,V_sa);
+plot(t,V_sv);
+plot(t,V_tv);
+plot(t,V_pv);
+legend('ta', 'sa', 'sv', 'tv', 'pv')
+% figure(3); plot(t,V_pv)

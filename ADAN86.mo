@@ -4,13 +4,13 @@ package ADAN_main
     model Baroreceptor
       input Physiolibrary.Types.Volume v "volume of vessel";
       input Physiolibrary.Types.Volume v0 "reference vessel volume";
-      Real d=sqrt(v/v0);
-      Real epsilon( start = 1);
-      parameter Physiolibrary.Types.Time Ts = 30;
-      Real delta=max(d - epsilon, 0);
-      parameter Real f0( unit = "s-1")= 300;
-      parameter Real delta0 = 0.4965;
-      Real fbr = f0*s*(delta/(delta + delta0));
+      Real d=sqrt(v/v0) "The distension ratio r/r0. Should be around 1, but not necesarily exactly 1, as it is compensated by other paraemters";
+      Real epsilon( start = 1) "Averaged distension ratio";
+      parameter Physiolibrary.Types.Time Ts = 30 "Time constant for averaging";
+      Real delta=max(d - epsilon, 0) "Positive peaks detected";
+      parameter Real f0( unit = "Hz")= 300 "Base firing frequency";
+      parameter Real delta0 = 0.4965 "Baseline delta";
+      Real fbr( unit = "Hz") = f0*s*(delta/(delta + delta0)) "Baroreceptor firing frequency";
       Real s(start = 0.9);
       parameter Real a(unit="s-1") = 0.0651;
       parameter Real b(unit="s-1") = 0.2004;
@@ -22,6 +22,33 @@ package ADAN_main
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end Baroreceptor;
+
+    model Baroreflex
+      Modelica.Blocks.Interfaces.RealInput aortic_BR annotation (Placement(transformation(
+              extent={{-114,48},{-74,88}}), iconTransformation(extent={{-120,80},{-80,
+                120}})));
+      Modelica.Blocks.Interfaces.RealInput carotid_BR annotation (Placement(transformation(
+              extent={{-118,-68},{-78,-28}}),
+                                            iconTransformation(extent={{-120,-120},{
+                -80,-80}})));
+
+    Real fiSN(start = 0.25);
+    parameter Real fsn( unit = "s-1") = 0.041;
+    parameter Real f1 = 0.0046;
+    parameter Real g = 0.66;
+    Real aorticWeight = 2*g*aortic_BR;
+    Real carotidWeight = 2*(1-g)*carotid_BR;
+    parameter Real H0 = 28/60;
+    parameter Real H1 = 156/60;
+      Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
+            transformation(extent={{96,-10},{116,10}}), iconTransformation(extent={{80,-10},
+                {100,10}})));
+    equation
+      HR = H0 + H1*fiSN;
+      der(fiSN) = fsn*(1-fiSN) - fiSN*f1*(aorticWeight + carotidWeight);
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Baroreflex;
 
   model pv_jII_type_baroreceptor
     extends ADAN_main.BG_Modules_extended.pv_jII_type;
@@ -50,33 +77,6 @@ package ADAN_main
               extent={{90,-10},{110,10}}), iconTransformation(extent={{92,-10},{112,
                 10}})));
     end pv_type_baroreceptor;
-
-    model Baroreflex
-      Modelica.Blocks.Interfaces.RealInput aortic_BR annotation (Placement(transformation(
-              extent={{-114,48},{-74,88}}), iconTransformation(extent={{-120,80},{-80,
-                120}})));
-      Modelica.Blocks.Interfaces.RealInput carotid_BR annotation (Placement(transformation(
-              extent={{-118,-68},{-78,-28}}),
-                                            iconTransformation(extent={{-120,-120},{
-                -80,-80}})));
-
-    Real fiSN(start = 0.25);
-    parameter Real fsn( unit = "s-1") = 0.041;
-    parameter Real f1 = 0.0046;
-    parameter Real g = 0.66;
-    Real aorticWeight = 2*g*aortic_BR;
-    Real carotidWeight = 2*(1-g)*carotid_BR;
-    parameter Real H0 = 28/60;
-    parameter Real H1 = 156/60;
-      Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
-            transformation(extent={{96,-10},{116,10}}), iconTransformation(extent={{80,-10},
-                {100,10}})));
-    equation
-      HR = H0 + H1*fiSN;
-      der(fiSN) = fsn*(1-fiSN) - fiSN*f1*(aorticWeight + carotidWeight);
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-            coordinateSystem(preserveAspectRatio=false)));
-    end Baroreflex;
 
     model SystemicExtension
       extends main_ADAN_86_cellml_converted.main_ADAN_86_cellml.Systemic(redeclare
@@ -683,6 +683,27 @@ package ADAN_main
           der(v_psh) = (u_par-u_pvn-v_psh*R_psh)/I_psh;
 
     end Pulmonary;
+
+    model SystemicExtension_heart
+      extends main_ADAN_86_Heart_cellml_converted.main_ADAN_86_Heart_cellml.Systemic(redeclare
+          pv_jII_type_baroreceptor aortic_arch_C46_module, redeclare
+          pv_type_baroreceptor internal_carotid_R8_A_module);
+      Baroreflex baroreflex
+        annotation (Placement(transformation(extent={{80,-80},{100,-60}})));
+      Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
+            transformation(extent={{90,-102},{110,-82}}),
+                                                        iconTransformation(extent={{92,-10},
+                {112,10}})));
+    equation
+
+      connect(aortic_arch_C46_module.y, baroreflex.aortic_BR) annotation (Line(
+            points={{95.4,97.5},{98,97.5},{98,-52},{76,-52},{76,-60},{80,-60}},
+            color={0,0,127}));
+      connect(internal_carotid_R8_A_module.y, baroreflex.carotid_BR) annotation (
+          Line(points={{70.2,-22.5},{70.2,-80},{80,-80}}, color={0,0,127}));
+      connect(baroreflex.HR, HR) annotation (Line(points={{99,-70},{96,-70},{96,
+              -92},{100,-92}}, color={0,0,127}));
+    end SystemicExtension_heart;
   end Auxiliary;
 
 package BG_Modules_extended
@@ -859,52 +880,123 @@ end BG_Modules_extended;
 
   model Cardiovascular_ADAN86_heart
     extends main_ADAN_86_Heart_cellml_converted.CardiovascularSystem(
-    redeclare ADAN_main.Auxiliary.AcausalConnector.HeartWrap Heart1,
-    redeclare ADAN_main.Auxiliary.Pulmonary Pulmonary1);
+    redeclare Auxiliary.Heart_ADAN_Heart                     Heart1( v_sup_venacava = Systemic1.v_svc,  v_inf_venacava = Systemic1.v_ivc),
+    redeclare ADAN_main.Auxiliary.Pulmonary Pulmonary1,
+      redeclare Auxiliary.SystemicExtension_heart Systemic1);
     Modelica.Blocks.Sources.Trapezoid Valsalva(
       amplitude=5320,
       rising=1,
-      width=30,
+      width=20,
       falling=1,
       period=60,
       nperiod=1,
       offset=0,
-      startTime=50)
+      startTime=20)
       annotation (Placement(transformation(extent={{80,20},{60,40}})));
     Modelica.Blocks.Sources.Ramp Heartrate(
       height=0,
       duration=10,
       offset=1.2,
-      startTime=80)
+      startTime=0)
       annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
     Modelica.Blocks.Math.Add add
       annotation (Placement(transformation(extent={{20,0},{0,20}})));
     Modelica.Blocks.Sources.Sine Breathing(
-      amplitude=266,
+      amplitude=0,
       freqHz=0.2,
-      offset=-266,
+      offset=0,
       startTime=10)
       annotation (Placement(transformation(extent={{80,-20},{60,0}})));
-    Modelica.Blocks.Sources.Constant Breathing1(k=0)
-      annotation (Placement(transformation(extent={{36,46},{16,66}})));
+      Physiolibrary.Types.VolumeFlowRate systemicInflow = Systemic1.v_aov;
+      Physiolibrary.Types.VolumeFlowRate systemicOutflow = Systemic1.v_inf_venacava + Systemic1.v_sup_venacava;
+      Physiolibrary.Types.Volume v;
   equation
-    connect(Heartrate.y, Heart1.frequency)
-      annotation (Line(points={{-19,50},{-10,50},{-10,90}}, color={0,0,127}));
-    connect(add.u1, Valsalva.y) annotation (Line(points={{22,16},{51,16},{51,30},{
-            59,30}}, color={0,0,127}));
+    der(v) = systemicInflow - systemicOutflow;
+
+    connect(add.u1, Valsalva.y) annotation (Line(points={{22,16},{51,16},{51,30},
+            {59,30}},color={0,0,127}));
     connect(Breathing.y, add.u2) annotation (Line(points={{59,-10},{52,-10},{52,4},
             {22,4}}, color={0,0,127}));
     connect(add.y, Systemic1.thoracic_pressure) annotation (Line(points={{-1,10},{
             -78,10},{-78,90},{-70,90}}, color={0,0,127}));
-    connect(add.y, Heart1.thoracic_pressure)
-      annotation (Line(points={{-1,10},{0,10},{0,80}}, color={0,0,127}));
     connect(add.y, Pulmonary1.thoracic_pressure) annotation (Line(points={{-1,10},
             {-48,10},{-48,72},{-30,72},{-30,80}}, color={0,0,127}));
+    connect(add.y, Heart1.thoracic_pressure) annotation (Line(points={{-1,10},{-2,
+            10},{-2,80},{0,80}}, color={0,0,127}));
+    connect(Systemic1.HR, Heart1.frequency) annotation (Line(points={{-49.8,90},
+            {-46,90},{-46,96},{-14,96},{-14,90},{-10,90}}, color={0,0,127}));
     annotation (experiment(
         StopTime=100,
         __Dymola_NumberOfIntervals=1500,
         __Dymola_Algorithm="Dassl"));
   end Cardiovascular_ADAN86_heart;
+
+  package tests
+    model bleeding
+      main_ADAN_86_Heart_cellml_converted.main_ADAN_86_Heart_cellml.Systemic
+        systemic(t = 0,
+        v_aov = 0,
+        u_ra = 0, u_svl = 0, u_ivl = 0)
+          annotation (Placement(transformation(extent={{-10,6},{10,26}})));
+
+      Modelica.Blocks.Sources.Trapezoid Valsalva(
+        amplitude=0,
+        rising=1,
+        width=30,
+        falling=1,
+        period=60,
+        nperiod=1,
+        offset=0,
+        startTime=50)
+        annotation (Placement(transformation(extent={{-80,6},{-60,26}})));
+      main_ADAN_86_Heart_cellml_converted.BG_Modules_cellml.pv_type pv_type(
+          u_in = 0,
+          v_out = 0,
+          l = systemic.Parameters_Systemic1.l_ascending_aorta_B,
+          E = systemic.Parameters_Systemic1.E_ascending_aorta_B,
+          r = systemic.Parameters_Systemic1.r_ascending_aorta_B,
+          t = 0)
+        annotation (Placement(transformation(extent={{-20,80},{0,100}})));
+      main_ADAN_86_Heart_cellml_converted.BG_Modules_cellml.vv_type vv_type(
+          v_in = 0,
+          v_out = 0,
+          l = systemic.Parameters_Systemic1.l_ascending_aorta_B,
+          E = systemic.Parameters_Systemic1.E_ascending_aorta_B,
+          r = systemic.Parameters_Systemic1.r_ascending_aorta_B,
+          t = 0)
+        annotation (Placement(transformation(extent={{-20,-40},{0,-60}})));
+      main_ADAN_86_Heart_cellml_converted.BG_Modules_cellml.pp_BC_type pp_BC_type(
+          u_out = 0,
+          t = 0,
+          u_in = 0,
+          l = systemic.Parameters_Systemic1.l_posterior_intercostal_T1_R98,
+          E = systemic.Parameters_Systemic1.E_posterior_intercostal_T1_R98,
+          R_T = systemic.Parameters_Systemic1.R_T_posterior_intercostal_T1_R98,
+          C_T = systemic.Parameters_Systemic1.C_T_posterior_intercostal_T1_R98,
+          r = systemic.Parameters_Systemic1.r_posterior_intercostal_T1_R98)
+        annotation (Placement(transformation(extent={{-20,40},{0,60}})));
+            Physiolibrary.Types.Volume v;
+    equation
+      der(v) = systemic.v_sup_venacava + systemic.v_inf_venacava;
+      connect(systemic.thoracic_pressure, Valsalva.y)
+        annotation (Line(points={{-10,16},{-59,16}}, color={0,0,127}));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end bleeding;
+  end tests;
+
+  model CardiovascularSystem_ec0680f
+    extends main_ADAN_86_ec0680f_converted.CardiovascularSystem;
+  end CardiovascularSystem_ec0680f;
+
+  package Experiments
+    model Cardiovascular_ADAN86_heart_valsalva
+      extends Cardiovascular_ADAN86_heart(Systemic1(
+          aortic_arch_C46_module(baroreceptor(epsilon(start=0.8))),
+          u_ivc(start=500.0),
+          u_ivn(start=500.0)), Valsalva(amplitude=2200.0, startTime=160.0));
+    end Cardiovascular_ADAN86_heart_valsalva;
+  end Experiments;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
             "3.2.2")));
 end ADAN_main;

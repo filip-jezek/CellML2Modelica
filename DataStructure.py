@@ -181,8 +181,8 @@ class Mapping:
             return self.ownerVariable.name + " = " + self.targetVariable.returnBinding(self.targetInstance.instance_id)
         elif self.mappingType == MappingType.CONNECTION:
             return "connect(" \
-                + self.ownerInstance + '.' + self.ownerVariable + ',' \
-                + self.targetInstance + '.' + self.targetVariable \
+                + self.ownerInstance.instance_id + '.' + self.ownerVariable.name + ',' \
+                + self.targetInstance.instance_id + '.' + self.targetVariable.name \
                 + ') annotation (Line(points={{0,0},{100,100}},thickness=1))'
         else:
             return "???? ERROR in mapping representation of " + self.ownerInstance.name + "." + self.ownerVariable.name + "????"

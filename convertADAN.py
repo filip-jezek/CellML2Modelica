@@ -97,7 +97,7 @@ class ADANModel(ds.Object):
         # vars v_out_1 and v; where v is always PUBOUT  and v_out.. is always pubIN
         # vars u and u_in; where u is always pubOUT and u_in is always PUBIN
 
-        # vars v_out_1 and v;
+        # vars v_out_2 and v;
         # vars u and u_in;                
 
         # vars v_out and v;
@@ -124,10 +124,39 @@ class ADANModel(ds.Object):
             # and create their instance in parent
             u_map.ownerInstance.mappings.remove(u_map)
             v_map.ownerInstance.mappings.remove(v_map)
-            port_a = ds.Variable('q_in')
-            port_b = ds.Variable('q_out')
+
+            port_a = ds.Variable('port_a')
+            port_b = None
+            if v_map.ownerVariable.name == 'v_out':
+                port_b = ds.Variable('port_b')
+            elif v_map.ownerVariable.name == 'v_out_1':
+                port_b = ds.Variable('port_b')
+            elif v_map.ownerVariable.name == 'v_out_2':
+                port_b = ds.Variable('port_b')            
+            # create list of one or two variables
+            # if len(v_maps) == 1:
+            #     port_bs = [ds.Variable(name) for name in  ['q_out']]
+            # elif len(v_maps) == 2:
+            #     # the order does not matter in the ADAN bifurcations
+            #     port_bs = [ds.Variable(name) for name in ['q_out1, q_out2']]
+            # else:
+            #     raise NotImplementedError("We are not prepared for more than two bifurcations!")
             con_map = ds.Mapping(u_map.ownerInstance, port_a, u_map.targetInstance, port_b)
             con_map.mappingType = ds.MappingType.CONNECTION
-            self.mappings.append(con_map)
+
+            # find the parent
+            parent = self.findInstanceParent(u_map.ownerInstance)
+
+            parent.mappings.append(con_map)
+
+    def findInstanceParent(self : ds.Object, instance: ds.Object):
+        for c in self.instances:
+            i = c.findInstanceParent(instance)
+            if i is not None:
+                return i
+            elif c.instance_name == instance.instance_name:
+            # if c is instance:
+                return self
+
 
 

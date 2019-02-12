@@ -35,9 +35,10 @@ package Parameters_cellml
 
 
 
-    
+
 
   end Parameters_Pulmonary;
+
   model Parameters_Heart
     parameter Real T(unit = "s") = 1.0;
     parameter Real t_ac(unit = "1") = 0.80;
@@ -77,9 +78,10 @@ package Parameters_cellml
   equation
 
 
-    
+
 
   end Parameters_Heart;
+
   model Parameters_Coronary
     parameter Real C_corepi(unit = "m6.J-1") = 0.000555;
     parameter Real C_corint(unit = "m6.J-1") = 0.0009751;
@@ -207,9 +209,10 @@ package Parameters_cellml
 
 
 
-    
+
 
   end Parameters_Coronary;
+
   model Parameters_Systemic
     parameter Real C_svl(unit = "m6.J-1") = 0.0037509e-6;
     parameter Real C_svn(unit = "m6.J-1") = 0.1125281e-6;
@@ -1477,9 +1480,10 @@ package Parameters_cellml
 
 
 
-    
+
 
   end Parameters_Systemic;
+
   model Parameters_Venous
     parameter Real r_superior_vena_cava_C2(unit = "m") = 0.975e-2;
     parameter Real r_azygos_vein_T1_C4(unit = "m") = 0.38e-2;
@@ -1877,10 +1881,11 @@ package Parameters_cellml
 
 
 
-    
+
 
   end Parameters_Venous;
 end Parameters_cellml;
+
 package BG_Modules_cellml
   model pv_type
     input Real t(unit = "s");
@@ -1918,7 +1923,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -1929,9 +1934,10 @@ package BG_Modules_cellml
         der(v) = (u_in-u-R*v)/I;
         der(u_C) = (v-v_out)/C;
         u = u_C+R_v*(v-v_out);
-    
+
 
   end pv_type;
+
   model vp_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -1968,7 +1974,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -1979,9 +1985,10 @@ package BG_Modules_cellml
         der(v) = (u-u_out-R*v)/I;
         der(u_C) = (v_in-v)/C;
         u = u_C+R_v*(v_in-v);
-    
+
 
   end vp_type;
+
   model pp_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2019,7 +2026,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2031,9 +2038,10 @@ package BG_Modules_cellml
         der(u_C) = (v-v_d)/C;
         u = u_C+R_v*(v-v_d);
         der(v_d) = (u-u_out-R/2*v_d)/(I/2);
-    
+
 
   end pp_type;
+
   model vv_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2072,7 +2080,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2085,9 +2093,10 @@ package BG_Modules_cellml
         der(u_C_d) = (v-v_out)/(C/2);
         u = u_C+2*R_v*(v_in-v);
         u_d = u_C_d+2*R_v*(v-v_out);
-    
+
 
   end vv_type;
+
   model pp_BC_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2129,7 +2138,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         R_T_2 = 4*R_T;
         length = l;
@@ -2144,9 +2153,10 @@ package BG_Modules_cellml
         der(v_T) = (u-u_out-u_C_T-1.3*R_T*v_T)/(I*1e-6);
         der(u_C_T) = (v_T-v_T_2)/C_T;
         der(v_T_2) = (u_C_T-1.3*R_T_2*v_T_2)/(I*1e-6);
-    
+
 
   end pp_BC_type;
+
   model pp_vBC_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2184,7 +2194,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2196,9 +2206,10 @@ package BG_Modules_cellml
         der(u_C) = (v-v_T)/C;
         u = u_C+R_v*(v-v_T);
         der(v_T) = (u-u_out-0.5*R_T*v_T)/I;
-    
+
 
   end pp_vBC_type;
+
   model pv_jII_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2236,7 +2247,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2247,9 +2258,10 @@ package BG_Modules_cellml
         der(v) = (u_in-u-R*v)/I;
         der(u_C) = (v-v_out_1-v_out_2)/C;
         u = u_C+R_v*(v-v_out_1-v_out_2);
-    
+
 
   end pv_jII_type;
+
   model vv_jII_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2290,7 +2302,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2303,9 +2315,10 @@ package BG_Modules_cellml
         der(u_C_d) = (v-v_out_1-v_out_2)/(C/2);
         u = u_C+2*R_v*(v_in_1+v_in_2-v);
         u_d = u_C_d+2*R_v*(v-v_out_1-v_out_2);
-    
+
 
   end vv_jII_type;
+
   model vp_jII_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2343,7 +2356,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2354,24 +2367,26 @@ package BG_Modules_cellml
         der(v) = (u-u_out-R*v)/I;
         der(u_C) = (v_in_1+v_in_2-v)/C;
         u = u_C+R_v*(v_in_1+v_in_2-v);
-    
+
 
   end vp_jII_type;
 end BG_Modules_cellml;
+
 package main_ADAN_86_cellml
   model environment
     Real time_(unit = "s");
   equation
     // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES
     time_ = time;
-    
+
 
   end environment;
+
   model Systemic
     Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
-        transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent
-          ={{-120,-20},{-80,20}})));
-    Parameters_cellml.Parameters_Systemic Parameters_Systemic1()
+        transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent=
+           {{-120,-20},{-80,20}})));
+    Parameters_cellml.Parameters_Systemic Parameters_Systemic1
     annotation (Placement(transformation(extent={{-100,100},{-80,95}})));
     ADAN_main.BG_Modules_extended.vv_type ascending_aorta_A_module(thoracic_pressure = thoracic_pressure, v_out = ascending_aorta_B_module.v, l = Parameters_Systemic1.l_ascending_aorta_A, E = Parameters_Systemic1.E_ascending_aorta_A, r = Parameters_Systemic1.r_ascending_aorta_A, v_in = v_aux, t = t)
     annotation (Placement(transformation(extent={{-75,100},{-55,95}})));
@@ -2773,11 +2788,12 @@ package main_ADAN_86_cellml
         v_head = v_external_carotid_T2_R26+v_external_carotid_T2_L62+v_internal_carotid_R8_C+v_internal_carotid_L50_C+v_vertebral_R272+v_vertebral_L2;
         v_sup_venacava = v_arms+v_head;
         v_inf_venacava = v_chest+v_trunk+v_intestines+v_kidneys+v_legs;
-    
+
 
   end Systemic;
+
   model Pulmonary
-    Parameters_cellml.Parameters_Pulmonary Parameters_Pulmonary1()
+    Parameters_cellml.Parameters_Pulmonary Parameters_Pulmonary1
     annotation (Placement(transformation(extent={{-100,100},{-80,80}})));
     input Real t(unit = "s");
     Real C_par(unit = "m6.J-1");
@@ -2824,11 +2840,12 @@ package main_ADAN_86_cellml
         der(v_par) = (u_par-u_ppr-v_par*R_par)/I_par;
         der(v_ppr) = (u_ppr-u_pvn-v_ppr*R_ppr)/I_ppr;
         der(v_pvn) = (u_pvn-u_la-v_pvn*R_pvn)/I_pvn;
-    
+
 
   end Pulmonary;
+
   model Heart
-    Parameters_cellml.Parameters_Heart Parameters_Heart1()
+    Parameters_cellml.Parameters_Heart Parameters_Heart1
     annotation (Placement(transformation(extent={{-100,100},{-80,80}})));
     input Real t(unit = "s");
     Real mt(unit = "s");
@@ -2908,42 +2925,48 @@ package main_ADAN_86_cellml
 
         mt = t-T*floor(t/T);
 
-        e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
+        e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
                 0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
+            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then
                 0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
+            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then
                 0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
+            else
                 0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T))));
+                 /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */
 
-        e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then 
+        e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then
                 0.5*(1-cos(Modelica.Constants.pi*mt/(T_vc*T)))
-            elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then 
+            elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then
                 0.5*(1+cos(Modelica.Constants.pi*(mt-T_vc*T)/(T_vr*T)))
-            else /*  (mt > (T_vc+T_vr)*T) and (mt < T) */ 
+            else
                 0);
+                 /*  (mt > (T_vc+T_vr)*T) and (mt < T) */
 
 
-        v_ra = noEvent(if u_ra >= u_rv then 
+        v_ra = noEvent(if u_ra >= u_rv then
                 CV_ra*sqrt(u_ra-u_rv)
-            else /*  u_ra < u_rv */ 
+            else
                 0);
+                 /*  u_ra < u_rv */
 
-        v_rv = noEvent(if u_rv >= u_par then 
+        v_rv = noEvent(if u_rv >= u_par then
                 CV_rv*sqrt(u_rv-u_par)
-            else /*  u_rv < u_par */ 
+            else
                 0);
+                 /*  u_rv < u_par */
 
-        v_la = noEvent(if u_la >= u_lv then 
+        v_la = noEvent(if u_la >= u_lv then
                 CV_la*sqrt(u_la-u_lv)
-            else /*  u_la < u_lv */ 
+            else
                 0);
+                 /*  u_la < u_lv */
 
-        v_lv = noEvent(if u_lv >= u_root then 
+        v_lv = noEvent(if u_lv >= u_root then
                 CV_lv*sqrt(u_lv-u_root)
-            else /*  u_lv < u_root */ 
+            else
                 0);
+                 /*  u_lv < u_root */
 
         u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0);
         u_rv = (e_v*E_rv_A+E_rv_B)*(q_rv-q_rv_0);
@@ -2957,56 +2980,58 @@ package main_ADAN_86_cellml
         der(q_lv) = v_la-v_lv;
 
 
-        v_aux = noEvent(if (mt >= 0.0) and (mt <= 0.03) then 
+        v_aux = noEvent(if (mt >= 0.0) and (mt <= 0.03) then
                 0.0
-            elseif  (mt > 0.03) and (mt <= 0.046) then 
+            elseif  (mt > 0.03) and (mt <= 0.046) then
                 11860.05e-6*mt-343.94e-6
-            elseif  (mt > 0.046) and (mt <= 0.057) then 
+            elseif  (mt > 0.046) and (mt <= 0.057) then
                 9479.17e-6*mt-234.42e-6
-            elseif  (mt > 0.057) and (mt <= 0.071) then 
+            elseif  (mt > 0.057) and (mt <= 0.071) then
                 6653.03e-6*mt-73.33e-6
-            elseif  (mt > 0.071) and (mt <= 0.082) then 
+            elseif  (mt > 0.071) and (mt <= 0.082) then
                 4787.18e-6*mt+59.14e-6
-            elseif  (mt > 0.082) and (mt <= 0.088) then 
+            elseif  (mt > 0.082) and (mt <= 0.088) then
                 3997.84e-6*mt+123.87e-6
-            elseif  (mt > 0.088) and (mt <= 0.097) then 
+            elseif  (mt > 0.088) and (mt <= 0.097) then
                 2912.72e-6*mt+219.36e-6
-            elseif  (mt > 0.097) and (mt <= 0.105) then 
+            elseif  (mt > 0.097) and (mt <= 0.105) then
                 2333.06e-6*mt+275.59e-6
-            elseif  (mt > 0.105) and (mt <= 0.112) then 
+            elseif  (mt > 0.105) and (mt <= 0.112) then
                 1416.84e-6*mt+371.79e-6
-            elseif  (mt > 0.112) and (mt <= 0.129) then 
+            elseif  (mt > 0.112) and (mt <= 0.129) then
                 567.9e-6*mt+466.87e-6
-            elseif  (mt > 0.129) and (mt <= 0.139) then 
+            elseif  (mt > 0.129) and (mt <= 0.139) then
                 -64.04e-6*mt+548.39e-6
-            elseif  (mt > 0.139) and (mt <= 0.149) then 
+            elseif  (mt > 0.139) and (mt <= 0.149) then
                 -450.47e-6*mt+602.11e-6
-            elseif  (mt >= 0.149) and (mt <= 0.157) then 
+            elseif  (mt >= 0.149) and (mt <= 0.157) then
                 -645.15e-6*mt+631.11e-6
-            elseif  (mt > 0.157) and (mt <= 0.165) then 
+            elseif  (mt > 0.157) and (mt <= 0.165) then
                 -1252.17e-6*mt+726.42e-6
-            elseif  (mt > 0.165) and (mt <= 0.175) then 
+            elseif  (mt > 0.165) and (mt <= 0.175) then
                 -1914.56e-6*mt+835.71e-6
-            elseif  (mt > 0.175) and (mt <= 0.212) then 
+            elseif  (mt > 0.175) and (mt <= 0.212) then
                 -2666.76e-6*mt+967.34e-6
-            elseif  (mt > 0.212) and (mt <= 0.246) then 
+            elseif  (mt > 0.212) and (mt <= 0.246) then
                 -2981.21e-6*mt+1034.01e-6
-            elseif  (mt > 0.246) and (mt <= 0.295) then 
+            elseif  (mt > 0.246) and (mt <= 0.295) then
                 -2075.32e-6*mt+811.16e-6
-            elseif  (mt > 0.295) and (mt <= 0.373) then 
+            elseif  (mt > 0.295) and (mt <= 0.373) then
                 -1583.28e-6*mt+666.01e-6
-            elseif  (mt > 0.373) and (mt <= 0.41) then 
+            elseif  (mt > 0.373) and (mt <= 0.41) then
                 -5855.6e-6*mt+2259.58e-6
-            elseif  (mt > 0.41) and (mt <= 0.43) then 
+            elseif  (mt > 0.41) and (mt <= 0.43) then
                 7060.64e-6*mt-3036.08e-6
-            else /*  (mt > 0.43) and (mt <= 1.0) */ 
+            else
                 0.0);
-    
+                 /*  (mt > 0.43) and (mt <= 1.0) */
+
 
   end Heart;
 end main_ADAN_86_cellml;
+
   model CardiovascularSystemMain
-    main_ADAN_86_cellml.environment environment1()
+    main_ADAN_86_cellml.environment environment1
     annotation (Placement(transformation(extent={{-100,100},{-80,80}})));
     replaceable main_ADAN_86_cellml.Systemic Systemic1(u_ra = Heart1.u_ra, v_aux = Heart1.v_aux, t = environment1.time_)
     annotation (Placement(transformation(extent={{-70,100},{-50,80}})));

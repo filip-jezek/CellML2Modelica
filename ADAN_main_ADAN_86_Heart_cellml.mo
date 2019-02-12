@@ -35,10 +35,9 @@ package Parameters_cellml
 
 
 
-
+    
 
   end Parameters_Pulmonary;
-
   model Parameters_Heart
     parameter Real T(unit = "s") = 1.0;
     parameter Real t_ac(unit = "1") = 0.80;
@@ -78,10 +77,9 @@ package Parameters_cellml
   equation
 
 
-
+    
 
   end Parameters_Heart;
-
   model Parameters_Coronary
     parameter Real C_corepi(unit = "m6.J-1") = 0.000555;
     parameter Real C_corint(unit = "m6.J-1") = 0.0009751;
@@ -209,10 +207,9 @@ package Parameters_cellml
 
 
 
-
+    
 
   end Parameters_Coronary;
-
   model Parameters_Systemic
     parameter Real C_svl(unit = "m6.J-1") = 0.0037509e-6;
     parameter Real C_svn(unit = "m6.J-1") = 0.1125281e-6;
@@ -1480,10 +1477,9 @@ package Parameters_cellml
 
 
 
-
+    
 
   end Parameters_Systemic;
-
   model Parameters_Venous
     parameter Real r_superior_vena_cava_C2(unit = "m") = 0.975e-2;
     parameter Real r_azygos_vein_T1_C4(unit = "m") = 0.38e-2;
@@ -1881,11 +1877,10 @@ package Parameters_cellml
 
 
 
-
+    
 
   end Parameters_Venous;
 end Parameters_cellml;
-
 package BG_Modules_cellml
   model pv_type
     input Real t(unit = "s");
@@ -1923,7 +1918,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -1934,10 +1929,9 @@ package BG_Modules_cellml
         der(v) = (u_in-u-R*v)/I;
         der(u_C) = (v-v_out)/C;
         u = u_C+R_v*(v-v_out);
-
+    
 
   end pv_type;
-
   model vp_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -1974,7 +1968,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -1985,10 +1979,9 @@ package BG_Modules_cellml
         der(v) = (u-u_out-R*v)/I;
         der(u_C) = (v_in-v)/C;
         u = u_C+R_v*(v_in-v);
-
+    
 
   end vp_type;
-
   model pp_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2026,7 +2019,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2038,10 +2031,9 @@ package BG_Modules_cellml
         der(u_C) = (v-v_d)/C;
         u = u_C+R_v*(v-v_d);
         der(v_d) = (u-u_out-R/2*v_d)/(I/2);
-
+    
 
   end pp_type;
-
   model vv_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2080,7 +2072,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2093,10 +2085,9 @@ package BG_Modules_cellml
         der(u_C_d) = (v-v_out)/(C/2);
         u = u_C+2*R_v*(v_in-v);
         u_d = u_C_d+2*R_v*(v-v_out);
-
+    
 
   end vv_type;
-
   model pp_BC_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2138,7 +2129,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         R_T_2 = 4*R_T;
         length = l;
@@ -2153,10 +2144,9 @@ package BG_Modules_cellml
         der(v_T) = (u-u_out-u_C_T-1.3*R_T*v_T)/(I*1e-6);
         der(u_C_T) = (v_T-v_T_2)/C_T;
         der(v_T_2) = (u_C_T-1.3*R_T_2*v_T_2)/(I*1e-6);
-
+    
 
   end pp_BC_type;
-
   model pp_vBC_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2194,7 +2184,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2206,10 +2196,9 @@ package BG_Modules_cellml
         der(u_C) = (v-v_T)/C;
         u = u_C+R_v*(v-v_T);
         der(v_T) = (u-u_out-0.5*R_T*v_T)/I;
-
+    
 
   end pp_vBC_type;
-
   model pv_jII_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2247,7 +2236,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2258,10 +2247,9 @@ package BG_Modules_cellml
         der(v) = (u_in-u-R*v)/I;
         der(u_C) = (v-v_out_1-v_out_2)/C;
         u = u_C+R_v*(v-v_out_1-v_out_2);
-
+    
 
   end pv_jII_type;
-
   model vv_jII_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2302,7 +2290,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2315,10 +2303,9 @@ package BG_Modules_cellml
         der(u_C_d) = (v-v_out_1-v_out_2)/(C/2);
         u = u_C+2*R_v*(v_in_1+v_in_2-v);
         u_d = u_C_d+2*R_v*(v-v_out_1-v_out_2);
-
+    
 
   end vv_jII_type;
-
   model vp_jII_type
     input Real t(unit = "s");
     parameter Real mu(unit = "J.s.m-3") = 0.004;
@@ -2356,7 +2343,7 @@ package BG_Modules_cellml
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4) );
         R_v = 0.01/C;
         length = l;
         E_m = E;
@@ -2367,28 +2354,27 @@ package BG_Modules_cellml
         der(v) = (u-u_out-R*v)/I;
         der(u_C) = (v_in_1+v_in_2-v)/C;
         u = u_C+R_v*(v_in_1+v_in_2-v);
-
+    
 
   end vp_jII_type;
 end BG_Modules_cellml;
-
 package main_ADAN_86_Heart_cellml
   model environment
     Real time_(unit = "s");
   equation
     // GENERATED IMPLICIT TIME EQUATION - CHECK WITH THE DERIVATIVES
     time_ = time;
-
+    
 
   end environment;
-
   model Systemic
     Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
-        transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent=
-           {{-120,-20},{-80,20}})));
-    Parameters_cellml.Parameters_Systemic Parameters_Systemic1
+        transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent
+          ={{-120,-20},{-80,20}})));
+    Parameters_cellml.Parameters_Systemic Parameters_Systemic1(
+        )
     annotation (Placement(transformation(extent={{-100,95},{-80,100}})));
-    ADAN_main.BG_Modules_extended.vv_type ascending_aorta_A_module(
+    ADAN_main.BG_Modules_extended.vv_type_thoracic ascending_aorta_A_module(
         thoracic_pressure = thoracic_pressure,
         v_out = ascending_aorta_B_module.v,
         l = Parameters_Systemic1.l_ascending_aorta_A,
@@ -2397,7 +2383,7 @@ package main_ADAN_86_Heart_cellml
         v_in = v_sas,
         t = t)
     annotation (Placement(transformation(extent={{-75,95},{-55,100}})));
-    ADAN_main.BG_Modules_extended.pv_type ascending_aorta_B_module(
+    ADAN_main.BG_Modules_extended.pv_type_thoracic ascending_aorta_B_module(
         thoracic_pressure = thoracic_pressure,
         u_in = ascending_aorta_A_module.u,
         v_out = ascending_aorta_C_module.v,
@@ -2406,7 +2392,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_ascending_aorta_B,
         t = t)
     annotation (Placement(transformation(extent={{-50,95},{-30,100}})));
-    ADAN_main.BG_Modules_extended.pv_type ascending_aorta_C_module(
+    ADAN_main.BG_Modules_extended.pv_type_thoracic ascending_aorta_C_module(
         thoracic_pressure = thoracic_pressure,
         u_in = ascending_aorta_B_module.u,
         v_out = ascending_aorta_D_module.v,
@@ -2415,7 +2401,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_ascending_aorta_C,
         t = t)
     annotation (Placement(transformation(extent={{-25,95},{-5,100}})));
-    ADAN_main.BG_Modules_extended.pv_type ascending_aorta_D_module(
+    ADAN_main.BG_Modules_extended.pv_type_thoracic ascending_aorta_D_module(
         thoracic_pressure = thoracic_pressure,
         u_in = ascending_aorta_C_module.u,
         v_out = aortic_arch_C2_module.v,
@@ -2424,7 +2410,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_ascending_aorta_D,
         t = t)
     annotation (Placement(transformation(extent={{0,95},{20,100}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type aortic_arch_C2_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic aortic_arch_C2_module(
         thoracic_pressure = thoracic_pressure,
         v_out_1 = brachiocephalic_trunk_C4_module.v,
         v_out_2 = aortic_arch_C46_module.v,
@@ -2434,7 +2420,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_aortic_arch_C2,
         t = t)
     annotation (Placement(transformation(extent={{25,95},{45,100}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type brachiocephalic_trunk_C4_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic brachiocephalic_trunk_C4_module(
         thoracic_pressure = thoracic_pressure,
         u_in = aortic_arch_C2_module.u,
         v_out_1 = common_carotid_R6_A_module.v,
@@ -2444,7 +2430,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_brachiocephalic_trunk_C4,
         t = t)
     annotation (Placement(transformation(extent={{50,95},{70,100}})));
-    replaceable ADAN_main.BG_Modules_extended.pv_jII_type aortic_arch_C46_module(
+    replaceable ADAN_main.BG_Modules_extended.pv_jII_type_thoracic aortic_arch_C46_module(
         thoracic_pressure = thoracic_pressure,
         u_in = aortic_arch_C2_module.u,
         v_out_1 = aortic_arch_C64_module.v,
@@ -2454,7 +2440,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_aortic_arch_C46,
         t = t)
     annotation (Placement(transformation(extent={{75,95},{95,100}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type aortic_arch_C64_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic aortic_arch_C64_module(
         thoracic_pressure = thoracic_pressure,
         u_in = aortic_arch_C46_module.u,
         v_out_1 = aortic_arch_C94_module.v,
@@ -2464,7 +2450,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_aortic_arch_C64,
         t = t)
     annotation (Placement(transformation(extent={{-100,85},{-80,90}})));
-    ADAN_main.BG_Modules_extended.pv_type aortic_arch_C94_module(
+    ADAN_main.BG_Modules_extended.pv_type_thoracic aortic_arch_C94_module(
         thoracic_pressure = thoracic_pressure,
         u_in = aortic_arch_C64_module.u,
         v_out = thoracic_aorta_C96_module.v,
@@ -2473,7 +2459,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_aortic_arch_C94,
         t = t)
     annotation (Placement(transformation(extent={{-75,85},{-55,90}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type thoracic_aorta_C96_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C96_module(
         thoracic_pressure = thoracic_pressure,
         v_out_1 = thoracic_aorta_C100_module.v,
         v_out_2 = posterior_intercostal_T1_R98_module.v,
@@ -2483,7 +2469,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_thoracic_aorta_C96,
         t = t)
     annotation (Placement(transformation(extent={{-50,85},{-30,90}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type thoracic_aorta_C100_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C100_module(
         thoracic_pressure = thoracic_pressure,
         u_in = thoracic_aorta_C96_module.u,
         v_out_1 = thoracic_aorta_C104_module.v,
@@ -2493,7 +2479,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_thoracic_aorta_C100,
         t = t)
     annotation (Placement(transformation(extent={{-25,85},{-5,90}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type thoracic_aorta_C104_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C104_module(
         thoracic_pressure = thoracic_pressure,
         u_in = thoracic_aorta_C100_module.u,
         v_out_1 = thoracic_aorta_C108_module.v,
@@ -2503,7 +2489,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_thoracic_aorta_C104,
         t = t)
     annotation (Placement(transformation(extent={{0,85},{20,90}})));
-    ADAN_main.BG_Modules_extended.pv_jII_type thoracic_aorta_C108_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C108_module(
         thoracic_pressure = thoracic_pressure,
         u_in = thoracic_aorta_C104_module.u,
         v_out_1 = thoracic_aorta_C112_module.v,
@@ -2513,7 +2499,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_thoracic_aorta_C108,
         t = t)
     annotation (Placement(transformation(extent={{25,85},{45,90}})));
-    ADAN_main.BG_Modules_extended.pv_type thoracic_aorta_C112_module(
+    ADAN_main.BG_Modules_extended.pv_type_thoracic thoracic_aorta_C112_module(
         thoracic_pressure = thoracic_pressure,
         u_in = thoracic_aorta_C108_module.u,
         v_out = abdominal_aorta_C114_module.v,
@@ -2522,7 +2508,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_thoracic_aorta_C112,
         t = t)
     annotation (Placement(transformation(extent={{50,85},{70,90}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C114_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C114_module(
         v_out_1 = abdominal_aorta_C136_module.v,
         v_out_2 = celiac_trunk_C116_module.v,
         u_in = thoracic_aorta_C112_module.u,
@@ -2531,7 +2517,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_abdominal_aorta_C114,
         t = t)
     annotation (Placement(transformation(extent={{75,85},{95,90}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C136_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C136_module(
         u_in = abdominal_aorta_C114_module.u,
         v_out_1 = abdominal_aorta_C164_module.v,
         v_out_2 = superior_mesenteric_T4_C138_module.v,
@@ -2540,7 +2526,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_abdominal_aorta_C136,
         t = t)
     annotation (Placement(transformation(extent={{-100,75},{-80,80}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C164_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C164_module(
         u_in = abdominal_aorta_C136_module.u,
         v_out_1 = abdominal_aorta_C176_module.v,
         v_out_2 = renal_L166_module.v,
@@ -2549,7 +2535,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_abdominal_aorta_C164,
         t = t)
     annotation (Placement(transformation(extent={{-75,75},{-55,80}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C176_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C176_module(
         u_in = abdominal_aorta_C164_module.u,
         v_out_1 = abdominal_aorta_C188_module.v,
         v_out_2 = renal_R178_module.v,
@@ -2558,7 +2544,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_abdominal_aorta_C176,
         t = t)
     annotation (Placement(transformation(extent={{-50,75},{-30,80}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C188_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C188_module(
         u_in = abdominal_aorta_C176_module.u,
         v_out_1 = abdominal_aorta_C192_module.v,
         v_out_2 = inferior_mesenteric_T5_C190_module.v,
@@ -2567,7 +2553,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_abdominal_aorta_C188,
         t = t)
     annotation (Placement(transformation(extent={{-25,75},{-5,80}})));
-    BG_Modules_cellml.pv_jII_type abdominal_aorta_C192_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C192_module(
         u_in = abdominal_aorta_C188_module.u,
         v_out_1 = common_iliac_R216_module.v,
         v_out_2 = common_iliac_L194_module.v,
@@ -2576,7 +2562,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_abdominal_aorta_C192,
         t = t)
     annotation (Placement(transformation(extent={{0,75},{20,80}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T1_R98_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T1_R98_module(
         u_out = u_ivl,
         t = t,
         u_in = thoracic_aorta_C96_module.u,
@@ -2586,7 +2572,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_intercostal_T1_R98,
         r = Parameters_Systemic1.r_posterior_intercostal_T1_R98)
     annotation (Placement(transformation(extent={{25,75},{45,80}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T1_L102_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T1_L102_module(
         u_out = u_ivl,
         t = t,
         u_in = thoracic_aorta_C100_module.u,
@@ -2596,7 +2582,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_intercostal_T1_L102,
         r = Parameters_Systemic1.r_posterior_intercostal_T1_L102)
     annotation (Placement(transformation(extent={{50,75},{70,80}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T2_R106_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T2_R106_module(
         u_out = u_ivl,
         t = t,
         u_in = thoracic_aorta_C104_module.u,
@@ -2606,7 +2592,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_intercostal_T2_R106,
         r = Parameters_Systemic1.r_posterior_intercostal_T2_R106)
     annotation (Placement(transformation(extent={{75,75},{95,80}})));
-    BG_Modules_cellml.pp_BC_type posterior_intercostal_T2_L110_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T2_L110_module(
         u_out = u_ivl,
         t = t,
         u_in = thoracic_aorta_C108_module.u,
@@ -2616,7 +2602,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_intercostal_T2_L110,
         r = Parameters_Systemic1.r_posterior_intercostal_T2_L110)
     annotation (Placement(transformation(extent={{-100,65},{-80,70}})));
-    BG_Modules_cellml.pv_jII_type celiac_trunk_C116_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type celiac_trunk_C116_module(
         u_in = abdominal_aorta_C114_module.u,
         v_out_1 = splenic_T2_C118_module.v,
         v_out_2 = left_gastric_T3_C120_module.v,
@@ -2625,7 +2611,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_celiac_trunk_C116,
         t = t)
     annotation (Placement(transformation(extent={{-75,65},{-55,70}})));
-    BG_Modules_cellml.pv_jII_type splenic_T2_C118_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type splenic_T2_C118_module(
         u_in = celiac_trunk_C116_module.u,
         v_out_1 = splenic_T2_C122_module.v,
         v_out_2 = dorsal_pancreatic_T1_C124_module.v,
@@ -2634,7 +2620,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_splenic_T2_C118,
         t = t)
     annotation (Placement(transformation(extent={{-50,65},{-30,70}})));
-    BG_Modules_cellml.pp_BC_type left_gastric_T3_C120_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type left_gastric_T3_C120_module(
         u_out = u_ivl,
         t = t,
         u_in = celiac_trunk_C116_module.u,
@@ -2644,7 +2630,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_left_gastric_T3_C120,
         r = Parameters_Systemic1.r_left_gastric_T3_C120)
     annotation (Placement(transformation(extent={{-25,65},{-5,70}})));
-    BG_Modules_cellml.pv_jII_type splenic_T2_C122_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type splenic_T2_C122_module(
         u_in = splenic_T2_C118_module.u,
         v_out_1 = splenic_T2_C126_module.v,
         v_out_2 = common_hepatic_C128_module.v,
@@ -2653,7 +2639,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_splenic_T2_C122,
         t = t)
     annotation (Placement(transformation(extent={{0,65},{20,70}})));
-    BG_Modules_cellml.pp_BC_type dorsal_pancreatic_T1_C124_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type dorsal_pancreatic_T1_C124_module(
         u_out = u_ivl,
         t = t,
         u_in = splenic_T2_C118_module.u,
@@ -2663,7 +2649,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_dorsal_pancreatic_T1_C124,
         r = Parameters_Systemic1.r_dorsal_pancreatic_T1_C124)
     annotation (Placement(transformation(extent={{25,65},{45,70}})));
-    BG_Modules_cellml.pp_BC_type splenic_T2_C126_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type splenic_T2_C126_module(
         u_out = u_ivl,
         t = t,
         u_in = splenic_T2_C122_module.u,
@@ -2673,7 +2659,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_splenic_T2_C126,
         r = Parameters_Systemic1.r_splenic_T2_C126)
     annotation (Placement(transformation(extent={{50,65},{70,70}})));
-    BG_Modules_cellml.pv_type common_hepatic_C128_module(
+    ADAN_main.BG_Modules_extended.pv_type common_hepatic_C128_module(
         u_in = splenic_T2_C122_module.u,
         v_out = hepatic_artery_proper_C130_module.v,
         l = Parameters_Systemic1.l_common_hepatic_C128,
@@ -2681,7 +2667,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_hepatic_C128,
         t = t)
     annotation (Placement(transformation(extent={{75,65},{95,70}})));
-    BG_Modules_cellml.pv_jII_type hepatic_artery_proper_C130_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type hepatic_artery_proper_C130_module(
         v_out_1 = hepatic_artery_proper_left_branch_C132_module.v,
         v_out_2 = hepatic_artery_proper_right_branch_C134_module.v,
         u_in = common_hepatic_C128_module.u,
@@ -2690,7 +2676,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_hepatic_artery_proper_C130,
         t = t)
     annotation (Placement(transformation(extent={{-100,55},{-80,60}})));
-    BG_Modules_cellml.pp_BC_type hepatic_artery_proper_left_branch_C132_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type hepatic_artery_proper_left_branch_C132_module(
         u_out = u_ivl,
         t = t,
         u_in = hepatic_artery_proper_C130_module.u,
@@ -2700,7 +2686,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_hepatic_artery_proper_left_branch_C132,
         r = Parameters_Systemic1.r_hepatic_artery_proper_left_branch_C132)
     annotation (Placement(transformation(extent={{-75,55},{-55,60}})));
-    BG_Modules_cellml.pp_BC_type hepatic_artery_proper_right_branch_C134_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type hepatic_artery_proper_right_branch_C134_module(
         u_out = u_ivl,
         t = t,
         u_in = hepatic_artery_proper_C130_module.u,
@@ -2710,7 +2696,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_hepatic_artery_proper_right_branch_C134,
         r = Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
     annotation (Placement(transformation(extent={{-50,55},{-30,60}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C138_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C138_module(
         u_in = abdominal_aorta_C136_module.u,
         v_out_1 = middle_colic_T8_C140_module.v,
         v_out_2 = superior_mesenteric_T4_C142_module.v,
@@ -2719,7 +2705,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C138,
         t = t)
     annotation (Placement(transformation(extent={{-25,55},{-5,60}})));
-    BG_Modules_cellml.pp_BC_type middle_colic_T8_C140_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type middle_colic_T8_C140_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C138_module.u,
@@ -2729,7 +2715,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_middle_colic_T8_C140,
         r = Parameters_Systemic1.r_middle_colic_T8_C140)
     annotation (Placement(transformation(extent={{0,55},{20,60}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C142_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C142_module(
         u_in = superior_mesenteric_T4_C138_module.u,
         v_out_1 = jejunal_3_T10_C144_module.v,
         v_out_2 = superior_mesenteric_T4_C146_module.v,
@@ -2738,7 +2724,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C142,
         t = t)
     annotation (Placement(transformation(extent={{25,55},{45,60}})));
-    BG_Modules_cellml.pp_BC_type jejunal_3_T10_C144_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type jejunal_3_T10_C144_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C142_module.u,
@@ -2748,7 +2734,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_jejunal_3_T10_C144,
         r = Parameters_Systemic1.r_jejunal_3_T10_C144)
     annotation (Placement(transformation(extent={{50,55},{70,60}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C146_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C146_module(
         u_in = superior_mesenteric_T4_C142_module.u,
         v_out_1 = jejunal_6_T11_C148_module.v,
         v_out_2 = superior_mesenteric_T4_C150_module.v,
@@ -2757,7 +2743,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C146,
         t = t)
     annotation (Placement(transformation(extent={{75,55},{95,60}})));
-    BG_Modules_cellml.pp_BC_type jejunal_6_T11_C148_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type jejunal_6_T11_C148_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C146_module.u,
@@ -2767,7 +2753,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_jejunal_6_T11_C148,
         r = Parameters_Systemic1.r_jejunal_6_T11_C148)
     annotation (Placement(transformation(extent={{-100,45},{-80,50}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C150_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C150_module(
         u_in = superior_mesenteric_T4_C146_module.u,
         v_out_1 = ileocolic_T9_C152_module.v,
         v_out_2 = superior_mesenteric_T4_C154_module.v,
@@ -2776,7 +2762,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C150,
         t = t)
     annotation (Placement(transformation(extent={{-75,45},{-55,50}})));
-    BG_Modules_cellml.pp_BC_type ileocolic_T9_C152_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type ileocolic_T9_C152_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C150_module.u,
@@ -2786,7 +2772,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_ileocolic_T9_C152,
         r = Parameters_Systemic1.r_ileocolic_T9_C152)
     annotation (Placement(transformation(extent={{-50,45},{-30,50}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C154_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C154_module(
         u_in = superior_mesenteric_T4_C150_module.u,
         v_out_1 = ileal_4_T12_C156_module.v,
         v_out_2 = superior_mesenteric_T4_C158_module.v,
@@ -2795,7 +2781,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C154,
         t = t)
     annotation (Placement(transformation(extent={{-25,45},{-5,50}})));
-    BG_Modules_cellml.pp_BC_type ileal_4_T12_C156_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type ileal_4_T12_C156_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C154_module.u,
@@ -2805,7 +2791,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_ileal_4_T12_C156,
         r = Parameters_Systemic1.r_ileal_4_T12_C156)
     annotation (Placement(transformation(extent={{0,45},{20,50}})));
-    BG_Modules_cellml.pv_jII_type superior_mesenteric_T4_C158_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C158_module(
         u_in = superior_mesenteric_T4_C154_module.u,
         v_out_1 = ileal_6_T13_C160_module.v,
         v_out_2 = superior_mesenteric_T4_C162_module.v,
@@ -2814,7 +2800,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C158,
         t = t)
     annotation (Placement(transformation(extent={{25,45},{45,50}})));
-    BG_Modules_cellml.pp_BC_type ileal_6_T13_C160_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type ileal_6_T13_C160_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C158_module.u,
@@ -2824,7 +2810,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_ileal_6_T13_C160,
         r = Parameters_Systemic1.r_ileal_6_T13_C160)
     annotation (Placement(transformation(extent={{50,45},{70,50}})));
-    BG_Modules_cellml.pp_BC_type superior_mesenteric_T4_C162_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type superior_mesenteric_T4_C162_module(
         u_out = u_ivl,
         t = t,
         u_in = superior_mesenteric_T4_C158_module.u,
@@ -2834,7 +2820,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_superior_mesenteric_T4_C162,
         r = Parameters_Systemic1.r_superior_mesenteric_T4_C162)
     annotation (Placement(transformation(extent={{75,45},{95,50}})));
-    BG_Modules_cellml.pv_jII_type renal_L166_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type renal_L166_module(
         u_in = abdominal_aorta_C164_module.u,
         v_out_1 = renal_anterior_branch_L168_module.v,
         v_out_2 = renal_posterior_branch_T3_L174_module.v,
@@ -2843,7 +2829,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_renal_L166,
         t = t)
     annotation (Placement(transformation(extent={{-100,35},{-80,40}})));
-    BG_Modules_cellml.pv_jII_type renal_anterior_branch_L168_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type renal_anterior_branch_L168_module(
         u_in = renal_L166_module.u,
         v_out_1 = inferior_segmental_T5_L170_module.v,
         v_out_2 = superior_segmental_T4_L172_module.v,
@@ -2852,7 +2838,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_renal_anterior_branch_L168,
         t = t)
     annotation (Placement(transformation(extent={{-75,35},{-55,40}})));
-    BG_Modules_cellml.pp_BC_type inferior_segmental_T5_L170_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type inferior_segmental_T5_L170_module(
         u_out = u_ivl,
         t = t,
         u_in = renal_anterior_branch_L168_module.u,
@@ -2862,7 +2848,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_inferior_segmental_T5_L170,
         r = Parameters_Systemic1.r_inferior_segmental_T5_L170)
     annotation (Placement(transformation(extent={{-50,35},{-30,40}})));
-    BG_Modules_cellml.pp_BC_type superior_segmental_T4_L172_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type superior_segmental_T4_L172_module(
         u_out = u_ivl,
         t = t,
         u_in = renal_anterior_branch_L168_module.u,
@@ -2872,7 +2858,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_superior_segmental_T4_L172,
         r = Parameters_Systemic1.r_superior_segmental_T4_L172)
     annotation (Placement(transformation(extent={{-25,35},{-5,40}})));
-    BG_Modules_cellml.pp_BC_type renal_posterior_branch_T3_L174_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type renal_posterior_branch_T3_L174_module(
         u_out = u_ivl,
         t = t,
         u_in = renal_L166_module.u,
@@ -2882,7 +2868,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_renal_posterior_branch_T3_L174,
         r = Parameters_Systemic1.r_renal_posterior_branch_T3_L174)
     annotation (Placement(transformation(extent={{0,35},{20,40}})));
-    BG_Modules_cellml.pv_jII_type renal_R178_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type renal_R178_module(
         u_in = abdominal_aorta_C176_module.u,
         v_out_1 = renal_anterior_branch_R180_module.v,
         v_out_2 = renal_posterior_branch_T3_R186_module.v,
@@ -2891,7 +2877,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_renal_R178,
         t = t)
     annotation (Placement(transformation(extent={{25,35},{45,40}})));
-    BG_Modules_cellml.pv_jII_type renal_anterior_branch_R180_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type renal_anterior_branch_R180_module(
         u_in = renal_R178_module.u,
         v_out_1 = superior_segmental_T4_R182_module.v,
         v_out_2 = inferior_segmental_T5_R184_module.v,
@@ -2900,7 +2886,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_renal_anterior_branch_R180,
         t = t)
     annotation (Placement(transformation(extent={{50,35},{70,40}})));
-    BG_Modules_cellml.pp_BC_type superior_segmental_T4_R182_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type superior_segmental_T4_R182_module(
         u_out = u_ivl,
         t = t,
         u_in = renal_anterior_branch_R180_module.u,
@@ -2910,7 +2896,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_superior_segmental_T4_R182,
         r = Parameters_Systemic1.r_superior_segmental_T4_R182)
     annotation (Placement(transformation(extent={{75,35},{95,40}})));
-    BG_Modules_cellml.pp_BC_type inferior_segmental_T5_R184_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type inferior_segmental_T5_R184_module(
         u_out = u_ivl,
         t = t,
         u_in = renal_anterior_branch_R180_module.u,
@@ -2920,7 +2906,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_inferior_segmental_T5_R184,
         r = Parameters_Systemic1.r_inferior_segmental_T5_R184)
     annotation (Placement(transformation(extent={{-100,25},{-80,30}})));
-    BG_Modules_cellml.pp_BC_type renal_posterior_branch_T3_R186_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type renal_posterior_branch_T3_R186_module(
         u_out = u_ivl,
         t = t,
         u_in = renal_R178_module.u,
@@ -2930,7 +2916,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_renal_posterior_branch_T3_R186,
         r = Parameters_Systemic1.r_renal_posterior_branch_T3_R186)
     annotation (Placement(transformation(extent={{-75,25},{-55,30}})));
-    BG_Modules_cellml.pp_BC_type inferior_mesenteric_T5_C190_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type inferior_mesenteric_T5_C190_module(
         u_out = u_ivl,
         t = t,
         u_in = abdominal_aorta_C188_module.u,
@@ -2940,7 +2926,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_inferior_mesenteric_T5_C190,
         r = Parameters_Systemic1.r_inferior_mesenteric_T5_C190)
     annotation (Placement(transformation(extent={{-50,25},{-30,30}})));
-    BG_Modules_cellml.pv_jII_type common_iliac_R216_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type common_iliac_R216_module(
         u_in = abdominal_aorta_C192_module.u,
         v_out_1 = internal_iliac_T1_R218_module.v,
         v_out_2 = external_iliac_R220_module.v,
@@ -2949,7 +2935,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_iliac_R216,
         t = t)
     annotation (Placement(transformation(extent={{-25,25},{-5,30}})));
-    BG_Modules_cellml.pp_BC_type internal_iliac_T1_R218_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type internal_iliac_T1_R218_module(
         u_out = u_ivl,
         t = t,
         u_in = common_iliac_R216_module.u,
@@ -2959,7 +2945,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_internal_iliac_T1_R218,
         r = Parameters_Systemic1.r_internal_iliac_T1_R218)
     annotation (Placement(transformation(extent={{0,25},{20,30}})));
-    BG_Modules_cellml.pv_type external_iliac_R220_module(
+    ADAN_main.BG_Modules_extended.pv_type external_iliac_R220_module(
         u_in = common_iliac_R216_module.u,
         v_out = femoral_R222_module.v,
         l = Parameters_Systemic1.l_external_iliac_R220,
@@ -2967,7 +2953,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_external_iliac_R220,
         t = t)
     annotation (Placement(transformation(extent={{25,25},{45,30}})));
-    BG_Modules_cellml.pv_jII_type femoral_R222_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type femoral_R222_module(
         v_out_1 = profundus_T2_R224_module.v,
         v_out_2 = femoral_R226_module.v,
         u_in = external_iliac_R220_module.u,
@@ -2976,7 +2962,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_femoral_R222,
         t = t)
     annotation (Placement(transformation(extent={{50,25},{70,30}})));
-    BG_Modules_cellml.pp_BC_type profundus_T2_R224_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type profundus_T2_R224_module(
         u_out = u_ivl,
         t = t,
         u_in = femoral_R222_module.u,
@@ -2986,7 +2972,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_profundus_T2_R224,
         r = Parameters_Systemic1.r_profundus_T2_R224)
     annotation (Placement(transformation(extent={{75,25},{95,30}})));
-    BG_Modules_cellml.pv_type femoral_R226_module(
+    ADAN_main.BG_Modules_extended.pv_type femoral_R226_module(
         u_in = femoral_R222_module.u,
         v_out = popliteal_R228_module.v,
         l = Parameters_Systemic1.l_femoral_R226,
@@ -2994,7 +2980,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_femoral_R226,
         t = t)
     annotation (Placement(transformation(extent={{-100,15},{-80,20}})));
-    BG_Modules_cellml.pv_jII_type popliteal_R228_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type popliteal_R228_module(
         v_out_1 = anterior_tibial_T3_R230_module.v,
         v_out_2 = popliteal_R232_module.v,
         u_in = femoral_R226_module.u,
@@ -3003,7 +2989,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_popliteal_R228,
         t = t)
     annotation (Placement(transformation(extent={{-75,15},{-55,20}})));
-    BG_Modules_cellml.pp_BC_type anterior_tibial_T3_R230_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type anterior_tibial_T3_R230_module(
         u_out = u_ivl,
         t = t,
         u_in = popliteal_R228_module.u,
@@ -3013,7 +2999,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_anterior_tibial_T3_R230,
         r = Parameters_Systemic1.r_anterior_tibial_T3_R230)
     annotation (Placement(transformation(extent={{-50,15},{-30,20}})));
-    BG_Modules_cellml.pv_type popliteal_R232_module(
+    ADAN_main.BG_Modules_extended.pv_type popliteal_R232_module(
         u_in = popliteal_R228_module.u,
         v_out = tibiofibular_trunk_R234_module.v,
         l = Parameters_Systemic1.l_popliteal_R232,
@@ -3021,7 +3007,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_popliteal_R232,
         t = t)
     annotation (Placement(transformation(extent={{-25,15},{-5,20}})));
-    BG_Modules_cellml.pv_type tibiofibular_trunk_R234_module(
+    ADAN_main.BG_Modules_extended.pv_type tibiofibular_trunk_R234_module(
         u_in = popliteal_R232_module.u,
         v_out = posterior_tibial_T4_R236_module.v,
         l = Parameters_Systemic1.l_tibiofibular_trunk_R234,
@@ -3029,7 +3015,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_tibiofibular_trunk_R234,
         t = t)
     annotation (Placement(transformation(extent={{0,15},{20,20}})));
-    BG_Modules_cellml.pp_BC_type posterior_tibial_T4_R236_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_tibial_T4_R236_module(
         u_out = u_ivl,
         t = t,
         u_in = tibiofibular_trunk_R234_module.u,
@@ -3039,7 +3025,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_R236,
         r = Parameters_Systemic1.r_posterior_tibial_T4_R236)
     annotation (Placement(transformation(extent={{25,15},{45,20}})));
-    BG_Modules_cellml.pv_jII_type common_iliac_L194_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type common_iliac_L194_module(
         u_in = abdominal_aorta_C192_module.u,
         v_out_1 = internal_iliac_T1_L196_module.v,
         v_out_2 = external_iliac_L198_module.v,
@@ -3048,7 +3034,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_iliac_L194,
         t = t)
     annotation (Placement(transformation(extent={{50,15},{70,20}})));
-    BG_Modules_cellml.pp_BC_type internal_iliac_T1_L196_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type internal_iliac_T1_L196_module(
         u_out = u_ivl,
         t = t,
         u_in = common_iliac_L194_module.u,
@@ -3058,7 +3044,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_internal_iliac_T1_L196,
         r = Parameters_Systemic1.r_internal_iliac_T1_L196)
     annotation (Placement(transformation(extent={{75,15},{95,20}})));
-    BG_Modules_cellml.pv_type external_iliac_L198_module(
+    ADAN_main.BG_Modules_extended.pv_type external_iliac_L198_module(
         u_in = common_iliac_L194_module.u,
         v_out = femoral_L200_module.v,
         l = Parameters_Systemic1.l_external_iliac_L198,
@@ -3066,7 +3052,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_external_iliac_L198,
         t = t)
     annotation (Placement(transformation(extent={{-100,5},{-80,10}})));
-    BG_Modules_cellml.pv_jII_type femoral_L200_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type femoral_L200_module(
         v_out_1 = profundus_T2_L202_module.v,
         v_out_2 = femoral_L204_module.v,
         u_in = external_iliac_L198_module.u,
@@ -3075,7 +3061,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_femoral_L200,
         t = t)
     annotation (Placement(transformation(extent={{-75,5},{-55,10}})));
-    BG_Modules_cellml.pp_BC_type profundus_T2_L202_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type profundus_T2_L202_module(
         u_out = u_ivl,
         t = t,
         u_in = femoral_L200_module.u,
@@ -3085,7 +3071,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_profundus_T2_L202,
         r = Parameters_Systemic1.r_profundus_T2_L202)
     annotation (Placement(transformation(extent={{-50,5},{-30,10}})));
-    BG_Modules_cellml.pv_type femoral_L204_module(
+    ADAN_main.BG_Modules_extended.pv_type femoral_L204_module(
         u_in = femoral_L200_module.u,
         v_out = popliteal_L206_module.v,
         l = Parameters_Systemic1.l_femoral_L204,
@@ -3093,7 +3079,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_femoral_L204,
         t = t)
     annotation (Placement(transformation(extent={{-25,5},{-5,10}})));
-    BG_Modules_cellml.pv_jII_type popliteal_L206_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type popliteal_L206_module(
         v_out_1 = anterior_tibial_T3_L208_module.v,
         v_out_2 = popliteal_L210_module.v,
         u_in = femoral_L204_module.u,
@@ -3102,7 +3088,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_popliteal_L206,
         t = t)
     annotation (Placement(transformation(extent={{0,5},{20,10}})));
-    BG_Modules_cellml.pp_BC_type anterior_tibial_T3_L208_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type anterior_tibial_T3_L208_module(
         u_out = u_ivl,
         t = t,
         u_in = popliteal_L206_module.u,
@@ -3112,7 +3098,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_anterior_tibial_T3_L208,
         r = Parameters_Systemic1.r_anterior_tibial_T3_L208)
     annotation (Placement(transformation(extent={{25,5},{45,10}})));
-    BG_Modules_cellml.pv_type popliteal_L210_module(
+    ADAN_main.BG_Modules_extended.pv_type popliteal_L210_module(
         u_in = popliteal_L206_module.u,
         v_out = tibiofibular_trunk_L212_module.v,
         l = Parameters_Systemic1.l_popliteal_L210,
@@ -3120,7 +3106,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_popliteal_L210,
         t = t)
     annotation (Placement(transformation(extent={{50,5},{70,10}})));
-    BG_Modules_cellml.pv_type tibiofibular_trunk_L212_module(
+    ADAN_main.BG_Modules_extended.pv_type tibiofibular_trunk_L212_module(
         u_in = popliteal_L210_module.u,
         v_out = posterior_tibial_T4_L214_module.v,
         l = Parameters_Systemic1.l_tibiofibular_trunk_L212,
@@ -3128,7 +3114,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_tibiofibular_trunk_L212,
         t = t)
     annotation (Placement(transformation(extent={{75,5},{95,10}})));
-    BG_Modules_cellml.pp_BC_type posterior_tibial_T4_L214_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_tibial_T4_L214_module(
         u_out = u_ivl,
         t = t,
         u_in = tibiofibular_trunk_L212_module.u,
@@ -3138,7 +3124,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_L214,
         r = Parameters_Systemic1.r_posterior_tibial_T4_L214)
     annotation (Placement(transformation(extent={{-100,-5},{-80,0}})));
-    BG_Modules_cellml.pv_jII_type subclavian_R28_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type subclavian_R28_module(
         u_in = brachiocephalic_trunk_C4_module.u,
         v_out_1 = subclavian_R30_module.v,
         v_out_2 = vertebral_R272_module.v,
@@ -3147,7 +3133,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_subclavian_R28,
         t = t)
     annotation (Placement(transformation(extent={{-75,-5},{-55,0}})));
-    BG_Modules_cellml.pv_type subclavian_R30_module(
+    ADAN_main.BG_Modules_extended.pv_type subclavian_R30_module(
         u_in = subclavian_R28_module.u,
         v_out = axillary_R32_module.v,
         l = Parameters_Systemic1.l_subclavian_R30,
@@ -3155,7 +3141,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_subclavian_R30,
         t = t)
     annotation (Placement(transformation(extent={{-50,-5},{-30,0}})));
-    BG_Modules_cellml.pv_type axillary_R32_module(
+    ADAN_main.BG_Modules_extended.pv_type axillary_R32_module(
         u_in = subclavian_R30_module.u,
         v_out = brachial_R34_module.v,
         l = Parameters_Systemic1.l_axillary_R32,
@@ -3163,7 +3149,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_axillary_R32,
         t = t)
     annotation (Placement(transformation(extent={{-25,-5},{-5,0}})));
-    BG_Modules_cellml.pv_jII_type brachial_R34_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type brachial_R34_module(
         v_out_1 = ulnar_T2_R36_module.v,
         v_out_2 = radial_T1_R44_module.v,
         u_in = axillary_R32_module.u,
@@ -3172,7 +3158,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_brachial_R34,
         t = t)
     annotation (Placement(transformation(extent={{0,-5},{20,0}})));
-    BG_Modules_cellml.pv_jII_type ulnar_T2_R36_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type ulnar_T2_R36_module(
         u_in = brachial_R34_module.u,
         v_out_1 = common_interosseous_R38_module.v,
         v_out_2 = ulnar_T2_R42_module.v,
@@ -3181,7 +3167,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_ulnar_T2_R36,
         t = t)
     annotation (Placement(transformation(extent={{25,-5},{45,0}})));
-    BG_Modules_cellml.pv_type common_interosseous_R38_module(
+    ADAN_main.BG_Modules_extended.pv_type common_interosseous_R38_module(
         u_in = ulnar_T2_R36_module.u,
         v_out = posterior_interosseous_T3_R40_module.v,
         l = Parameters_Systemic1.l_common_interosseous_R38,
@@ -3189,7 +3175,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_interosseous_R38,
         t = t)
     annotation (Placement(transformation(extent={{50,-5},{70,0}})));
-    BG_Modules_cellml.pp_BC_type posterior_interosseous_T3_R40_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_interosseous_T3_R40_module(
         u_out = u_svl,
         t = t,
         u_in = common_interosseous_R38_module.u,
@@ -3199,7 +3185,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_interosseous_T3_R40,
         r = Parameters_Systemic1.r_posterior_interosseous_T3_R40)
     annotation (Placement(transformation(extent={{75,-5},{95,0}})));
-    BG_Modules_cellml.pp_BC_type ulnar_T2_R42_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type ulnar_T2_R42_module(
         u_out = u_svl,
         t = t,
         u_in = ulnar_T2_R36_module.u,
@@ -3209,7 +3195,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_ulnar_T2_R42,
         r = Parameters_Systemic1.r_ulnar_T2_R42)
     annotation (Placement(transformation(extent={{-100,-15},{-80,-10}})));
-    BG_Modules_cellml.pp_BC_type radial_T1_R44_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type radial_T1_R44_module(
         u_out = u_svl,
         t = t,
         u_in = brachial_R34_module.u,
@@ -3219,7 +3205,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_radial_T1_R44,
         r = Parameters_Systemic1.r_radial_T1_R44)
     annotation (Placement(transformation(extent={{-75,-15},{-55,-10}})));
-    BG_Modules_cellml.pv_jII_type subclavian_L66_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type subclavian_L66_module(
         u_in = aortic_arch_C64_module.u,
         v_out_1 = subclavian_L78_module.v,
         v_out_2 = vertebral_L2_module.v,
@@ -3228,7 +3214,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_subclavian_L66,
         t = t)
     annotation (Placement(transformation(extent={{-50,-15},{-30,-10}})));
-    BG_Modules_cellml.pv_type subclavian_L78_module(
+    ADAN_main.BG_Modules_extended.pv_type subclavian_L78_module(
         u_in = subclavian_L66_module.u,
         v_out = axillary_L80_module.v,
         l = Parameters_Systemic1.l_subclavian_L78,
@@ -3236,7 +3222,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_subclavian_L78,
         t = t)
     annotation (Placement(transformation(extent={{-25,-15},{-5,-10}})));
-    BG_Modules_cellml.pv_type axillary_L80_module(
+    ADAN_main.BG_Modules_extended.pv_type axillary_L80_module(
         u_in = subclavian_L78_module.u,
         v_out = brachial_L82_module.v,
         l = Parameters_Systemic1.l_axillary_L80,
@@ -3244,7 +3230,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_axillary_L80,
         t = t)
     annotation (Placement(transformation(extent={{0,-15},{20,-10}})));
-    BG_Modules_cellml.pv_jII_type brachial_L82_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type brachial_L82_module(
         v_out_1 = ulnar_T2_L84_module.v,
         v_out_2 = radial_T1_L92_module.v,
         u_in = axillary_L80_module.u,
@@ -3253,7 +3239,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_brachial_L82,
         t = t)
     annotation (Placement(transformation(extent={{25,-15},{45,-10}})));
-    BG_Modules_cellml.pv_jII_type ulnar_T2_L84_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type ulnar_T2_L84_module(
         u_in = brachial_L82_module.u,
         v_out_1 = common_interosseous_L86_module.v,
         v_out_2 = ulnar_T2_L90_module.v,
@@ -3262,7 +3248,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_ulnar_T2_L84,
         t = t)
     annotation (Placement(transformation(extent={{50,-15},{70,-10}})));
-    BG_Modules_cellml.pv_type common_interosseous_L86_module(
+    ADAN_main.BG_Modules_extended.pv_type common_interosseous_L86_module(
         u_in = ulnar_T2_L84_module.u,
         v_out = posterior_interosseous_T3_L88_module.v,
         l = Parameters_Systemic1.l_common_interosseous_L86,
@@ -3270,7 +3256,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_interosseous_L86,
         t = t)
     annotation (Placement(transformation(extent={{75,-15},{95,-10}})));
-    BG_Modules_cellml.pp_BC_type posterior_interosseous_T3_L88_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type posterior_interosseous_T3_L88_module(
         u_out = u_svl,
         t = t,
         u_in = common_interosseous_L86_module.u,
@@ -3280,7 +3266,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_posterior_interosseous_T3_L88,
         r = Parameters_Systemic1.r_posterior_interosseous_T3_L88)
     annotation (Placement(transformation(extent={{-100,-25},{-80,-20}})));
-    BG_Modules_cellml.pp_BC_type ulnar_T2_L90_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type ulnar_T2_L90_module(
         u_out = u_svl,
         t = t,
         u_in = ulnar_T2_L84_module.u,
@@ -3290,7 +3276,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_ulnar_T2_L90,
         r = Parameters_Systemic1.r_ulnar_T2_L90)
     annotation (Placement(transformation(extent={{-75,-25},{-55,-20}})));
-    BG_Modules_cellml.pp_BC_type radial_T1_L92_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type radial_T1_L92_module(
         u_out = u_svl,
         t = t,
         u_in = brachial_L82_module.u,
@@ -3300,7 +3286,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_radial_T1_L92,
         r = Parameters_Systemic1.r_radial_T1_L92)
     annotation (Placement(transformation(extent={{-50,-25},{-30,-20}})));
-    BG_Modules_cellml.pv_type common_carotid_R6_A_module(
+    ADAN_main.BG_Modules_extended.pv_type common_carotid_R6_A_module(
         u_in = brachiocephalic_trunk_C4_module.u,
         v_out = common_carotid_R6_B_module.v,
         l = Parameters_Systemic1.l_common_carotid_R6_A,
@@ -3308,7 +3294,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_R6_A,
         t = t)
     annotation (Placement(transformation(extent={{-25,-25},{-5,-20}})));
-    BG_Modules_cellml.pv_type common_carotid_R6_B_module(
+    ADAN_main.BG_Modules_extended.pv_type common_carotid_R6_B_module(
         u_in = common_carotid_R6_A_module.u,
         v_out = common_carotid_R6_C_module.v,
         l = Parameters_Systemic1.l_common_carotid_R6_B,
@@ -3316,7 +3302,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_R6_B,
         t = t)
     annotation (Placement(transformation(extent={{0,-25},{20,-20}})));
-    BG_Modules_cellml.pv_jII_type common_carotid_R6_C_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type common_carotid_R6_C_module(
         v_out_1 = internal_carotid_R8_A_module.v,
         v_out_2 = external_carotid_T2_R26_module.v,
         u_in = common_carotid_R6_B_module.u,
@@ -3325,7 +3311,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_R6_C,
         t = t)
     annotation (Placement(transformation(extent={{25,-25},{45,-20}})));
-    replaceable BG_Modules_cellml.pv_type internal_carotid_R8_A_module(
+    replaceable ADAN_main.BG_Modules_extended.pv_type internal_carotid_R8_A_module(
         u_in = common_carotid_R6_C_module.u,
         v_out = internal_carotid_R8_B_module.v,
         l = Parameters_Systemic1.l_internal_carotid_R8_A,
@@ -3333,7 +3319,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_internal_carotid_R8_A,
         t = t)
     annotation (Placement(transformation(extent={{50,-25},{70,-20}})));
-    BG_Modules_cellml.pv_type internal_carotid_R8_B_module(
+    ADAN_main.BG_Modules_extended.pv_type internal_carotid_R8_B_module(
         u_in = internal_carotid_R8_A_module.u,
         v_out = internal_carotid_R8_C_module.v,
         l = Parameters_Systemic1.l_internal_carotid_R8_B,
@@ -3341,7 +3327,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_internal_carotid_R8_B,
         t = t)
     annotation (Placement(transformation(extent={{75,-25},{95,-20}})));
-    BG_Modules_cellml.pp_BC_type internal_carotid_R8_C_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type internal_carotid_R8_C_module(
         u_out = u_svl,
         t = t,
         u_in = internal_carotid_R8_B_module.u,
@@ -3351,7 +3337,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_internal_carotid_R8_C,
         r = Parameters_Systemic1.r_internal_carotid_R8_C)
     annotation (Placement(transformation(extent={{-100,-35},{-80,-30}})));
-    BG_Modules_cellml.pp_BC_type external_carotid_T2_R26_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type external_carotid_T2_R26_module(
         u_out = u_svl,
         t = t,
         u_in = common_carotid_R6_C_module.u,
@@ -3361,7 +3347,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_external_carotid_T2_R26,
         r = Parameters_Systemic1.r_external_carotid_T2_R26)
     annotation (Placement(transformation(extent={{-75,-35},{-55,-30}})));
-    BG_Modules_cellml.pv_type common_carotid_L48_A_module(
+    ADAN_main.BG_Modules_extended.pv_type common_carotid_L48_A_module(
         u_in = aortic_arch_C46_module.u,
         v_out = common_carotid_L48_B_module.v,
         l = Parameters_Systemic1.l_common_carotid_L48_A,
@@ -3369,7 +3355,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_L48_A,
         t = t)
     annotation (Placement(transformation(extent={{-50,-35},{-30,-30}})));
-    BG_Modules_cellml.pv_type common_carotid_L48_B_module(
+    ADAN_main.BG_Modules_extended.pv_type common_carotid_L48_B_module(
         u_in = common_carotid_L48_A_module.u,
         v_out = common_carotid_L48_C_module.v,
         l = Parameters_Systemic1.l_common_carotid_L48_B,
@@ -3377,7 +3363,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_L48_B,
         t = t)
     annotation (Placement(transformation(extent={{-25,-35},{-5,-30}})));
-    BG_Modules_cellml.pv_type common_carotid_L48_C_module(
+    ADAN_main.BG_Modules_extended.pv_type common_carotid_L48_C_module(
         u_in = common_carotid_L48_B_module.u,
         v_out = common_carotid_L48_D_module.v,
         l = Parameters_Systemic1.l_common_carotid_L48_C,
@@ -3385,7 +3371,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_L48_C,
         t = t)
     annotation (Placement(transformation(extent={{0,-35},{20,-30}})));
-    BG_Modules_cellml.pv_jII_type common_carotid_L48_D_module(
+    ADAN_main.BG_Modules_extended.pv_jII_type common_carotid_L48_D_module(
         v_out_1 = internal_carotid_L50_A_module.v,
         v_out_2 = external_carotid_T2_L62_module.v,
         u_in = common_carotid_L48_C_module.u,
@@ -3394,7 +3380,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_common_carotid_L48_D,
         t = t)
     annotation (Placement(transformation(extent={{25,-35},{45,-30}})));
-    BG_Modules_cellml.pv_type internal_carotid_L50_A_module(
+    ADAN_main.BG_Modules_extended.pv_type internal_carotid_L50_A_module(
         u_in = common_carotid_L48_D_module.u,
         v_out = internal_carotid_L50_B_module.v,
         l = Parameters_Systemic1.l_internal_carotid_L50_A,
@@ -3402,7 +3388,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_internal_carotid_L50_A,
         t = t)
     annotation (Placement(transformation(extent={{50,-35},{70,-30}})));
-    BG_Modules_cellml.pv_type internal_carotid_L50_B_module(
+    ADAN_main.BG_Modules_extended.pv_type internal_carotid_L50_B_module(
         u_in = internal_carotid_L50_A_module.u,
         v_out = internal_carotid_L50_C_module.v,
         l = Parameters_Systemic1.l_internal_carotid_L50_B,
@@ -3410,7 +3396,7 @@ package main_ADAN_86_Heart_cellml
         r = Parameters_Systemic1.r_internal_carotid_L50_B,
         t = t)
     annotation (Placement(transformation(extent={{75,-35},{95,-30}})));
-    BG_Modules_cellml.pp_BC_type internal_carotid_L50_C_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type internal_carotid_L50_C_module(
         u_out = u_svl,
         t = t,
         u_in = internal_carotid_L50_B_module.u,
@@ -3420,7 +3406,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_internal_carotid_L50_C,
         r = Parameters_Systemic1.r_internal_carotid_L50_C)
     annotation (Placement(transformation(extent={{-100,-45},{-80,-40}})));
-    BG_Modules_cellml.pp_BC_type external_carotid_T2_L62_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type external_carotid_T2_L62_module(
         u_out = u_svl,
         t = t,
         u_in = common_carotid_L48_D_module.u,
@@ -3430,7 +3416,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_external_carotid_T2_L62,
         r = Parameters_Systemic1.r_external_carotid_T2_L62)
     annotation (Placement(transformation(extent={{-75,-45},{-55,-40}})));
-    BG_Modules_cellml.pp_BC_type vertebral_L2_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type vertebral_L2_module(
         u_out = u_svl,
         t = t,
         u_in = subclavian_L66_module.u,
@@ -3440,7 +3426,7 @@ package main_ADAN_86_Heart_cellml
         C_T = Parameters_Systemic1.C_T_vertebral_L2,
         r = Parameters_Systemic1.r_vertebral_L2)
     annotation (Placement(transformation(extent={{-50,-45},{-30,-40}})));
-    BG_Modules_cellml.pp_BC_type vertebral_R272_module(
+    ADAN_main.BG_Modules_extended.pp_BC_type vertebral_R272_module(
         u_out = u_svl,
         t = t,
         u_in = subclavian_R28_module.u,
@@ -3474,24 +3460,18 @@ package main_ADAN_86_Heart_cellml
     Real v_sas(unit = "m3.s-1");
     input Real v_aov(unit = "m3.s-1");
     input Real u_ra(unit = "Pa");
-    Real u_svl(unit = "Pa", start = 100.0);
-    Real v_svl(unit = "m3.s-1", start = 0.0);
-    Real vol_svl = u_svl * C_svl;
+    parameter Real u_svl(unit = "Pa") = 100;
     Real u_svn(unit = "Pa", start = 0.0);
-    Real v_svn(unit = "m3.s-1", start = 0.0);
-    Real vol_svn = u_svn * C_svn;
     Real u_svc(unit = "Pa", start = 0.0);
-    Real v_svc(unit = "m3.s-1", start = 0.0);
-    Real vol_svc = u_svc * C_svc;
-    Real u_ivl(unit = "Pa", start = 100.0);
-    Real v_ivl(unit = "m3.s-1", start = 0.0);
-    Real vol_ivl = u_ivl * C_ivl;
+    parameter Real u_ivl(unit = "Pa") = 100;
     Real u_ivn(unit = "Pa", start = 0.0);
-    Real v_ivn(unit = "m3.s-1", start = 0.0);
-    Real vol_ivn = u_ivn * C_ivn;
     Real u_ivc(unit = "Pa", start = 0.0);
+    Real v_svl(unit = "m3.s-1", start = 0.0);
+    Real v_svn(unit = "m3.s-1", start = 0.0);
+    Real v_svc(unit = "m3.s-1", start = 0.0);
+    Real v_ivl(unit = "m3.s-1", start = 0.0);
+    Real v_ivn(unit = "m3.s-1", start = 0.0);
     Real v_ivc(unit = "m3.s-1", start = 0.0);
-    Real vol_ivc = u_ivc * C_ivc;
     Real v_sup_venacava(unit = "m3.s-1");
     Real v_inf_venacava(unit = "m3.s-1");
     Real v_chest(unit = "m3.s-1");
@@ -3621,25 +3601,19 @@ package main_ADAN_86_Heart_cellml
         v_sas = v_aov;
 
 
-         der(u_svl) = (v_sup_venacava-v_svl)/C_svl;
+
+        der(u_svn) = (v_svl-v_svn)/C_svn;
+        der(u_svc) = (v_svn-v_svc)/C_svc;
 
 
-         der(u_ivl) = (v_inf_venacava-v_ivl)/C_ivl;
-
-         der(u_svn) = (v_svl-v_svn)/C_svn;
-         der(u_svc) = (v_svn-v_svc)/C_svc;
-  //        der(u_svc - thoracic_pressure) = (v_svn-v_svc)/C_svc;
-
-
-         der(u_ivn) = (v_ivl-v_ivn)/C_ivn;
-         // der(u_ivc - thoracic_pressure)  = (v_ivn-v_ivc)/C_ivc;
-         der(u_ivc)  = (v_ivn-v_ivc)/C_ivc;
-         der(v_svl) = (u_svl-u_svn-v_svl*R_svl)/I_svl;
-         der(v_svn) = (u_svn-u_svc-v_svn*R_svn)/I_svn;
-         der(v_svc) = (u_svc-u_ra-v_svc*R_svc)/I_svc;
-         der(v_ivl) = (u_ivl-u_ivn-v_ivl*R_ivl)/I_ivl;
-         der(v_ivn) = (u_ivn-u_ivc-v_ivn*R_ivn)/I_ivn;
-         der(v_ivc) = (u_ivc-u_ra-v_ivc*R_ivc)/I_ivc;
+        der(u_ivn) = (v_ivl-v_ivn)/C_ivn;
+        der(u_ivc) = (v_ivn-v_ivc)/C_ivc;
+        der(v_svl) = (u_svl-u_svn-v_svl*R_svl)/I_svl;
+        der(v_svn) = (u_svn-u_svc-v_svn*R_svn)/I_svn;
+        der(v_svc) = (u_svc-u_ra-v_svc*R_svc)/I_svc;
+        der(v_ivl) = (u_ivl-u_ivn-v_ivl*R_ivl)/I_ivl;
+        der(v_ivn) = (u_ivn-u_ivc-v_ivn*R_ivn)/I_ivn;
+        der(v_ivc) = (u_ivc-u_ra-v_ivc*R_ivc)/I_ivc;
 
 
         v_chest = v_posterior_intercostal_T1_R98+v_posterior_intercostal_T1_L102+v_posterior_intercostal_T2_R106+v_posterior_intercostal_T2_L110;
@@ -3651,12 +3625,12 @@ package main_ADAN_86_Heart_cellml
         v_head = v_external_carotid_T2_R26+v_external_carotid_T2_L62+v_internal_carotid_R8_C+v_internal_carotid_L50_C+v_vertebral_R272+v_vertebral_L2;
         v_sup_venacava = v_arms+v_head;
         v_inf_venacava = v_chest+v_trunk+v_intestines+v_kidneys+v_legs;
-
+    
 
   end Systemic;
-
   model Pulmonary
-    Parameters_cellml.Parameters_Pulmonary Parameters_Pulmonary1
+    Parameters_cellml.Parameters_Pulmonary Parameters_Pulmonary1(
+        )
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
     input Real t(unit = "s");
     Real C_pas(unit = "m6.J-1");
@@ -3727,12 +3701,12 @@ package main_ADAN_86_Heart_cellml
         der(v_pcp) = (u_pcp-u_pvn-v_pcp*R_pcp)/I_pcp;
         der(v_pvn) = (u_pvn-u_la-v_pvn*R_pvn)/I_pvn;
         der(v_psh) = (u_par-u_pvn-v_psh*R_psh)/I_psh;
-
+    
 
   end Pulmonary;
-
   model Heart
-    Parameters_cellml.Parameters_Heart Parameters_Heart1
+    Parameters_cellml.Parameters_Heart Parameters_Heart1(
+        )
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
     input Real t(unit = "s");
     Real mt(unit = "s");
@@ -3827,48 +3801,42 @@ package main_ADAN_86_Heart_cellml
 
         mt = t-T*floor(t/T);
 
-        e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
+        e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then 
                 0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
-            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then
+            elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then 
                 0
-            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then
+            elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then 
                 0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
-            else
+            else /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */ 
                 0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T))));
-                 /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */
 
-        e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then
+        e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then 
                 0.5*(1-cos(Modelica.Constants.pi*mt/(T_vc*T)))
-            elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then
+            elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then 
                 0.5*(1+cos(Modelica.Constants.pi*(mt-T_vc*T)/(T_vr*T)))
-            else
+            else /*  (mt > (T_vc+T_vr)*T) and (mt < T) */ 
                 0);
-                 /*  (mt > (T_vc+T_vr)*T) and (mt < T) */
 
 
-        der(v_trv) = noEvent(if u_ra >= u_rv then
+        der(v_trv) = noEvent(if u_ra >= u_rv then 
                 (u_ra-u_rv-(R_trv+B_trv*abs(v_trv))*v_trv)/L_trv
-            else
+            else /*  u_ra < u_rv */ 
                 -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv);
-                 /*  u_ra < u_rv */
 
-        der(v_puv) = noEvent(if u_rv >= u_par then
+        der(v_puv) = noEvent(if u_rv >= u_par then 
                 (u_rv-u_par-(R_puv+B_puv*abs(v_puv))*v_puv)/L_puv
-            else
+            else /*  u_rv < u_par */ 
                 -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv);
-                 /*  u_rv < u_par */
 
-        der(v_miv) = noEvent(if u_la >= u_lv then
+        der(v_miv) = noEvent(if u_la >= u_lv then 
                 (u_la-u_lv-(R_miv+B_miv*abs(v_miv))*v_miv)/L_miv
-            else
+            else /*  u_la < u_lv */ 
                 -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv);
-                 /*  u_la < u_lv */
 
-        der(v_aov) = noEvent(if u_lv >= u_sas then
+        der(v_aov) = noEvent(if u_lv >= u_sas then 
                 (u_lv-u_sas-(R_aov+B_aov*abs(v_aov))*v_aov)/L_aov
-            else
+            else /*  u_lv < u_sas */ 
                 -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov);
-                 /*  u_lv < u_sas */
 
         u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0);
         u_rv = (e_v*E_rv_A+E_rv_B)*(q_rv-q_rv_0);
@@ -3880,20 +3848,20 @@ package main_ADAN_86_Heart_cellml
         der(q_rv) = v_trv-v_puv;
         der(q_la) = v_pvn-v_miv;
         der(q_lv) = v_miv-v_aov;
-
+    
 
   end Heart;
 end main_ADAN_86_Heart_cellml;
-
   model CardiovascularSystem
-    main_ADAN_86_Heart_cellml.environment environment1
+    main_ADAN_86_Heart_cellml.environment environment1(
+        )
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
     replaceable main_ADAN_86_Heart_cellml.Systemic Systemic1(
         u_ra = Heart1.u_ra,
         v_aov = Heart1.v_aov,
         t = environment1.time_)
     annotation (Placement(transformation(extent={{-70,80},{-50,100}})));
-    main_ADAN_86_Heart_cellml.Pulmonary Pulmonary1(
+    replaceable main_ADAN_86_Heart_cellml.Pulmonary Pulmonary1(
         u_la = Heart1.u_la,
         v_puv = Heart1.v_puv,
         t = environment1.time_)

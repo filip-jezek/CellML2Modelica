@@ -37,6 +37,11 @@ class ADANModel(ds.Object):
         if c.instance_name == 'internal_carotid_R8_A_module':
             c.replaceable = True
 
+        # move all BG modules into the main file
+        if self.instance_name == 'Systemic' and '_module' in c.instance_name:
+            c.package_name = 'ADAN_main.BG_Modules_extended'
+        
+        # change those in thoracic cavity
         self.intraThoracicPressure(c)
 
     def intraThoracicPressure(self, c):
@@ -63,7 +68,7 @@ class ADANModel(ds.Object):
 
         if self.instance_name == 'Systemic' and c.instance_name in ia:
             print("***")
-            c.package_name = 'ADAN_main.BG_Modules_extended'
+            c.name += '_thoracic'
             v_own = ds.Variable('thoracic_pressure')
             v_target = ds.Variable('thoracic_pressure')
             m = ds.Mapping(c, v_own, self, v_target)

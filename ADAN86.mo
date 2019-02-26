@@ -448,7 +448,33 @@ package ADAN_main
         Physiolibrary.Types.VolumeFlowRate v = port_a.q;
       equation
         u = port_a.pressure;
-        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+                Rectangle(
+                extent={{-100,100},{-20,-100}},
+                lineThickness=0.5,
+                pattern=LinePattern.None,
+                lineColor={0,0,0},
+                fillColor={244,125,35},
+                fillPattern=FillPattern.Solid), Rectangle(
+                extent={{-100,100},{100,-100}},
+                lineColor={28,108,200},
+                lineThickness=0.5),
+              Text(
+                extent={{-86,-42},{-30,40}},
+                lineColor={0,0,0},
+                pattern=LinePattern.None,
+                lineThickness=0.5,
+                fillColor={244,125,35},
+                fillPattern=FillPattern.None,
+                textString="P
+type"),       Text(
+                extent={{-20,-100},{100,-20}},
+                lineColor={0,0,0},
+                pattern=LinePattern.None,
+                lineThickness=0.5,
+                fillColor={244,125,35},
+                fillPattern=FillPattern.None,
+                textString="%name")}),                                 Diagram(
               coordinateSystem(preserveAspectRatio=false)));
       end Pq_terminator_p;
 
@@ -460,7 +486,7 @@ package ADAN_main
         Physiolibrary.Types.Pressure u = port_a.pressure;
         input Physiolibrary.Types.VolumeFlowRate v;
       equation
-        v + port_a.q = 0;
+        v = port_a.q;
         annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
                 Rectangle(
                 extent={{-100,100},{-20,-100}},
@@ -471,7 +497,23 @@ package ADAN_main
                 fillPattern=FillPattern.Solid), Rectangle(
                 extent={{-100,100},{100,-100}},
                 lineColor={28,108,200},
-                lineThickness=0.5)}),                                  Diagram(
+                lineThickness=0.5),
+              Text(
+                extent={{-86,-42},{-30,40}},
+                lineColor={0,0,0},
+                pattern=LinePattern.None,
+                lineThickness=0.5,
+                fillColor={244,125,35},
+                fillPattern=FillPattern.None,
+                textString="V
+type"),       Text(
+                extent={{-20,-100},{100,-20}},
+                lineColor={0,0,0},
+                pattern=LinePattern.None,
+                lineThickness=0.5,
+                fillColor={244,125,35},
+                fillPattern=FillPattern.None,
+                textString="%name")}),                                 Diagram(
               coordinateSystem(preserveAspectRatio=false)));
       end Pq_terminator_v;
 
@@ -1260,10 +1302,32 @@ end BG_Modules_extended;
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(P(
             displayUnit="mmHg") = 1066.58)
         annotation (Placement(transformation(extent={{80,20},{60,40}})));
-      Systemic.arteries_ADAN86 arteries_ADAN86_1
+      Components.arteries_ADAN86 arteries_ADAN86_1
         annotation (Placement(transformation(extent={{-20,20},{0,40}})));
       Modelica.Blocks.Sources.Constant const(k=0)
-        annotation (Placement(transformation(extent={{-60,-20},{-40,0}})));
+        annotation (Placement(transformation(extent={{-100,0},{-80,20}})));
+      Components.Pulmonary_circulation pulmonary_circulation
+        annotation (Placement(transformation(extent={{-20,-40},{0,-20}})));
+      Components.arteries_ADAN86_dv arteries_ADAN86_dv
+        annotation (Placement(transformation(extent={{-20,60},{0,80}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(P(
+            displayUnit="mmHg") = 1066.58)
+        annotation (Placement(transformation(extent={{80,58},{60,78}})));
+      Components.Vains
+            veinSuperior(
+        C_vl=Parameters_Systemic1.C_svl,
+        C_vn=Parameters_Systemic1.C_svn,
+        C_vc=Parameters_Systemic1.C_svc,
+        R_vl=Parameters_Systemic1.R_svl,
+        R_vn=Parameters_Systemic1.R_svn,
+        R_vc=Parameters_Systemic1.R_svc,
+        I_vl=Parameters_Systemic1.I_svl,
+        I_vn=Parameters_Systemic1.I_svn,
+        I_vc=Parameters_Systemic1.I_svc)
+        annotation (Placement(transformation(extent={{-20,-80},{0,-60}})));
+      main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+        Parameters_Systemic1
+        annotation (Placement(transformation(extent={{-100,78},{-80,98}})));
     equation
       connect(unlimitedPump.q_out, arteries_ADAN86_1.port_a) annotation (Line(
           points={{-60,30},{-20,30}},
@@ -1274,10 +1338,176 @@ end BG_Modules_extended;
           color={0,0,0},
           thickness=1));
       connect(arteries_ADAN86_1.thoracic_pressure, const.y) annotation (Line(
-            points={{-20.4,20},{-30,20},{-30,-10},{-39,-10}}, color={0,0,127}));
+            points={{-20.4,20},{-30,20},{-30,10},{-79,10}},   color={0,0,127}));
+      connect(unlimitedPump.q_out, arteries_ADAN86_dv.port_a) annotation (Line(
+          points={{-60,30},{-54,30},{-54,72},{-20,72},{-20,70}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume1.y, arteries_ADAN86_dv.port_b_superior)
+        annotation (Line(
+          points={{60,68},{30,68},{30,80},{0,80}},
+          color={0,0,0},
+          thickness=1));
+      connect(arteries_ADAN86_dv.port_b_inferior, unlimitedVolume.y)
+        annotation (Line(
+          points={{0,60},{30,60},{30,30},{60,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedPump.q_out, pulmonary_circulation.port_a) annotation (
+          Line(
+          points={{-60,30},{-28,30},{-28,-30},{-20,-30}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonary_circulation.port_b, unlimitedVolume.y) annotation (Line(
+          points={{0,-30},{30,-30},{30,30},{60,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(const.y, pulmonary_circulation.thoracic_pressure) annotation (
+          Line(points={{-79,10},{-58,10},{-58,-44},{-10,-44},{-10,-40}}, color=
+              {0,0,127}));
+      connect(const.y, arteries_ADAN86_dv.thoracic_pressure) annotation (Line(
+            points={{-79,10},{-30,10},{-30,60},{-20,60}}, color={0,0,127}));
+      connect(unlimitedPump.q_out, veinSuperior.port_a) annotation (Line(
+          points={{-60,30},{-28,30},{-28,-70},{-20,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume.y, veinSuperior.port_b) annotation (Line(
+          points={{60,30},{30,30},{30,-70},{0,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(veinSuperior.thoracic_pressure, pulmonary_circulation.thoracic_pressure)
+        annotation (Line(points={{-20.4,-80},{-58,-80},{-58,-44},{-10,-44},{-10,
+              -40}}, color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end TestADAN;
+
+    model ADAN_test
+      Components.arteries_ADAN86_dv arteries_ADAN86_dv
+        annotation (Placement(transformation(extent={{-42,6},{-22,26}})));
+      Components.Heart heart(redeclare Auxiliary.Heart_ADAN_Heart Heart1)
+        annotation (Placement(transformation(extent={{0,-40},{-20,-20}})));
+      Components.Pulmonary_circulation pulmonary_circulation
+        annotation (Placement(transformation(extent={{-20,-80},{0,-60}})));
+      Modelica.Blocks.Sources.Constant thoracic_pressure(k=0)
+        annotation (Placement(transformation(extent={{-34,64},{-14,84}})));
+      Modelica.Blocks.Sources.Constant heart_frequency(k=1.2)
+        annotation (Placement(transformation(extent={{80,-40},{60,-20}})));
+      Components.Vains
+            veinSuperior(
+        C_vl=Parameters_Systemic1.C_svl,
+        C_vn=Parameters_Systemic1.C_svn,
+        C_vc=Parameters_Systemic1.C_svc,
+        R_vl=Parameters_Systemic1.R_svl,
+        R_vn=Parameters_Systemic1.R_svn,
+        R_vc=Parameters_Systemic1.R_svc,
+        I_vl=Parameters_Systemic1.I_svl,
+        I_vn=Parameters_Systemic1.I_svn,
+        I_vc=Parameters_Systemic1.I_svc)
+        annotation (Placement(transformation(extent={{0,26},{20,46}})));
+      Components.Vains
+            veinInferior(
+        C_vl=Parameters_Systemic1.C_ivl,
+        C_vn=Parameters_Systemic1.C_ivn,
+        C_vc=Parameters_Systemic1.C_ivc,
+        R_vl=Parameters_Systemic1.R_ivl,
+        R_vn=Parameters_Systemic1.R_ivn,
+        R_vc=Parameters_Systemic1.R_ivc,
+        I_vl=Parameters_Systemic1.I_ivl,
+        I_vn=Parameters_Systemic1.I_ivn,
+        I_vc=Parameters_Systemic1.I_ivc)
+        annotation (Placement(transformation(extent={{0,-14},{20,6}})));
+      main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+        Parameters_Systemic1
+        annotation (Placement(transformation(extent={{-100,78},{-80,98}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump(SolutionFlow=
+            8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{-92,6},{-72,26}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(P=
+            6666.11937075)
+        annotation (Placement(transformation(extent={{-100,-24},{-80,-4}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump1(SolutionFlow
+          =8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{-102,-80},{-82,-60}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(P=
+            666.611937075)
+        annotation (Placement(transformation(extent={{68,6},{48,26}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume2(P=
+            666.611937075)
+        annotation (Placement(transformation(extent={{60,-80},{40,-60}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump2(SolutionFlow
+          =8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{40,-30},{20,-10}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump3(SolutionFlow
+          =8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{40,-50},{20,-30}})));
+    equation
+      connect(thoracic_pressure.y, arteries_ADAN86_dv.thoracic_pressure)
+        annotation (Line(points={{-13,74},{-10,74},{-10,8},{-42,8},{-42,6}},
+                                                               color={0,140,72}));
+      connect(thoracic_pressure.y, pulmonary_circulation.thoracic_pressure)
+        annotation (Line(points={{-13,74},{-10,74},{-10,-80}},             color=
+              {0,140,72}));
+      connect(thoracic_pressure.y, heart.thoracic_pressure) annotation (Line(
+            points={{-13,74},{-10,74},{-10,-40}},   color={0,140,72}));
+      connect(heart_frequency.y, heart.frequency)
+        annotation (Line(points={{59,-30},{0,-30}}, color={0,0,127}));
+      connect(arteries_ADAN86_dv.port_b_inferior, veinInferior.port_a)
+        annotation (Line(
+          points={{-22,6},{-8,6},{-8,-4},{0,-4}},
+          color={0,0,0},
+          thickness=1));
+      connect(arteries_ADAN86_dv.port_b_superior, veinSuperior.port_a)
+        annotation (Line(
+          points={{-22,26},{-8,26},{-8,36},{0,36}},
+          color={0,0,0},
+          thickness=1));
+      connect(thoracic_pressure.y, veinInferior.thoracic_pressure) annotation (
+          Line(points={{-13,74},{-10,74},{-10,-14},{-0.4,-14}},   color={0,140,72}));
+      connect(thoracic_pressure.y, veinSuperior.thoracic_pressure) annotation (
+          Line(points={{-13,74},{-10,74},{-10,26},{-0.4,26}},
+            color={0,140,72}));
+      connect(veinSuperior.port_b, veinInferior.port_b) annotation (Line(
+          points={{20,36},{30,36},{30,-4},{20,-4}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedPump.q_out, arteries_ADAN86_dv.port_a) annotation (Line(
+          points={{-72,16},{-42,16}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume.y, heart.sa) annotation (Line(
+          points={{-80,-14},{-20,-14},{-20,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(heart.pa, unlimitedVolume.y) annotation (Line(
+          points={{-20,-40},{-80,-40},{-80,-14}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedPump1.q_out, pulmonary_circulation.port_a) annotation (
+          Line(
+          points={{-82,-70},{-20,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume1.y, veinInferior.port_b) annotation (Line(
+          points={{48,16},{30,16},{30,-4},{20,-4}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonary_circulation.port_b, unlimitedVolume2.y) annotation (
+          Line(
+          points={{0,-70},{40,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(heart.sv, unlimitedPump2.q_out) annotation (Line(
+          points={{0,-20},{20,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(heart.pv, unlimitedPump3.q_out) annotation (Line(
+          points={{0,-40},{20,-40}},
+          color={0,0,0},
+          thickness=1));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end ADAN_test;
   end tests;
 
   model CardiovascularSystem_ec0680f
@@ -2898,7 +3128,7 @@ end BG_Modules_extended;
   end BG_Modules_extended_nonconnectors;
   end thrash;
 
-  package Systemic
+  package Components
     model arteries_ADAN86
       Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
           transformation(extent={{-124,-120},{-84,-80}}),
@@ -3680,7 +3910,7 @@ end BG_Modules_extended;
       Real v_internal_carotid_L50_C(unit = "m3.s-1");
       Real v_vertebral_R272(unit = "m3.s-1");
       Real v_vertebral_L2(unit = "m3.s-1");
-      ADAN_main.Auxiliary.AcausalConnector.Pq_terminator_v pq_terminator_v(v = v_veins)
+      ADAN_main.Auxiliary.AcausalConnector.Pq_terminator_v pq_terminator_v(v = -v_veins)
         annotation (Placement(transformation(extent={{100,0},{120,20}})));
       Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
         annotation (Placement(transformation(extent={{-270,40},{-250,60}}),
@@ -3984,7 +4214,1612 @@ end BG_Modules_extended;
               fillPattern=FillPattern.None,
               textString="Arterial tree")}));
     end arteries_ADAN86;
-  end Systemic;
+
+    model Vains "The veins turn nito vain"
+      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+          transformation(extent={{-124,-120},{-84,-80}}),
+                                                        iconTransformation(extent={{-124,
+                -120},{-84,-80}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
+        annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b
+        annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      parameter Real C_vl(unit="m6.J-1");
+      parameter Real C_vn(unit="m6.J-1");
+      parameter Real C_vc(unit="m6.J-1");
+      parameter Real R_vl(unit="J.s.m-6");
+      parameter Real R_vn(unit="J.s.m-6");
+      parameter Real R_vc(unit="J.s.m-6");
+      parameter Real I_vl(unit="J.s2.m-6");
+      parameter Real I_vn(unit="J.s2.m-6");
+      parameter Real I_vc(unit="J.s2.m-6");
+      Real v_sup_venacava = port_b.q;
+      Real u_svl(unit = "Pa", start = 100.0) = port_a.pressure;
+      Real v_svl(unit = "m3.s-1", start = 0.0);
+      Real vol_svl=u_svl*C_vl;
+      Real u_svn(unit = "Pa", start = 0.0);
+      Real v_svn(unit = "m3.s-1", start = 0.0);
+      Real vol_svn=u_svn*C_vn;
+      Real u_svc(unit = "Pa", start = 0.0);
+      Real v_svc(unit = "m3.s-1", start = 0.0) = -port_b.q;
+      Real vol_svc=u_svc*C_vc;
+    Physiolibrary.Types.Pressure u_ra = port_b.pressure;
+
+    equation
+      der(u_svl) =(v_sup_venacava - v_svl)/C_vl;
+      der(u_svn) =(v_svl - v_svn)/C_vn;
+      der(u_svc - thoracic_pressure) =(v_svn - v_svc)/C_vc;
+      der(v_svl) =(u_svl - u_svn - v_svl*R_vl)/I_vl;
+      der(v_svn) =(u_svn - u_svc - v_svn*R_vn)/I_vn;
+      der(v_svc) =(u_svc - u_ra - v_svc*R_vc)/I_vc;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Vains;
+
+    model SuperiorVains "The veins turn nito vain"
+      main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+        Parameters_Systemic1
+        annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
+      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+          transformation(extent={{-124,-120},{-84,-80}}),
+                                                        iconTransformation(extent={{-124,
+                -120},{-84,-80}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
+        annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b
+        annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      Real C_svl(unit = "m6.J-1");
+      Real C_svn(unit = "m6.J-1");
+      Real C_svc(unit = "m6.J-1");
+    //   Real C_ivl(unit = "m6.J-1");
+    //   Real C_ivn(unit = "m6.J-1");
+    //   Real C_ivc(unit = "m6.J-1");
+      Real R_svl(unit = "J.s.m-6");
+      Real R_svn(unit = "J.s.m-6");
+      Real R_svc(unit = "J.s.m-6");
+    //   Real R_ivl(unit = "J.s.m-6");
+    //   Real R_ivn(unit = "J.s.m-6");
+    //   Real R_ivc(unit = "J.s.m-6");
+      Real I_svl(unit = "J.s2.m-6");
+      Real I_svn(unit = "J.s2.m-6");
+      Real I_svc(unit = "J.s2.m-6");
+    //   Real I_ivl(unit = "J.s2.m-6");
+    //   Real I_ivn(unit = "J.s2.m-6");
+    //   Real I_ivc(unit = "J.s2.m-6");
+      Real v_sup_venacava = port_b.q;
+      Real u_svl(unit = "Pa", start = 100.0) = port_a.pressure;
+      Real v_svl(unit = "m3.s-1", start = 0.0);
+      Real vol_svl = u_svl * C_svl;
+      Real u_svn(unit = "Pa", start = 0.0);
+      Real v_svn(unit = "m3.s-1", start = 0.0);
+      Real vol_svn = u_svn * C_svn;
+      Real u_svc(unit = "Pa", start = 0.0);
+      Real v_svc(unit = "m3.s-1", start = 0.0) = port_b.q;
+      Real vol_svc = u_svc * C_svc;
+    //   Real u_ivl(unit = "Pa", start = 100.0);
+    //   Real v_ivl(unit = "m3.s-1", start = 0.0);
+    //   Real vol_ivl = u_ivl * C_ivl;
+    //   Real u_ivn(unit = "Pa", start = 0.0);
+    //   Real v_ivn(unit = "m3.s-1", start = 0.0);
+    //   Real vol_ivn = u_ivn * C_ivn;
+    //   Real u_ivc(unit = "Pa", start = 0.0);
+    //   Real v_ivc(unit = "m3.s-1", start = 0.0);
+    //   Real vol_ivc = u_ivc * C_ivc;
+    Physiolibrary.Types.Pressure u_ra = port_b.pressure;
+
+    equation
+      C_svl = Parameters_Systemic1.C_svl;
+      C_svn = Parameters_Systemic1.C_svn;
+      C_svc = Parameters_Systemic1.C_svc;
+    //   C_ivl = Parameters_Systemic1.C_ivl;
+    //   C_ivn = Parameters_Systemic1.C_ivn;
+    //   C_ivc = Parameters_Systemic1.C_ivc;
+      R_svl = Parameters_Systemic1.R_svl;
+      R_svn = Parameters_Systemic1.R_svn;
+      R_svc = Parameters_Systemic1.R_svc;
+    //   R_ivl = Parameters_Systemic1.R_ivl;
+    //   R_ivn = Parameters_Systemic1.R_ivn;
+    //   R_ivc = Parameters_Systemic1.R_ivc;
+      I_svl = Parameters_Systemic1.I_svl;
+      I_svn = Parameters_Systemic1.I_svn;
+      I_svc = Parameters_Systemic1.I_svc;
+    //   I_ivl = Parameters_Systemic1.I_ivl;
+    //   I_ivn = Parameters_Systemic1.I_ivn;
+    //   I_ivc = Parameters_Systemic1.I_ivc;
+           der(u_svl) = (v_sup_venacava-v_svl)/C_svl;
+
+    //        der(u_ivl) = (v_inf_venacava-v_ivl)/C_ivl;
+
+           der(u_svn) = (v_svl-v_svn)/C_svn;
+    //        der(u_svc) = (v_svn-v_svc)/C_svc;
+           der(u_svc - thoracic_pressure) = (v_svn-v_svc)/C_svc;
+
+    //        der(u_ivn) = (v_ivl-v_ivn)/C_ivn;
+           // der(u_ivc - thoracic_pressure)  = (v_ivn-v_ivc)/C_ivc;
+    //        der(u_ivc)  = (v_ivn-v_ivc)/C_ivc;
+           der(v_svl) = (u_svl-u_svn-v_svl*R_svl)/I_svl;
+           der(v_svn) = (u_svn-u_svc-v_svn*R_svn)/I_svn;
+           der(v_svc) = (u_svc-u_ra-v_svc*R_svc)/I_svc;
+    //        der(v_ivl) = (u_ivl-u_ivn-v_ivl*R_ivl)/I_ivl;
+    //        der(v_ivn) = (u_ivn-u_ivc-v_ivn*R_ivn)/I_ivn;
+    //        der(v_ivc) = (u_ivc-u_ra-v_ivc*R_ivc)/I_ivc;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end SuperiorVains;
+
+    model DoubleLargeVeins
+      Vains veinSuperior(
+              C_vl = Parameters_Systemic1.C_svl,
+              C_vn = Parameters_Systemic1.C_svn,
+              C_vc = Parameters_Systemic1.C_svc,
+              R_vl = Parameters_Systemic1.R_svl,
+              R_vn = Parameters_Systemic1.R_svn,
+              R_vc = Parameters_Systemic1.R_svc,
+              I_vl = Parameters_Systemic1.I_svl,
+              I_vn = Parameters_Systemic1.I_svn,
+              I_vc = Parameters_Systemic1.I_svc)
+        annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
+      main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+        Parameters_Systemic1
+        annotation (Placement(transformation(extent={{-60,80},{-40,100}})));
+      Vains veinInferior(
+              C_vl = Parameters_Systemic1.C_ivl,
+              C_vn = Parameters_Systemic1.C_ivn,
+              C_vc = Parameters_Systemic1.C_ivc,
+              R_vl = Parameters_Systemic1.R_ivl,
+              R_vn = Parameters_Systemic1.R_ivn,
+              R_vc = Parameters_Systemic1.R_ivc,
+              I_vl = Parameters_Systemic1.I_ivl,
+              I_vn = Parameters_Systemic1.I_ivn,
+              I_vc = Parameters_Systemic1.I_ivc)
+        annotation (Placement(transformation(extent={{-60,-40},{-40,-20}})));
+      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+          transformation(extent={{-20,-20},{20,20}},
+            rotation=90,
+            origin={0,-100}),                           iconTransformation(extent={{-20,-20},
+                {20,20}},
+            rotation=90,
+            origin={0,-100})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_superior
+        annotation (Placement(transformation(extent={{-110,90},{-90,110}}),
+            iconTransformation(extent={{-110,90},{-90,110}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_inferior
+        annotation (Placement(transformation(extent={{-110,-110},{-90,-90}}),
+            iconTransformation(extent={{-110,-110},{-90,-90}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b
+        annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    equation
+      connect(thoracic_pressure, veinInferior.thoracic_pressure) annotation (
+          Line(points={{0,-100},{-68,-100},{-68,-40},{-60.4,-40}}, color={0,0,
+              127}));
+      connect(thoracic_pressure, veinSuperior.thoracic_pressure) annotation (
+          Line(points={{0,-100},{-68,-100},{-68,20},{-60.4,20}}, color={0,0,127}));
+      connect(veinSuperior.port_a, port_superior) annotation (Line(
+          points={{-60,30},{-80,30},{-80,100},{-100,100}},
+          color={0,0,0},
+          thickness=1));
+      connect(veinInferior.port_a, port_inferior) annotation (Line(
+          points={{-60,-30},{-80,-30},{-80,-100},{-100,-100}},
+          color={0,0,0},
+          thickness=1));
+      connect(veinInferior.port_b, port_b) annotation (Line(
+          points={{-40,-30},{30,-30},{30,0},{100,0}},
+          color={0,0,0},
+          thickness=1));
+      connect(veinSuperior.port_b, port_b) annotation (Line(
+          points={{-40,30},{30,30},{30,0},{100,0}},
+          color={0,0,0},
+          thickness=1));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end DoubleLargeVeins;
+
+    model arteries_ADAN86_dv
+      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+          transformation(extent={{-120,-120},{-80,-80}}),
+                                                        iconTransformation(extent={{-120,
+                -120},{-80,-80}})));
+      main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic Parameters_Systemic1
+        annotation (Placement(transformation(extent={{-100,-79},{-80,-74}})));
+      ADAN_main.BG_Modules_extended.vv_type_thoracic ascending_aorta_A(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_ascending_aorta_A,
+          E = Parameters_Systemic1.E_ascending_aorta_A,
+          r = Parameters_Systemic1.r_ascending_aorta_A)
+      annotation (Placement(transformation(extent={{-241,47},{-221,52}})));
+      ADAN_main.BG_Modules_extended.pv_type_thoracic ascending_aorta_B(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_ascending_aorta_B,
+          E = Parameters_Systemic1.E_ascending_aorta_B,
+          r = Parameters_Systemic1.r_ascending_aorta_B)
+      annotation (Placement(transformation(extent={{-216,47},{-196,52}})));
+      ADAN_main.BG_Modules_extended.pv_type_thoracic ascending_aorta_C(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_ascending_aorta_C,
+          E = Parameters_Systemic1.E_ascending_aorta_C,
+          r = Parameters_Systemic1.r_ascending_aorta_C)
+      annotation (Placement(transformation(extent={{-191,47},{-171,52}})));
+      ADAN_main.BG_Modules_extended.pv_type_thoracic ascending_aorta_D(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_ascending_aorta_D,
+          E = Parameters_Systemic1.E_ascending_aorta_D,
+          r = Parameters_Systemic1.r_ascending_aorta_D)
+      annotation (Placement(transformation(extent={{-166,47},{-146,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic aortic_arch_C2(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_aortic_arch_C2,
+          E = Parameters_Systemic1.E_aortic_arch_C2,
+          r = Parameters_Systemic1.r_aortic_arch_C2)
+      annotation (Placement(transformation(extent={{-141,47},{-121,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic brachiocephalic_trunk_C4(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_brachiocephalic_trunk_C4,
+          E = Parameters_Systemic1.E_brachiocephalic_trunk_C4,
+          r = Parameters_Systemic1.r_brachiocephalic_trunk_C4)
+      annotation (Placement(transformation(extent={{-98,127},{-78,132}})));
+      replaceable ADAN_main.BG_Modules_extended.pv_jII_type_thoracic aortic_arch_C46(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_aortic_arch_C46,
+          E = Parameters_Systemic1.E_aortic_arch_C46,
+          r = Parameters_Systemic1.r_aortic_arch_C46)
+      annotation (Placement(transformation(extent={{-105,47},{-85,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic aortic_arch_C64(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_aortic_arch_C64,
+          E = Parameters_Systemic1.E_aortic_arch_C64,
+          r = Parameters_Systemic1.r_aortic_arch_C64)
+      annotation (Placement(transformation(extent={{-78,47},{-58,52}})));
+      ADAN_main.BG_Modules_extended.pv_type_thoracic aortic_arch_C94(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_aortic_arch_C94,
+          E = Parameters_Systemic1.E_aortic_arch_C94,
+          r = Parameters_Systemic1.r_aortic_arch_C94)
+      annotation (Placement(transformation(extent={{-49,47},{-29,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C96(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_thoracic_aorta_C96,
+          E = Parameters_Systemic1.E_thoracic_aorta_C96,
+          r = Parameters_Systemic1.r_thoracic_aorta_C96)
+      annotation (Placement(transformation(extent={{-26,47},{-6,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C100(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_thoracic_aorta_C100,
+          E = Parameters_Systemic1.E_thoracic_aorta_C100,
+          r = Parameters_Systemic1.r_thoracic_aorta_C100)
+      annotation (Placement(transformation(extent={{3,47},{23,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C104(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_thoracic_aorta_C104,
+          E = Parameters_Systemic1.E_thoracic_aorta_C104,
+          r = Parameters_Systemic1.r_thoracic_aorta_C104)
+      annotation (Placement(transformation(extent={{28,47},{48,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type_thoracic thoracic_aorta_C108(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_thoracic_aorta_C108,
+          E = Parameters_Systemic1.E_thoracic_aorta_C108,
+          r = Parameters_Systemic1.r_thoracic_aorta_C108)
+      annotation (Placement(transformation(extent={{53,47},{73,52}})));
+      ADAN_main.BG_Modules_extended.pv_type_thoracic thoracic_aorta_C112(
+          thoracic_pressure = thoracic_pressure,
+          l = Parameters_Systemic1.l_thoracic_aorta_C112,
+          E = Parameters_Systemic1.E_thoracic_aorta_C112,
+          r = Parameters_Systemic1.r_thoracic_aorta_C112)
+      annotation (Placement(transformation(extent={{78,47},{98,52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C114(
+          l = Parameters_Systemic1.l_abdominal_aorta_C114,
+          E = Parameters_Systemic1.E_abdominal_aorta_C114,
+          r = Parameters_Systemic1.r_abdominal_aorta_C114)
+      annotation (Placement(transformation(extent={{-99,-43},{-79,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C136(
+          l = Parameters_Systemic1.l_abdominal_aorta_C136,
+          E = Parameters_Systemic1.E_abdominal_aorta_C136,
+          r = Parameters_Systemic1.r_abdominal_aorta_C136)
+      annotation (Placement(transformation(extent={{-74,-43},{-54,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C164(
+          l = Parameters_Systemic1.l_abdominal_aorta_C164,
+          E = Parameters_Systemic1.E_abdominal_aorta_C164,
+          r = Parameters_Systemic1.r_abdominal_aorta_C164)
+      annotation (Placement(transformation(extent={{-47,-43},{-27,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C176(
+          l = Parameters_Systemic1.l_abdominal_aorta_C176,
+          E = Parameters_Systemic1.E_abdominal_aorta_C176,
+          r = Parameters_Systemic1.r_abdominal_aorta_C176)
+      annotation (Placement(transformation(extent={{-2,-43},{18,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C188(
+          l = Parameters_Systemic1.l_abdominal_aorta_C188,
+          E = Parameters_Systemic1.E_abdominal_aorta_C188,
+          r = Parameters_Systemic1.r_abdominal_aorta_C188)
+      annotation (Placement(transformation(extent={{23,-43},{43,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type abdominal_aorta_C192(
+          l = Parameters_Systemic1.l_abdominal_aorta_C192,
+          E = Parameters_Systemic1.E_abdominal_aorta_C192,
+          r = Parameters_Systemic1.r_abdominal_aorta_C192)
+      annotation (Placement(transformation(extent={{48,-43},{68,-38}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T1_R98(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_posterior_intercostal_T1_R98,
+          E = Parameters_Systemic1.E_posterior_intercostal_T1_R98,
+          R_T = Parameters_Systemic1.R_T_posterior_intercostal_T1_R98,
+          C_T = Parameters_Systemic1.C_T_posterior_intercostal_T1_R98,
+          r = Parameters_Systemic1.r_posterior_intercostal_T1_R98)
+      annotation (Placement(transformation(extent={{3,37},{23,42}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T1_L102(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_posterior_intercostal_T1_L102,
+          E = Parameters_Systemic1.E_posterior_intercostal_T1_L102,
+          R_T = Parameters_Systemic1.R_T_posterior_intercostal_T1_L102,
+          C_T = Parameters_Systemic1.C_T_posterior_intercostal_T1_L102,
+          r = Parameters_Systemic1.r_posterior_intercostal_T1_L102)
+      annotation (Placement(transformation(extent={{28,37},{48,42}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T2_R106(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_posterior_intercostal_T2_R106,
+          E = Parameters_Systemic1.E_posterior_intercostal_T2_R106,
+          R_T = Parameters_Systemic1.R_T_posterior_intercostal_T2_R106,
+          C_T = Parameters_Systemic1.C_T_posterior_intercostal_T2_R106,
+          r = Parameters_Systemic1.r_posterior_intercostal_T2_R106)
+      annotation (Placement(transformation(extent={{51,37},{71,42}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_intercostal_T2_L110(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_posterior_intercostal_T2_L110,
+          E = Parameters_Systemic1.E_posterior_intercostal_T2_L110,
+          R_T = Parameters_Systemic1.R_T_posterior_intercostal_T2_L110,
+          C_T = Parameters_Systemic1.C_T_posterior_intercostal_T2_L110,
+          r = Parameters_Systemic1.r_posterior_intercostal_T2_L110)
+      annotation (Placement(transformation(extent={{78,37},{98,42}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type celiac_trunk_C116(
+          l = Parameters_Systemic1.l_celiac_trunk_C116,
+          E = Parameters_Systemic1.E_celiac_trunk_C116,
+          r = Parameters_Systemic1.r_celiac_trunk_C116)
+      annotation (Placement(transformation(extent={{-71,-3},{-51,2}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type splenic_T2_C118(
+          l = Parameters_Systemic1.l_splenic_T2_C118,
+          E = Parameters_Systemic1.E_splenic_T2_C118,
+          r = Parameters_Systemic1.r_splenic_T2_C118)
+      annotation (Placement(transformation(extent={{-46,-3},{-26,2}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type left_gastric_T3_C120(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_left_gastric_T3_C120,
+          E = Parameters_Systemic1.E_left_gastric_T3_C120,
+          R_T = Parameters_Systemic1.R_T_left_gastric_T3_C120,
+          C_T = Parameters_Systemic1.C_T_left_gastric_T3_C120,
+          r = Parameters_Systemic1.r_left_gastric_T3_C120)
+      annotation (Placement(transformation(extent={{-45,5},{-25,10}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type splenic_T2_C122(
+          l = Parameters_Systemic1.l_splenic_T2_C122,
+          E = Parameters_Systemic1.E_splenic_T2_C122,
+          r = Parameters_Systemic1.r_splenic_T2_C122)
+      annotation (Placement(transformation(extent={{-18,-3},{2,2}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type dorsal_pancreatic_T1_C124(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_dorsal_pancreatic_T1_C124,
+          E = Parameters_Systemic1.E_dorsal_pancreatic_T1_C124,
+          R_T = Parameters_Systemic1.R_T_dorsal_pancreatic_T1_C124,
+          C_T = Parameters_Systemic1.C_T_dorsal_pancreatic_T1_C124,
+          r = Parameters_Systemic1.r_dorsal_pancreatic_T1_C124)
+      annotation (Placement(transformation(extent={{-17,5},{3,10}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type splenic_T2_C126(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_splenic_T2_C126,
+          E = Parameters_Systemic1.E_splenic_T2_C126,
+          R_T = Parameters_Systemic1.R_T_splenic_T2_C126,
+          C_T = Parameters_Systemic1.C_T_splenic_T2_C126,
+          r = Parameters_Systemic1.r_splenic_T2_C126)
+      annotation (Placement(transformation(extent={{8,5},{28,10}})));
+      ADAN_main.BG_Modules_extended.pv_type common_hepatic_C128(
+          l = Parameters_Systemic1.l_common_hepatic_C128,
+          E = Parameters_Systemic1.E_common_hepatic_C128,
+          r = Parameters_Systemic1.r_common_hepatic_C128)
+      annotation (Placement(transformation(extent={{9,-3},{29,2}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type hepatic_artery_proper_C130(
+          l = Parameters_Systemic1.l_hepatic_artery_proper_C130,
+          E = Parameters_Systemic1.E_hepatic_artery_proper_C130,
+          r = Parameters_Systemic1.r_hepatic_artery_proper_C130)
+      annotation (Placement(transformation(extent={{32,-3},{52,2}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type hepatic_artery_proper_left_branch_C132(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_hepatic_artery_proper_left_branch_C132,
+          E = Parameters_Systemic1.E_hepatic_artery_proper_left_branch_C132,
+          R_T = Parameters_Systemic1.R_T_hepatic_artery_proper_left_branch_C132,
+          C_T = Parameters_Systemic1.C_T_hepatic_artery_proper_left_branch_C132,
+          r = Parameters_Systemic1.r_hepatic_artery_proper_left_branch_C132)
+      annotation (Placement(transformation(extent={{55,-3},{75,2}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type hepatic_artery_proper_right_branch_C134(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_hepatic_artery_proper_right_branch_C134,
+          E = Parameters_Systemic1.E_hepatic_artery_proper_right_branch_C134,
+          R_T = Parameters_Systemic1.R_T_hepatic_artery_proper_right_branch_C134,
+          C_T = Parameters_Systemic1.C_T_hepatic_artery_proper_right_branch_C134,
+          r = Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
+      annotation (Placement(transformation(extent={{56,5},{76,10}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C138(
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C138,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C138,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C138)
+      annotation (Placement(transformation(extent={{-45,-91},{-25,-86}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type middle_colic_T8_C140(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_middle_colic_T8_C140,
+          E = Parameters_Systemic1.E_middle_colic_T8_C140,
+          R_T = Parameters_Systemic1.R_T_middle_colic_T8_C140,
+          C_T = Parameters_Systemic1.C_T_middle_colic_T8_C140,
+          r = Parameters_Systemic1.r_middle_colic_T8_C140)
+      annotation (Placement(transformation(extent={{-18,-99},{2,-94}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C142(
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C142,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C142,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C142)
+      annotation (Placement(transformation(extent={{-19,-91},{1,-86}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type jejunal_3_T10_C144(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_jejunal_3_T10_C144,
+          E = Parameters_Systemic1.E_jejunal_3_T10_C144,
+          R_T = Parameters_Systemic1.R_T_jejunal_3_T10_C144,
+          C_T = Parameters_Systemic1.C_T_jejunal_3_T10_C144,
+          r = Parameters_Systemic1.r_jejunal_3_T10_C144)
+      annotation (Placement(transformation(extent={{6,-99},{26,-94}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C146(
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C146,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C146,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C146)
+      annotation (Placement(transformation(extent={{5,-91},{25,-86}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type jejunal_6_T11_C148(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_jejunal_6_T11_C148,
+          E = Parameters_Systemic1.E_jejunal_6_T11_C148,
+          R_T = Parameters_Systemic1.R_T_jejunal_6_T11_C148,
+          C_T = Parameters_Systemic1.C_T_jejunal_6_T11_C148,
+          r = Parameters_Systemic1.r_jejunal_6_T11_C148)
+      annotation (Placement(transformation(extent={{32,-99},{52,-94}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C150(
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C150,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C150,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C150)
+      annotation (Placement(transformation(extent={{31,-91},{51,-86}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type ileocolic_T9_C152(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_ileocolic_T9_C152,
+          E = Parameters_Systemic1.E_ileocolic_T9_C152,
+          R_T = Parameters_Systemic1.R_T_ileocolic_T9_C152,
+          C_T = Parameters_Systemic1.C_T_ileocolic_T9_C152,
+          r = Parameters_Systemic1.r_ileocolic_T9_C152)
+      annotation (Placement(transformation(extent={{58,-99},{78,-94}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C154(
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C154,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C154,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C154)
+      annotation (Placement(transformation(extent={{57,-91},{77,-86}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type ileal_4_T12_C156(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_ileal_4_T12_C156,
+          E = Parameters_Systemic1.E_ileal_4_T12_C156,
+          R_T = Parameters_Systemic1.R_T_ileal_4_T12_C156,
+          C_T = Parameters_Systemic1.C_T_ileal_4_T12_C156,
+          r = Parameters_Systemic1.r_ileal_4_T12_C156)
+      annotation (Placement(transformation(extent={{84,-99},{104,-94}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type superior_mesenteric_T4_C158(
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C158,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C158,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C158)
+      annotation (Placement(transformation(extent={{83,-91},{103,-86}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type ileal_6_T13_C160(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_ileal_6_T13_C160,
+          E = Parameters_Systemic1.E_ileal_6_T13_C160,
+          R_T = Parameters_Systemic1.R_T_ileal_6_T13_C160,
+          C_T = Parameters_Systemic1.C_T_ileal_6_T13_C160,
+          r = Parameters_Systemic1.r_ileal_6_T13_C160)
+      annotation (Placement(transformation(extent={{108,-99},{128,-94}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type superior_mesenteric_T4_C162(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_superior_mesenteric_T4_C162,
+          E = Parameters_Systemic1.E_superior_mesenteric_T4_C162,
+          R_T = Parameters_Systemic1.R_T_superior_mesenteric_T4_C162,
+          C_T = Parameters_Systemic1.C_T_superior_mesenteric_T4_C162,
+          r = Parameters_Systemic1.r_superior_mesenteric_T4_C162)
+      annotation (Placement(transformation(extent={{107,-91},{127,-86}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type renal_L166(
+          l = Parameters_Systemic1.l_renal_L166,
+          E = Parameters_Systemic1.E_renal_L166,
+          r = Parameters_Systemic1.r_renal_L166)
+      annotation (Placement(transformation(extent={{-2,-67},{18,-62}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type renal_anterior_branch_L168(
+          l = Parameters_Systemic1.l_renal_anterior_branch_L168,
+          E = Parameters_Systemic1.E_renal_anterior_branch_L168,
+          r = Parameters_Systemic1.r_renal_anterior_branch_L168)
+      annotation (Placement(transformation(extent={{23,-67},{43,-62}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type inferior_segmental_T5_L170(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_inferior_segmental_T5_L170,
+          E = Parameters_Systemic1.E_inferior_segmental_T5_L170,
+          R_T = Parameters_Systemic1.R_T_inferior_segmental_T5_L170,
+          C_T = Parameters_Systemic1.C_T_inferior_segmental_T5_L170,
+          r = Parameters_Systemic1.r_inferior_segmental_T5_L170)
+      annotation (Placement(transformation(extent={{48,-67},{68,-62}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type superior_segmental_T4_L172(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_superior_segmental_T4_L172,
+          E = Parameters_Systemic1.E_superior_segmental_T4_L172,
+          R_T = Parameters_Systemic1.R_T_superior_segmental_T4_L172,
+          C_T = Parameters_Systemic1.C_T_superior_segmental_T4_L172,
+          r = Parameters_Systemic1.r_superior_segmental_T4_L172)
+      annotation (Placement(transformation(extent={{47,-77},{67,-72}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type renal_posterior_branch_T3_L174(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_renal_posterior_branch_T3_L174,
+          E = Parameters_Systemic1.E_renal_posterior_branch_T3_L174,
+          R_T = Parameters_Systemic1.R_T_renal_posterior_branch_T3_L174,
+          C_T = Parameters_Systemic1.C_T_renal_posterior_branch_T3_L174,
+          r = Parameters_Systemic1.r_renal_posterior_branch_T3_L174)
+      annotation (Placement(transformation(extent={{24,-77},{44,-72}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type renal_R178(
+          l = Parameters_Systemic1.l_renal_R178,
+          E = Parameters_Systemic1.E_renal_R178,
+          r = Parameters_Systemic1.r_renal_R178)
+      annotation (Placement(transformation(extent={{25,-25},{45,-20}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type renal_anterior_branch_R180(
+          l = Parameters_Systemic1.l_renal_anterior_branch_R180,
+          E = Parameters_Systemic1.E_renal_anterior_branch_R180,
+          r = Parameters_Systemic1.r_renal_anterior_branch_R180)
+      annotation (Placement(transformation(extent={{50,-25},{70,-20}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type superior_segmental_T4_R182(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_superior_segmental_T4_R182,
+          E = Parameters_Systemic1.E_superior_segmental_T4_R182,
+          R_T = Parameters_Systemic1.R_T_superior_segmental_T4_R182,
+          C_T = Parameters_Systemic1.C_T_superior_segmental_T4_R182,
+          r = Parameters_Systemic1.r_superior_segmental_T4_R182)
+      annotation (Placement(transformation(extent={{75,-25},{95,-20}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type inferior_segmental_T5_R184(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_inferior_segmental_T5_R184,
+          E = Parameters_Systemic1.E_inferior_segmental_T5_R184,
+          R_T = Parameters_Systemic1.R_T_inferior_segmental_T5_R184,
+          C_T = Parameters_Systemic1.C_T_inferior_segmental_T5_R184,
+          r = Parameters_Systemic1.r_inferior_segmental_T5_R184)
+      annotation (Placement(transformation(extent={{74,-17},{94,-12}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type renal_posterior_branch_T3_R186(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_renal_posterior_branch_T3_R186,
+          E = Parameters_Systemic1.E_renal_posterior_branch_T3_R186,
+          R_T = Parameters_Systemic1.R_T_renal_posterior_branch_T3_R186,
+          C_T = Parameters_Systemic1.C_T_renal_posterior_branch_T3_R186,
+          r = Parameters_Systemic1.r_renal_posterior_branch_T3_R186)
+      annotation (Placement(transformation(extent={{49,-17},{69,-12}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type inferior_mesenteric_T5_C190(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_inferior_mesenteric_T5_C190,
+          E = Parameters_Systemic1.E_inferior_mesenteric_T5_C190,
+          R_T = Parameters_Systemic1.R_T_inferior_mesenteric_T5_C190,
+          C_T = Parameters_Systemic1.C_T_inferior_mesenteric_T5_C190,
+          r = Parameters_Systemic1.r_inferior_mesenteric_T5_C190)
+      annotation (Placement(transformation(extent={{48,-57},{68,-52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type common_iliac_R216(
+          l = Parameters_Systemic1.l_common_iliac_R216,
+          E = Parameters_Systemic1.E_common_iliac_R216,
+          r = Parameters_Systemic1.r_common_iliac_R216)
+      annotation (Placement(transformation(extent={{75,-43},{95,-38}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type internal_iliac_T1_R218(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_internal_iliac_T1_R218,
+          E = Parameters_Systemic1.E_internal_iliac_T1_R218,
+          R_T = Parameters_Systemic1.R_T_internal_iliac_T1_R218,
+          C_T = Parameters_Systemic1.C_T_internal_iliac_T1_R218,
+          r = Parameters_Systemic1.r_internal_iliac_T1_R218)
+      annotation (Placement(transformation(extent={{98,-33},{118,-28}})));
+      ADAN_main.BG_Modules_extended.pv_type external_iliac_R220(
+          l = Parameters_Systemic1.l_external_iliac_R220,
+          E = Parameters_Systemic1.E_external_iliac_R220,
+          r = Parameters_Systemic1.r_external_iliac_R220)
+      annotation (Placement(transformation(extent={{99,-43},{119,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type femoral_R222(
+          l = Parameters_Systemic1.l_femoral_R222,
+          E = Parameters_Systemic1.E_femoral_R222,
+          r = Parameters_Systemic1.r_femoral_R222)
+      annotation (Placement(transformation(extent={{124,-43},{144,-38}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type profundus_T2_R224(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_profundus_T2_R224,
+          E = Parameters_Systemic1.E_profundus_T2_R224,
+          R_T = Parameters_Systemic1.R_T_profundus_T2_R224,
+          C_T = Parameters_Systemic1.C_T_profundus_T2_R224,
+          r = Parameters_Systemic1.r_profundus_T2_R224)
+      annotation (Placement(transformation(extent={{149,-33},{169,-28}})));
+      ADAN_main.BG_Modules_extended.pv_type femoral_R226(
+          l = Parameters_Systemic1.l_femoral_R226,
+          E = Parameters_Systemic1.E_femoral_R226,
+          r = Parameters_Systemic1.r_femoral_R226)
+      annotation (Placement(transformation(extent={{150,-43},{170,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type popliteal_R228(
+          l = Parameters_Systemic1.l_popliteal_R228,
+          E = Parameters_Systemic1.E_popliteal_R228,
+          r = Parameters_Systemic1.r_popliteal_R228)
+      annotation (Placement(transformation(extent={{175,-43},{195,-38}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type anterior_tibial_T3_R230(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_anterior_tibial_T3_R230,
+          E = Parameters_Systemic1.E_anterior_tibial_T3_R230,
+          R_T = Parameters_Systemic1.R_T_anterior_tibial_T3_R230,
+          C_T = Parameters_Systemic1.C_T_anterior_tibial_T3_R230,
+          r = Parameters_Systemic1.r_anterior_tibial_T3_R230)
+      annotation (Placement(transformation(extent={{200,-33},{220,-28}})));
+      ADAN_main.BG_Modules_extended.pv_type popliteal_R232(
+          l = Parameters_Systemic1.l_popliteal_R232,
+          E = Parameters_Systemic1.E_popliteal_R232,
+          r = Parameters_Systemic1.r_popliteal_R232)
+      annotation (Placement(transformation(extent={{199,-43},{219,-38}})));
+      ADAN_main.BG_Modules_extended.pv_type tibiofibular_trunk_R234(
+          l = Parameters_Systemic1.l_tibiofibular_trunk_R234,
+          E = Parameters_Systemic1.E_tibiofibular_trunk_R234,
+          r = Parameters_Systemic1.r_tibiofibular_trunk_R234)
+      annotation (Placement(transformation(extent={{224,-43},{244,-38}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_tibial_T4_R236(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_posterior_tibial_T4_R236,
+          E = Parameters_Systemic1.E_posterior_tibial_T4_R236,
+          R_T = Parameters_Systemic1.R_T_posterior_tibial_T4_R236,
+          C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_R236,
+          r = Parameters_Systemic1.r_posterior_tibial_T4_R236)
+      annotation (Placement(transformation(extent={{249,-43},{269,-38}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type common_iliac_L194(
+          l = Parameters_Systemic1.l_common_iliac_L194,
+          E = Parameters_Systemic1.E_common_iliac_L194,
+          r = Parameters_Systemic1.r_common_iliac_L194)
+      annotation (Placement(transformation(extent={{74,-57},{94,-52}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type internal_iliac_T1_L196(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_internal_iliac_T1_L196,
+          E = Parameters_Systemic1.E_internal_iliac_T1_L196,
+          R_T = Parameters_Systemic1.R_T_internal_iliac_T1_L196,
+          C_T = Parameters_Systemic1.C_T_internal_iliac_T1_L196,
+          r = Parameters_Systemic1.r_internal_iliac_T1_L196)
+      annotation (Placement(transformation(extent={{99,-65},{119,-60}})));
+      ADAN_main.BG_Modules_extended.pv_type external_iliac_L198(
+          l = Parameters_Systemic1.l_external_iliac_L198,
+          E = Parameters_Systemic1.E_external_iliac_L198,
+          r = Parameters_Systemic1.r_external_iliac_L198)
+      annotation (Placement(transformation(extent={{100,-57},{120,-52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type femoral_L200(
+          l = Parameters_Systemic1.l_femoral_L200,
+          E = Parameters_Systemic1.E_femoral_L200,
+          r = Parameters_Systemic1.r_femoral_L200)
+      annotation (Placement(transformation(extent={{125,-57},{145,-52}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type profundus_T2_L202(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_profundus_T2_L202,
+          E = Parameters_Systemic1.E_profundus_T2_L202,
+          R_T = Parameters_Systemic1.R_T_profundus_T2_L202,
+          C_T = Parameters_Systemic1.C_T_profundus_T2_L202,
+          r = Parameters_Systemic1.r_profundus_T2_L202)
+      annotation (Placement(transformation(extent={{150,-65},{170,-60}})));
+      ADAN_main.BG_Modules_extended.pv_type femoral_L204(
+          l = Parameters_Systemic1.l_femoral_L204,
+          E = Parameters_Systemic1.E_femoral_L204,
+          r = Parameters_Systemic1.r_femoral_L204)
+      annotation (Placement(transformation(extent={{149,-57},{169,-52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type popliteal_L206(
+          l = Parameters_Systemic1.l_popliteal_L206,
+          E = Parameters_Systemic1.E_popliteal_L206,
+          r = Parameters_Systemic1.r_popliteal_L206)
+      annotation (Placement(transformation(extent={{174,-57},{194,-52}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type anterior_tibial_T3_L208(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_anterior_tibial_T3_L208,
+          E = Parameters_Systemic1.E_anterior_tibial_T3_L208,
+          R_T = Parameters_Systemic1.R_T_anterior_tibial_T3_L208,
+          C_T = Parameters_Systemic1.C_T_anterior_tibial_T3_L208,
+          r = Parameters_Systemic1.r_anterior_tibial_T3_L208)
+      annotation (Placement(transformation(extent={{199,-65},{219,-60}})));
+      ADAN_main.BG_Modules_extended.pv_type popliteal_L210(
+          l = Parameters_Systemic1.l_popliteal_L210,
+          E = Parameters_Systemic1.E_popliteal_L210,
+          r = Parameters_Systemic1.r_popliteal_L210)
+      annotation (Placement(transformation(extent={{200,-57},{220,-52}})));
+      ADAN_main.BG_Modules_extended.pv_type tibiofibular_trunk_L212(
+          l = Parameters_Systemic1.l_tibiofibular_trunk_L212,
+          E = Parameters_Systemic1.E_tibiofibular_trunk_L212,
+          r = Parameters_Systemic1.r_tibiofibular_trunk_L212)
+      annotation (Placement(transformation(extent={{225,-57},{245,-52}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_tibial_T4_L214(
+          u_out = u_ivl,
+          l = Parameters_Systemic1.l_posterior_tibial_T4_L214,
+          E = Parameters_Systemic1.E_posterior_tibial_T4_L214,
+          R_T = Parameters_Systemic1.R_T_posterior_tibial_T4_L214,
+          C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_L214,
+          r = Parameters_Systemic1.r_posterior_tibial_T4_L214)
+      annotation (Placement(transformation(extent={{250,-57},{270,-52}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type subclavian_R28(
+          l = Parameters_Systemic1.l_subclavian_R28,
+          E = Parameters_Systemic1.E_subclavian_R28,
+          r = Parameters_Systemic1.r_subclavian_R28)
+      annotation (Placement(transformation(extent={{-75,119},{-55,124}})));
+      ADAN_main.BG_Modules_extended.pv_type subclavian_R30(
+          l = Parameters_Systemic1.l_subclavian_R30,
+          E = Parameters_Systemic1.E_subclavian_R30,
+          r = Parameters_Systemic1.r_subclavian_R30)
+      annotation (Placement(transformation(extent={{-50,119},{-30,124}})));
+      ADAN_main.BG_Modules_extended.pv_type axillary_R32(
+          l = Parameters_Systemic1.l_axillary_R32,
+          E = Parameters_Systemic1.E_axillary_R32,
+          r = Parameters_Systemic1.r_axillary_R32)
+      annotation (Placement(transformation(extent={{-25,119},{-5,124}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type brachial_R34(
+          l = Parameters_Systemic1.l_brachial_R34,
+          E = Parameters_Systemic1.E_brachial_R34,
+          r = Parameters_Systemic1.r_brachial_R34)
+      annotation (Placement(transformation(extent={{0,119},{20,124}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type ulnar_T2_R36(
+          l = Parameters_Systemic1.l_ulnar_T2_R36,
+          E = Parameters_Systemic1.E_ulnar_T2_R36,
+          r = Parameters_Systemic1.r_ulnar_T2_R36)
+      annotation (Placement(transformation(extent={{25,119},{45,124}})));
+      ADAN_main.BG_Modules_extended.pv_type common_interosseous_R38(
+          l = Parameters_Systemic1.l_common_interosseous_R38,
+          E = Parameters_Systemic1.E_common_interosseous_R38,
+          r = Parameters_Systemic1.r_common_interosseous_R38)
+      annotation (Placement(transformation(extent={{50,119},{70,124}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_interosseous_T3_R40(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_posterior_interosseous_T3_R40,
+          E = Parameters_Systemic1.E_posterior_interosseous_T3_R40,
+          R_T = Parameters_Systemic1.R_T_posterior_interosseous_T3_R40,
+          C_T = Parameters_Systemic1.C_T_posterior_interosseous_T3_R40,
+          r = Parameters_Systemic1.r_posterior_interosseous_T3_R40)
+      annotation (Placement(transformation(extent={{75,119},{95,124}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type ulnar_T2_R42(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_ulnar_T2_R42,
+          E = Parameters_Systemic1.E_ulnar_T2_R42,
+          R_T = Parameters_Systemic1.R_T_ulnar_T2_R42,
+          C_T = Parameters_Systemic1.C_T_ulnar_T2_R42,
+          r = Parameters_Systemic1.r_ulnar_T2_R42)
+      annotation (Placement(transformation(extent={{50,109},{70,114}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type radial_T1_R44(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_radial_T1_R44,
+          E = Parameters_Systemic1.E_radial_T1_R44,
+          R_T = Parameters_Systemic1.R_T_radial_T1_R44,
+          C_T = Parameters_Systemic1.C_T_radial_T1_R44,
+          r = Parameters_Systemic1.r_radial_T1_R44)
+      annotation (Placement(transformation(extent={{25,109},{45,114}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type subclavian_L66(
+          l = Parameters_Systemic1.l_subclavian_L66,
+          E = Parameters_Systemic1.E_subclavian_L66,
+          r = Parameters_Systemic1.r_subclavian_L66)
+      annotation (Placement(transformation(extent={{-50,73},{-30,78}})));
+      ADAN_main.BG_Modules_extended.pv_type subclavian_L78(
+          l = Parameters_Systemic1.l_subclavian_L78,
+          E = Parameters_Systemic1.E_subclavian_L78,
+          r = Parameters_Systemic1.r_subclavian_L78)
+      annotation (Placement(transformation(extent={{-25,73},{-5,78}})));
+      ADAN_main.BG_Modules_extended.pv_type axillary_L80(
+          l = Parameters_Systemic1.l_axillary_L80,
+          E = Parameters_Systemic1.E_axillary_L80,
+          r = Parameters_Systemic1.r_axillary_L80)
+      annotation (Placement(transformation(extent={{0,73},{20,78}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type brachial_L82(
+          l = Parameters_Systemic1.l_brachial_L82,
+          E = Parameters_Systemic1.E_brachial_L82,
+          r = Parameters_Systemic1.r_brachial_L82)
+      annotation (Placement(transformation(extent={{25,73},{45,78}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type ulnar_T2_L84(
+          l = Parameters_Systemic1.l_ulnar_T2_L84,
+          E = Parameters_Systemic1.E_ulnar_T2_L84,
+          r = Parameters_Systemic1.r_ulnar_T2_L84)
+      annotation (Placement(transformation(extent={{50,73},{70,78}})));
+      ADAN_main.BG_Modules_extended.pv_type common_interosseous_L86(
+          l = Parameters_Systemic1.l_common_interosseous_L86,
+          E = Parameters_Systemic1.E_common_interosseous_L86,
+          r = Parameters_Systemic1.r_common_interosseous_L86)
+      annotation (Placement(transformation(extent={{75,73},{95,78}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type posterior_interosseous_T3_L88(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_posterior_interosseous_T3_L88,
+          E = Parameters_Systemic1.E_posterior_interosseous_T3_L88,
+          R_T = Parameters_Systemic1.R_T_posterior_interosseous_T3_L88,
+          C_T = Parameters_Systemic1.C_T_posterior_interosseous_T3_L88,
+          r = Parameters_Systemic1.r_posterior_interosseous_T3_L88)
+      annotation (Placement(transformation(extent={{100,73},{120,78}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type ulnar_T2_L90(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_ulnar_T2_L90,
+          E = Parameters_Systemic1.E_ulnar_T2_L90,
+          R_T = Parameters_Systemic1.R_T_ulnar_T2_L90,
+          C_T = Parameters_Systemic1.C_T_ulnar_T2_L90,
+          r = Parameters_Systemic1.r_ulnar_T2_L90)
+      annotation (Placement(transformation(extent={{75,63},{95,68}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type radial_T1_L92(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_radial_T1_L92,
+          E = Parameters_Systemic1.E_radial_T1_L92,
+          R_T = Parameters_Systemic1.R_T_radial_T1_L92,
+          C_T = Parameters_Systemic1.C_T_radial_T1_L92,
+          r = Parameters_Systemic1.r_radial_T1_L92)
+      annotation (Placement(transformation(extent={{50,63},{70,68}})));
+      ADAN_main.BG_Modules_extended.pv_type common_carotid_R6_A(
+          l = Parameters_Systemic1.l_common_carotid_R6_A,
+          E = Parameters_Systemic1.E_common_carotid_R6_A,
+          r = Parameters_Systemic1.r_common_carotid_R6_A)
+      annotation (Placement(transformation(extent={{-73,133},{-53,138}})));
+      ADAN_main.BG_Modules_extended.pv_type common_carotid_R6_B(
+          l = Parameters_Systemic1.l_common_carotid_R6_B,
+          E = Parameters_Systemic1.E_common_carotid_R6_B,
+          r = Parameters_Systemic1.r_common_carotid_R6_B)
+      annotation (Placement(transformation(extent={{-48,133},{-28,138}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type common_carotid_R6_C(
+          l = Parameters_Systemic1.l_common_carotid_R6_C,
+          E = Parameters_Systemic1.E_common_carotid_R6_C,
+          r = Parameters_Systemic1.r_common_carotid_R6_C)
+      annotation (Placement(transformation(extent={{-23,133},{-3,138}})));
+      replaceable ADAN_main.BG_Modules_extended.pv_type internal_carotid_R8_A(
+          l = Parameters_Systemic1.l_internal_carotid_R8_A,
+          E = Parameters_Systemic1.E_internal_carotid_R8_A,
+          r = Parameters_Systemic1.r_internal_carotid_R8_A)
+      annotation (Placement(transformation(extent={{2,133},{22,138}})));
+      ADAN_main.BG_Modules_extended.pv_type internal_carotid_R8_B(
+          l = Parameters_Systemic1.l_internal_carotid_R8_B,
+          E = Parameters_Systemic1.E_internal_carotid_R8_B,
+          r = Parameters_Systemic1.r_internal_carotid_R8_B)
+      annotation (Placement(transformation(extent={{27,133},{47,138}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type internal_carotid_R8_C(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_internal_carotid_R8_C,
+          E = Parameters_Systemic1.E_internal_carotid_R8_C,
+          R_T = Parameters_Systemic1.R_T_internal_carotid_R8_C,
+          C_T = Parameters_Systemic1.C_T_internal_carotid_R8_C,
+          r = Parameters_Systemic1.r_internal_carotid_R8_C)
+      annotation (Placement(transformation(extent={{54,133},{74,138}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type external_carotid_T2_R26(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_external_carotid_T2_R26,
+          E = Parameters_Systemic1.E_external_carotid_T2_R26,
+          R_T = Parameters_Systemic1.R_T_external_carotid_T2_R26,
+          C_T = Parameters_Systemic1.C_T_external_carotid_T2_R26,
+          r = Parameters_Systemic1.r_external_carotid_T2_R26)
+      annotation (Placement(transformation(extent={{3,145},{23,150}})));
+      ADAN_main.BG_Modules_extended.pv_type common_carotid_L48_A(
+          l = Parameters_Systemic1.l_common_carotid_L48_A,
+          E = Parameters_Systemic1.E_common_carotid_L48_A,
+          r = Parameters_Systemic1.r_common_carotid_L48_A)
+      annotation (Placement(transformation(extent={{-72,93},{-52,98}})));
+      ADAN_main.BG_Modules_extended.pv_type common_carotid_L48_B(
+          l = Parameters_Systemic1.l_common_carotid_L48_B,
+          E = Parameters_Systemic1.E_common_carotid_L48_B,
+          r = Parameters_Systemic1.r_common_carotid_L48_B)
+      annotation (Placement(transformation(extent={{-47,93},{-27,98}})));
+      ADAN_main.BG_Modules_extended.pv_type common_carotid_L48_C(
+          l = Parameters_Systemic1.l_common_carotid_L48_C,
+          E = Parameters_Systemic1.E_common_carotid_L48_C,
+          r = Parameters_Systemic1.r_common_carotid_L48_C)
+      annotation (Placement(transformation(extent={{-22,93},{-2,98}})));
+      ADAN_main.BG_Modules_extended.pv_jII_type common_carotid_L48_D(
+          l = Parameters_Systemic1.l_common_carotid_L48_D,
+          E = Parameters_Systemic1.E_common_carotid_L48_D,
+          r = Parameters_Systemic1.r_common_carotid_L48_D)
+      annotation (Placement(transformation(extent={{3,93},{23,98}})));
+      ADAN_main.BG_Modules_extended.pv_type internal_carotid_L50_A(
+          l = Parameters_Systemic1.l_internal_carotid_L50_A,
+          E = Parameters_Systemic1.E_internal_carotid_L50_A,
+          r = Parameters_Systemic1.r_internal_carotid_L50_A)
+      annotation (Placement(transformation(extent={{28,93},{48,98}})));
+      ADAN_main.BG_Modules_extended.pv_type internal_carotid_L50_B(
+          l = Parameters_Systemic1.l_internal_carotid_L50_B,
+          E = Parameters_Systemic1.E_internal_carotid_L50_B,
+          r = Parameters_Systemic1.r_internal_carotid_L50_B)
+      annotation (Placement(transformation(extent={{53,93},{73,98}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type internal_carotid_L50_C(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_internal_carotid_L50_C,
+          E = Parameters_Systemic1.E_internal_carotid_L50_C,
+          R_T = Parameters_Systemic1.R_T_internal_carotid_L50_C,
+          C_T = Parameters_Systemic1.C_T_internal_carotid_L50_C,
+          r = Parameters_Systemic1.r_internal_carotid_L50_C)
+      annotation (Placement(transformation(extent={{78,93},{98,98}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type external_carotid_T2_L62(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_external_carotid_T2_L62,
+          E = Parameters_Systemic1.E_external_carotid_T2_L62,
+          R_T = Parameters_Systemic1.R_T_external_carotid_T2_L62,
+          C_T = Parameters_Systemic1.C_T_external_carotid_T2_L62,
+          r = Parameters_Systemic1.r_external_carotid_T2_L62)
+      annotation (Placement(transformation(extent={{27,85},{47,90}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type vertebral_L2(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_vertebral_L2,
+          E = Parameters_Systemic1.E_vertebral_L2,
+          R_T = Parameters_Systemic1.R_T_vertebral_L2,
+          C_T = Parameters_Systemic1.C_T_vertebral_L2,
+          r = Parameters_Systemic1.r_vertebral_L2)
+      annotation (Placement(transformation(extent={{-26,63},{-6,68}})));
+      ADAN_main.BG_Modules_extended.pp_BC_type vertebral_R272(
+          u_out = u_svl,
+          l = Parameters_Systemic1.l_vertebral_R272,
+          E = Parameters_Systemic1.E_vertebral_R272,
+          R_T = Parameters_Systemic1.R_T_vertebral_R272,
+          C_T = Parameters_Systemic1.C_T_vertebral_R272,
+          r = Parameters_Systemic1.r_vertebral_R272)
+      annotation (Placement(transformation(extent={{-49,111},{-29,116}})));
+      Physiolibrary.Types.Pressure u_svl=pq_terminator_v_superior.u;
+      Physiolibrary.Types.Pressure u_ivl = pq_terminator_v_inferior.u;
+      Physiolibrary.Types.VolumeFlowRate v_veins = v_sup_venacava + v_inf_venacava;
+      Real v_sup_venacava(unit = "m3.s-1") = v_arms+v_head;
+      Real v_inf_venacava(unit = "m3.s-1") = v_chest+v_trunk+v_intestines+v_kidneys+v_legs;
+      Real v_chest(unit = "m3.s-1") = v_posterior_intercostal_T1_R98+v_posterior_intercostal_T1_L102+v_posterior_intercostal_T2_R106+v_posterior_intercostal_T2_L110;
+      Real v_trunk(unit = "m3.s-1")= v_left_gastric_T3_C120+v_dorsal_pancreatic_T1_C124+v_splenic_T2_C126+v_hepatic_artery_proper_left_branch_C132+v_hepatic_artery_proper_right_branch_C134;
+      Real v_kidneys(unit = "m3.s-1") = v_inferior_segmental_T5_L170+v_superior_segmental_T4_L172+v_renal_posterior_branch_T3_L174+v_superior_segmental_T4_R182+v_inferior_segmental_T5_R184+v_renal_posterior_branch_T3_R186;
+      Real v_intestines(unit = "m3.s-1") = v_middle_colic_T8_C140+v_jejunal_3_T10_C144+v_jejunal_6_T11_C148+v_ileocolic_T9_C152+v_ileal_4_T12_C156+v_ileal_6_T13_C160+v_superior_mesenteric_T4_C162+v_inferior_mesenteric_T5_C190;
+      Real v_legs(unit = "m3.s-1") = v_internal_iliac_T1_R218+v_profundus_T2_R224+v_anterior_tibial_T3_R230+v_posterior_tibial_T4_R236+v_internal_iliac_T1_L196+v_profundus_T2_L202+v_anterior_tibial_T3_L208+v_posterior_tibial_T4_L214;
+      Real v_arms(unit = "m3.s-1") = v_posterior_interosseous_T3_R40+v_ulnar_T2_R42+v_radial_T1_R44+v_posterior_interosseous_T3_L88+v_ulnar_T2_L90+v_radial_T1_L92;
+      Real v_head(unit = "m3.s-1") = v_external_carotid_T2_R26+v_external_carotid_T2_L62+v_internal_carotid_R8_C+v_internal_carotid_L50_C+v_vertebral_R272+v_vertebral_L2;
+      Real v_posterior_intercostal_T1_R98(unit = "m3.s-1");
+      Real v_posterior_intercostal_T1_L102(unit = "m3.s-1");
+      Real v_posterior_intercostal_T2_R106(unit = "m3.s-1");
+      Real v_posterior_intercostal_T2_L110(unit = "m3.s-1");
+      Real v_left_gastric_T3_C120(unit = "m3.s-1");
+      Real v_dorsal_pancreatic_T1_C124(unit = "m3.s-1");
+      Real v_splenic_T2_C126(unit = "m3.s-1");
+      Real v_hepatic_artery_proper_left_branch_C132(unit = "m3.s-1");
+      Real v_hepatic_artery_proper_right_branch_C134(unit = "m3.s-1");
+      Real v_middle_colic_T8_C140(unit = "m3.s-1");
+      Real v_jejunal_3_T10_C144(unit = "m3.s-1");
+      Real v_jejunal_6_T11_C148(unit = "m3.s-1");
+      Real v_ileocolic_T9_C152(unit = "m3.s-1");
+      Real v_ileal_4_T12_C156(unit = "m3.s-1");
+      Real v_ileal_6_T13_C160(unit = "m3.s-1");
+      Real v_superior_mesenteric_T4_C162(unit = "m3.s-1");
+      Real v_inferior_segmental_T5_L170(unit = "m3.s-1");
+      Real v_superior_segmental_T4_L172(unit = "m3.s-1");
+      Real v_renal_posterior_branch_T3_L174(unit = "m3.s-1");
+      Real v_superior_segmental_T4_R182(unit = "m3.s-1");
+      Real v_inferior_segmental_T5_R184(unit = "m3.s-1");
+      Real v_renal_posterior_branch_T3_R186(unit = "m3.s-1");
+      Real v_inferior_mesenteric_T5_C190(unit = "m3.s-1");
+      Real v_internal_iliac_T1_R218(unit = "m3.s-1");
+      Real v_profundus_T2_R224(unit = "m3.s-1");
+      Real v_anterior_tibial_T3_R230(unit = "m3.s-1");
+      Real v_posterior_tibial_T4_R236(unit = "m3.s-1");
+      Real v_internal_iliac_T1_L196(unit = "m3.s-1");
+      Real v_profundus_T2_L202(unit = "m3.s-1");
+      Real v_anterior_tibial_T3_L208(unit = "m3.s-1");
+      Real v_posterior_tibial_T4_L214(unit = "m3.s-1");
+      Real v_posterior_interosseous_T3_R40(unit = "m3.s-1");
+      Real v_ulnar_T2_R42(unit = "m3.s-1");
+      Real v_radial_T1_R44(unit = "m3.s-1");
+      Real v_posterior_interosseous_T3_L88(unit = "m3.s-1");
+      Real v_ulnar_T2_L90(unit = "m3.s-1");
+      Real v_radial_T1_L92(unit = "m3.s-1");
+      Real v_external_carotid_T2_R26(unit = "m3.s-1");
+      Real v_external_carotid_T2_L62(unit = "m3.s-1");
+      Real v_internal_carotid_R8_C(unit = "m3.s-1");
+      Real v_internal_carotid_L50_C(unit = "m3.s-1");
+      Real v_vertebral_R272(unit = "m3.s-1");
+      Real v_vertebral_L2(unit = "m3.s-1");
+      ADAN_main.Auxiliary.AcausalConnector.Pq_terminator_v pq_terminator_v_superior(v=-v_sup_venacava)
+        annotation (Placement(transformation(extent={{100,0},{120,20}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
+        annotation (Placement(transformation(extent={{-270,40},{-250,60}}),
+            iconTransformation(extent={{-110,-10},{-90,10}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b_superior
+        annotation (Placement(transformation(extent={{124,0},{144,20}}),
+            iconTransformation(extent={{90,90},{110,110}})));
+      Auxiliary.AcausalConnector.Pq_terminator_v pq_terminator_v_inferior(v=-v_inf_venacava)
+        annotation (Placement(transformation(extent={{100,-24},{120,-4}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b_inferior
+        annotation (Placement(transformation(extent={{124,-24},{144,-4}}),
+            iconTransformation(extent={{90,-110},{110,-90}})));
+    equation
+      v_posterior_intercostal_T1_R98 = posterior_intercostal_T1_R98.v_T;
+      v_posterior_intercostal_T1_L102 = posterior_intercostal_T1_L102.v_T;
+      v_posterior_intercostal_T2_R106 = posterior_intercostal_T2_R106.v_T;
+      v_posterior_intercostal_T2_L110 = posterior_intercostal_T2_L110.v_T;
+      v_left_gastric_T3_C120 = left_gastric_T3_C120.v_T;
+      v_dorsal_pancreatic_T1_C124 = dorsal_pancreatic_T1_C124.v_T;
+      v_splenic_T2_C126 = splenic_T2_C126.v_T;
+      v_hepatic_artery_proper_left_branch_C132 = hepatic_artery_proper_left_branch_C132.v_T;
+      v_hepatic_artery_proper_right_branch_C134 = hepatic_artery_proper_right_branch_C134.v_T;
+      v_middle_colic_T8_C140 = middle_colic_T8_C140.v_T;
+      v_jejunal_3_T10_C144 = jejunal_3_T10_C144.v_T;
+      v_jejunal_6_T11_C148 = jejunal_6_T11_C148.v_T;
+      v_ileocolic_T9_C152 = ileocolic_T9_C152.v_T;
+      v_ileal_4_T12_C156 = ileal_4_T12_C156.v_T;
+      v_ileal_6_T13_C160 = ileal_6_T13_C160.v_T;
+      v_superior_mesenteric_T4_C162 = superior_mesenteric_T4_C162.v_T;
+      v_inferior_segmental_T5_L170 = inferior_segmental_T5_L170.v_T;
+      v_superior_segmental_T4_L172 = superior_segmental_T4_L172.v_T;
+      v_renal_posterior_branch_T3_L174 = renal_posterior_branch_T3_L174.v_T;
+      v_superior_segmental_T4_R182 = superior_segmental_T4_R182.v_T;
+      v_inferior_segmental_T5_R184 = inferior_segmental_T5_R184.v_T;
+      v_renal_posterior_branch_T3_R186 = renal_posterior_branch_T3_R186.v_T;
+      v_inferior_mesenteric_T5_C190 = inferior_mesenteric_T5_C190.v_T;
+      v_internal_iliac_T1_R218 = internal_iliac_T1_R218.v_T;
+      v_profundus_T2_R224 = profundus_T2_R224.v_T;
+      v_anterior_tibial_T3_R230 = anterior_tibial_T3_R230.v_T;
+      v_posterior_tibial_T4_R236 = posterior_tibial_T4_R236.v_T;
+      v_internal_iliac_T1_L196 = internal_iliac_T1_L196.v_T;
+      v_profundus_T2_L202 = profundus_T2_L202.v_T;
+      v_anterior_tibial_T3_L208 = anterior_tibial_T3_L208.v_T;
+      v_posterior_tibial_T4_L214 = posterior_tibial_T4_L214.v_T;
+      v_posterior_interosseous_T3_R40 = posterior_interosseous_T3_R40.v_T;
+      v_ulnar_T2_R42 = ulnar_T2_R42.v_T;
+      v_radial_T1_R44 = radial_T1_R44.v_T;
+      v_posterior_interosseous_T3_L88 = posterior_interosseous_T3_L88.v_T;
+      v_ulnar_T2_L90 = ulnar_T2_L90.v_T;
+      v_radial_T1_L92 = radial_T1_L92.v_T;
+      v_external_carotid_T2_R26 = external_carotid_T2_R26.v_T;
+      v_external_carotid_T2_L62 = external_carotid_T2_L62.v_T;
+      v_internal_carotid_R8_C = internal_carotid_R8_C.v_T;
+      v_internal_carotid_L50_C = internal_carotid_L50_C.v_T;
+      v_vertebral_R272 = vertebral_R272.v_T;
+      v_vertebral_L2 = vertebral_L2.v_T;
+      connect(brachiocephalic_trunk_C4.port_a,aortic_arch_C2.port_b) annotation (Line(points={{-98,
+              129.5},{-121,49.5}},                                                                                           thickness=1));
+      connect(aortic_arch_C46.port_a,aortic_arch_C2.port_b) annotation (Line(points={{-105,
+              49.5},{-121,49.5}},                                                                                   thickness=1));
+      connect(common_carotid_R6_A.port_a,brachiocephalic_trunk_C4.port_b) annotation (Line(points={{-73,
+              135.5},{-78,129.5}},                                                                                                thickness=1));
+      connect(subclavian_R28.port_a,brachiocephalic_trunk_C4.port_b) annotation (Line(points={{-75,
+              121.5},{-78,129.5}},                                                                                           thickness=1));
+      connect(aortic_arch_C64.port_a,aortic_arch_C46.port_b) annotation (Line(points={{-78,
+              49.5},{-85,49.5}},                                                                                     thickness=1));
+      connect(common_carotid_L48_A.port_a,aortic_arch_C46.port_b) annotation (Line(points={{-72,
+              95.5},{-85,49.5}},                                                                                          thickness=1));
+      connect(aortic_arch_C94.port_a,aortic_arch_C64.port_b) annotation (Line(points={{-49,
+              49.5},{-58,49.5}},                                                                                     thickness=1));
+      connect(subclavian_L66.port_a,aortic_arch_C64.port_b) annotation (Line(points={{-50,
+              75.5},{-58,49.5}},                                                                                    thickness=1));
+      connect(thoracic_aorta_C100.port_a,thoracic_aorta_C96.port_b) annotation (Line(points={{3,49.5},
+              {-6,49.5}},                                                                                                   thickness=1));
+      connect(posterior_intercostal_T1_R98.port_a,thoracic_aorta_C96.port_b) annotation (Line(points={{3,39.5},
+              {-6,49.5}},                                                                                                            thickness=1));
+      connect(thoracic_aorta_C104.port_a,thoracic_aorta_C100.port_b) annotation (Line(points={{28,49.5},
+              {23,49.5}},                                                                                                    thickness=1));
+      connect(posterior_intercostal_T1_L102.port_a,thoracic_aorta_C100.port_b) annotation (Line(points={{28,39.5},
+              {23,49.5}},                                                                                                              thickness=1));
+      connect(thoracic_aorta_C108.port_a,thoracic_aorta_C104.port_b) annotation (Line(points={{53,49.5},
+              {48,49.5}},                                                                                                    thickness=1));
+      connect(posterior_intercostal_T2_R106.port_a,thoracic_aorta_C104.port_b) annotation (Line(points={{51,39.5},
+              {48,49.5}},                                                                                                              thickness=1));
+      connect(thoracic_aorta_C112.port_a,thoracic_aorta_C108.port_b) annotation (Line(points={{78,49.5},
+              {73,49.5}},                                                                                                    thickness=1));
+      connect(posterior_intercostal_T2_L110.port_a,thoracic_aorta_C108.port_b) annotation (Line(points={{78,39.5},
+              {73,49.5}},                                                                                                              thickness=1));
+      connect(abdominal_aorta_C136.port_a,abdominal_aorta_C114.port_b) annotation (Line(points={{-74,
+              -40.5},{-79,-40.5}},                                                                                             thickness=1));
+      connect(celiac_trunk_C116.port_a,abdominal_aorta_C114.port_b) annotation (Line(points={{-71,
+              -0.5},{-79,-40.5}},                                                                                           thickness=1));
+      connect(abdominal_aorta_C164.port_a,abdominal_aorta_C136.port_b) annotation (Line(points={{-47,
+              -40.5},{-54,-40.5}},                                                                                             thickness=1));
+      connect(superior_mesenteric_T4_C138.port_a,abdominal_aorta_C136.port_b) annotation (Line(points={{-45,
+              -88.5},{-54,-40.5}},                                                                                                    thickness=1));
+      connect(abdominal_aorta_C176.port_a,abdominal_aorta_C164.port_b) annotation (Line(points={{-2,
+              -40.5},{-27,-40.5}},                                                                                             thickness=1));
+      connect(renal_L166.port_a,abdominal_aorta_C164.port_b) annotation (Line(points={{-2,
+              -64.5},{-14,-64.5},{-14,-40.5},{-27,-40.5}},                                                           thickness=1));
+      connect(abdominal_aorta_C188.port_a,abdominal_aorta_C176.port_b) annotation (Line(points={{23,
+              -40.5},{18,-40.5}},                                                                                              thickness=1));
+      connect(renal_R178.port_a,abdominal_aorta_C176.port_b) annotation (Line(points={{25,
+              -22.5},{18,-40.5}},                                                                                    thickness=1));
+      connect(abdominal_aorta_C192.port_a,abdominal_aorta_C188.port_b) annotation (Line(points={{48,
+              -40.5},{43,-40.5}},                                                                                              thickness=1));
+      connect(inferior_mesenteric_T5_C190.port_a,abdominal_aorta_C188.port_b) annotation (Line(points={{48,
+              -54.5},{43,-40.5}},                                                                                                     thickness=1));
+      connect(common_iliac_R216.port_a,abdominal_aorta_C192.port_b) annotation (Line(points={{75,
+              -40.5},{68,-40.5}},                                                                                           thickness=1));
+      connect(common_iliac_L194.port_a,abdominal_aorta_C192.port_b) annotation (Line(points={{74,
+              -54.5},{68,-40.5}},                                                                                           thickness=1));
+      connect(internal_iliac_T1_R218.port_a,common_iliac_R216.port_b) annotation (Line(points={{98,
+              -30.5},{96,-40.5},{95,-40.5}},                                                                                  thickness=1));
+      connect(external_iliac_R220.port_a,common_iliac_R216.port_b) annotation (Line(points={{99,
+              -40.5},{95,-40.5}},                                                                                          thickness=1));
+      connect(profundus_T2_R224.port_a,femoral_R222.port_b) annotation (Line(points={{149,
+              -30.5},{144,-40.5}},                                                                                  thickness=1));
+      connect(femoral_R226.port_a,femoral_R222.port_b) annotation (Line(points={{150,
+              -40.5},{144,-40.5}},                                                                             thickness=1));
+      connect(anterior_tibial_T3_R230.port_a,popliteal_R228.port_b) annotation (Line(points={{200,
+              -30.5},{195,-40.5}},                                                                                          thickness=1));
+      connect(popliteal_R232.port_a,popliteal_R228.port_b) annotation (Line(points={{199,
+              -40.5},{195,-40.5}},                                                                                 thickness=1));
+      connect(internal_iliac_T1_L196.port_a,common_iliac_L194.port_b) annotation (Line(points={{99,
+              -62.5},{94,-54.5}},                                                                                             thickness=1));
+      connect(external_iliac_L198.port_a,common_iliac_L194.port_b) annotation (Line(points={{100,
+              -54.5},{94,-54.5}},                                                                                          thickness=1));
+      connect(profundus_T2_L202.port_a,femoral_L200.port_b) annotation (Line(points={{150,
+              -62.5},{145,-54.5}},                                                                                  thickness=1));
+      connect(femoral_L204.port_a,femoral_L200.port_b) annotation (Line(points={{149,
+              -54.5},{145,-54.5}},                                                                             thickness=1));
+      connect(anterior_tibial_T3_L208.port_a,popliteal_L206.port_b) annotation (Line(points={{199,
+              -62.5},{194,-54.5}},                                                                                          thickness=1));
+      connect(popliteal_L210.port_a,popliteal_L206.port_b) annotation (Line(points={{200,
+              -54.5},{194,-54.5}},                                                                                 thickness=1));
+      connect(subclavian_R30.port_a,subclavian_R28.port_b) annotation (Line(points={{-50,
+              121.5},{-55,121.5}},                                                                                 thickness=1));
+      connect(vertebral_R272.port_a,subclavian_R28.port_b) annotation (Line(points={{-49,
+              113.5},{-55,121.5}},                                                                                 thickness=1));
+      connect(ulnar_T2_R36.port_a,brachial_R34.port_b) annotation (Line(points={{25,
+              121.5},{20,121.5}},                                                                              thickness=1));
+      connect(radial_T1_R44.port_a,brachial_R34.port_b) annotation (Line(points={{25,
+              111.5},{20,121.5}},                                                                               thickness=1));
+      connect(common_interosseous_R38.port_a,ulnar_T2_R36.port_b) annotation (Line(points={{50,
+              121.5},{45,121.5}},                                                                                         thickness=1));
+      connect(ulnar_T2_R42.port_a,ulnar_T2_R36.port_b) annotation (Line(points={{50,
+              111.5},{45,121.5}},                                                                              thickness=1));
+      connect(subclavian_L78.port_a,subclavian_L66.port_b) annotation (Line(points={{-25,
+              75.5},{-26,75.5},{-26,76},{-30,76},{-30,75.5}},                                                      thickness=1));
+      connect(vertebral_L2.port_a,subclavian_L66.port_b) annotation (Line(points={{-26,
+              65.5},{-30,75.5}},                                                                                 thickness=1));
+      connect(ulnar_T2_L84.port_a,brachial_L82.port_b) annotation (Line(points={{50,75.5},
+              {45,75.5}},                                                                                      thickness=1));
+      connect(radial_T1_L92.port_a,brachial_L82.port_b) annotation (Line(points={{50,65.5},
+              {45,75.5}},                                                                                       thickness=1));
+      connect(common_interosseous_L86.port_a,ulnar_T2_L84.port_b) annotation (Line(points={{75,75.5},
+              {70,75.5}},                                                                                                 thickness=1));
+      connect(ulnar_T2_L90.port_a,ulnar_T2_L84.port_b) annotation (Line(points={{75,65.5},
+              {70,75.5}},                                                                                      thickness=1));
+      connect(internal_carotid_R8_A.port_a,common_carotid_R6_C.port_b) annotation (Line(points={{2,135.5},
+              {-3,135.5}},                                                                                                     thickness=1));
+      connect(external_carotid_T2_R26.port_a,common_carotid_R6_C.port_b) annotation (Line(points={{3,147.5},
+              {-3,135.5}},                                                                                                       thickness=1));
+      connect(internal_carotid_L50_A.port_a,common_carotid_L48_D.port_b) annotation (Line(points={{28,95.5},
+              {23,95.5}},                                                                                                        thickness=1));
+      connect(external_carotid_T2_L62.port_a,common_carotid_L48_D.port_b) annotation (Line(points={{27,87.5},
+              {27,88},{23,88},{23,95.5}},                                                                                         thickness=1));
+      connect(splenic_T2_C118.port_a,celiac_trunk_C116.port_b) annotation (Line(points={{-46,
+              -0.5},{-51,-0.5}},                                                                                       thickness=1));
+      connect(left_gastric_T3_C120.port_a,celiac_trunk_C116.port_b) annotation (Line(points={{-45,7.5},
+              {-51,-0.5}},                                                                                                  thickness=1));
+      connect(splenic_T2_C122.port_a,splenic_T2_C118.port_b) annotation (Line(points={{-18,
+              -0.5},{-26,-0.5}},                                                                                     thickness=1));
+      connect(dorsal_pancreatic_T1_C124.port_a,splenic_T2_C118.port_b) annotation (Line(points={{-17,7.5},
+              {-26,-0.5}},                                                                                                     thickness=1));
+      connect(splenic_T2_C126.port_a,splenic_T2_C122.port_b) annotation (Line(points={{8,7.5},
+              {2,-0.5}},                                                                                             thickness=1));
+      connect(common_hepatic_C128.port_a,splenic_T2_C122.port_b) annotation (Line(points={{9,-0.5},
+              {2,-0.5}},                                                                                                 thickness=1));
+      connect(hepatic_artery_proper_left_branch_C132.port_a,hepatic_artery_proper_C130.port_b) annotation (Line(points={{55,-0.5},
+              {52,-0.5}},                                                                                                                              thickness=1));
+      connect(hepatic_artery_proper_right_branch_C134.port_a,hepatic_artery_proper_C130.port_b) annotation (Line(points={{56,7.5},
+              {52,-0.5}},                                                                                                                               thickness=1));
+      connect(middle_colic_T8_C140.port_a,superior_mesenteric_T4_C138.port_b) annotation (Line(points={{-18,
+              -96.5},{-25,-88.5}},                                                                                                    thickness=1));
+      connect(superior_mesenteric_T4_C142.port_a,superior_mesenteric_T4_C138.port_b) annotation (Line(points={{-19,
+              -88.5},{-25,-88.5}},                                                                                                           thickness=1));
+      connect(jejunal_3_T10_C144.port_a,superior_mesenteric_T4_C142.port_b) annotation (Line(points={{6,-96.5},
+              {1,-88.5}},                                                                                                           thickness=1));
+      connect(superior_mesenteric_T4_C146.port_a,superior_mesenteric_T4_C142.port_b) annotation (Line(points={{5,-88.5},
+              {1,-88.5}},                                                                                                                    thickness=1));
+      connect(jejunal_6_T11_C148.port_a,superior_mesenteric_T4_C146.port_b) annotation (Line(points={{32,
+              -96.5},{25,-88.5}},                                                                                                   thickness=1));
+      connect(superior_mesenteric_T4_C150.port_a,superior_mesenteric_T4_C146.port_b) annotation (Line(points={{31,
+              -88.5},{25,-88.5}},                                                                                                            thickness=1));
+      connect(ileocolic_T9_C152.port_a,superior_mesenteric_T4_C150.port_b) annotation (Line(points={{58,
+              -96.5},{51,-88.5}},                                                                                                  thickness=1));
+      connect(superior_mesenteric_T4_C154.port_a,superior_mesenteric_T4_C150.port_b) annotation (Line(points={{57,
+              -88.5},{51,-88.5}},                                                                                                            thickness=1));
+      connect(ileal_4_T12_C156.port_a,superior_mesenteric_T4_C154.port_b) annotation (Line(points={{84,
+              -96.5},{77,-88.5}},                                                                                                 thickness=1));
+      connect(superior_mesenteric_T4_C158.port_a,superior_mesenteric_T4_C154.port_b) annotation (Line(points={{83,
+              -88.5},{77,-88.5}},                                                                                                            thickness=1));
+      connect(ileal_6_T13_C160.port_a,superior_mesenteric_T4_C158.port_b) annotation (Line(points={{108,
+              -96.5},{103,-88.5}},                                                                                                thickness=1));
+      connect(superior_mesenteric_T4_C162.port_a,superior_mesenteric_T4_C158.port_b) annotation (Line(points={{107,
+              -88.5},{103,-88.5}},                                                                                                           thickness=1));
+      connect(renal_anterior_branch_L168.port_a,renal_L166.port_b) annotation (Line(points={{23,
+              -64.5},{18,-64.5}},                                                                                          thickness=1));
+      connect(renal_posterior_branch_T3_L174.port_a,renal_L166.port_b) annotation (Line(points={{24,
+              -74.5},{18,-64.5}},                                                                                              thickness=1));
+      connect(inferior_segmental_T5_L170.port_a,renal_anterior_branch_L168.port_b) annotation (Line(points={{48,
+              -64.5},{43,-64.5}},                                                                                                          thickness=1));
+      connect(superior_segmental_T4_L172.port_a,renal_anterior_branch_L168.port_b) annotation (Line(points={{47,
+              -74.5},{43,-64.5}},                                                                                                          thickness=1));
+      connect(renal_anterior_branch_R180.port_a,renal_R178.port_b) annotation (Line(points={{50,
+              -22.5},{45,-22.5}},                                                                                          thickness=1));
+      connect(renal_posterior_branch_T3_R186.port_a,renal_R178.port_b) annotation (Line(points={{49,
+              -14.5},{45,-22.5}},                                                                                              thickness=1));
+      connect(superior_segmental_T4_R182.port_a,renal_anterior_branch_R180.port_b) annotation (Line(points={{75,
+              -22.5},{70,-22.5}},                                                                                                          thickness=1));
+      connect(inferior_segmental_T5_R184.port_a,renal_anterior_branch_R180.port_b) annotation (Line(points={{74,
+              -14.5},{70,-22.5}},                                                                                                          thickness=1));
+      connect(ascending_aorta_B.port_a,ascending_aorta_A.port_b) annotation (Line(points={{-216,
+              49.5},{-221,49.5}},                                                                                        thickness=1));
+      connect(ascending_aorta_C.port_a,ascending_aorta_B.port_b) annotation (Line(points={{-191,
+              49.5},{-196,49.5}},                                                                                        thickness=1));
+      connect(ascending_aorta_D.port_a,ascending_aorta_C.port_b) annotation (Line(points={{-166,
+              49.5},{-171,49.5}},                                                                                        thickness=1));
+      connect(aortic_arch_C2.port_a,ascending_aorta_D.port_b) annotation (Line(points={{-141,
+              49.5},{-146,49.5}},                                                                                     thickness=1));
+      connect(thoracic_aorta_C96.port_a,aortic_arch_C94.port_b) annotation (Line(points={{-26,
+              49.5},{-29,49.5}},                                                                                        thickness=1));
+      connect(abdominal_aorta_C114.port_a,thoracic_aorta_C112.port_b) annotation (Line(points={{-99,
+              -40.5},{-99,22},{108,22},{108,49.5},{98,49.5}},                                                                 thickness=1));
+      connect(hepatic_artery_proper_C130.port_a,common_hepatic_C128.port_b) annotation (Line(points={{32,-0.5},
+              {29,-0.5}},                                                                                                           thickness=1));
+      connect(femoral_R222.port_a,external_iliac_R220.port_b) annotation (Line(points={{124,
+              -40.5},{119,-40.5}},                                                                                    thickness=1));
+      connect(popliteal_R228.port_a,femoral_R226.port_b) annotation (Line(points={{175,
+              -40.5},{170,-40.5}},                                                                               thickness=1));
+      connect(tibiofibular_trunk_R234.port_a,popliteal_R232.port_b) annotation (Line(points={{224,
+              -40.5},{219,-40.5}},                                                                                          thickness=1));
+      connect(posterior_tibial_T4_R236.port_a,tibiofibular_trunk_R234.port_b) annotation (Line(points={{249,
+              -40.5},{249,-40},{244,-40},{244,-40.5}},                                                                                thickness=1));
+      connect(femoral_L200.port_a,external_iliac_L198.port_b) annotation (Line(points={{125,
+              -54.5},{120,-54.5}},                                                                                    thickness=1));
+      connect(popliteal_L206.port_a,femoral_L204.port_b) annotation (Line(points={{174,
+              -54.5},{169,-54.5}},                                                                               thickness=1));
+      connect(tibiofibular_trunk_L212.port_a,popliteal_L210.port_b) annotation (Line(points={{225,
+              -54.5},{220,-54.5}},                                                                                          thickness=1));
+      connect(posterior_tibial_T4_L214.port_a,tibiofibular_trunk_L212.port_b) annotation (Line(points={{250,
+              -54.5},{245,-54.5}},                                                                                                    thickness=1));
+      connect(axillary_R32.port_a,subclavian_R30.port_b) annotation (Line(points={{-25,
+              121.5},{-30,121.5}},                                                                               thickness=1));
+      connect(brachial_R34.port_a,axillary_R32.port_b) annotation (Line(points={{0,121.5},
+              {-5,121.5}},                                                                                     thickness=1));
+      connect(posterior_interosseous_T3_R40.port_a,common_interosseous_R38.port_b) annotation (Line(points={{75,
+              121.5},{70,121.5}},                                                                                                          thickness=1));
+      connect(axillary_L80.port_a,subclavian_L78.port_b) annotation (Line(points={{0,75.5},
+              {-5,75.5}},                                                                                        thickness=1));
+      connect(brachial_L82.port_a,axillary_L80.port_b) annotation (Line(points={{25,75.5},
+              {20,75.5}},                                                                                      thickness=1));
+      connect(posterior_interosseous_T3_L88.port_a,common_interosseous_L86.port_b) annotation (Line(points={{100,
+              75.5},{95,75.5}},                                                                                                            thickness=1));
+      connect(common_carotid_R6_B.port_a,common_carotid_R6_A.port_b) annotation (Line(points={{-48,
+              135.5},{-53,135.5}},                                                                                           thickness=1));
+      connect(common_carotid_R6_C.port_a,common_carotid_R6_B.port_b) annotation (Line(points={{-23,
+              135.5},{-28,135.5}},                                                                                           thickness=1));
+      connect(internal_carotid_R8_B.port_a,internal_carotid_R8_A.port_b) annotation (Line(points={{27,
+              135.5},{22,135.5}},                                                                                                thickness=1));
+      connect(internal_carotid_R8_C.port_a,internal_carotid_R8_B.port_b) annotation (Line(points={{54,
+              135.5},{47,135.5}},                                                                                                thickness=1));
+      connect(common_carotid_L48_B.port_a,common_carotid_L48_A.port_b) annotation (Line(points={{-47,
+              95.5},{-52,95.5}},                                                                                               thickness=1));
+      connect(common_carotid_L48_C.port_a,common_carotid_L48_B.port_b) annotation (Line(points={{-22,
+              95.5},{-27,95.5}},                                                                                               thickness=1));
+      connect(common_carotid_L48_D.port_a,common_carotid_L48_C.port_b) annotation (Line(points={{3,95.5},
+              {-2,95.5}},                                                                                                      thickness=1));
+      connect(internal_carotid_L50_B.port_a,internal_carotid_L50_A.port_b) annotation (Line(points={{53,95.5},
+              {48,95.5}},                                                                                                          thickness=1));
+      connect(internal_carotid_L50_C.port_a,internal_carotid_L50_B.port_b) annotation (Line(points={{78,95.5},
+              {73,95.5}},                                                                                                          thickness=1));
+      connect(port_a, ascending_aorta_A.port_a) annotation (Line(
+          points={{-260,50},{-248,50},{-248,49.5},{-241,49.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(pq_terminator_v_superior.port_a, port_b_superior) annotation (Line(
+          points={{120,10},{134,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(pq_terminator_v_inferior.port_a, port_b_inferior) annotation (Line(
+          points={{120,-14},{134,-14}},
+          color={0,0,0},
+          thickness=1));
+      annotation (Icon(graphics={Text(
+              extent={{-100,-80},{100,0}},
+              lineColor={0,0,0},
+              pattern=LinePattern.None,
+              lineThickness=0.5,
+              fillColor={244,125,35},
+              fillPattern=FillPattern.None,
+              textString="ADAN86"), Text(
+              extent={{-100,20},{100,100}},
+              lineColor={0,0,0},
+              pattern=LinePattern.None,
+              lineThickness=0.5,
+              fillColor={244,125,35},
+              fillPattern=FillPattern.None,
+              textString="Arterial tree")}));
+    end arteries_ADAN86_dv;
+
+    model Pulmonary_circulation
+      replaceable
+        Auxiliary.Pulmonary
+        Pulmonary1(
+        u_la=la.u,
+        v_puv=puv.v,
+        t=0)
+        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+      Auxiliary.AcausalConnector.Pq_terminator_p puv(u = Pulmonary1.u_pas)
+        annotation (Placement(transformation(extent={{-60,-10},{-80,10}})));
+      Auxiliary.AcausalConnector.Pq_terminator_v la(v = -Pulmonary1.v_pvn)
+        annotation (Placement(transformation(extent={{60,-10},{80,10}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
+        annotation (Placement(transformation(extent={{-110,-10},{-90,10}}),
+            iconTransformation(extent={{-110,-10},{-90,10}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b
+        annotation (Placement(transformation(extent={{90,-10},{110,10}}),
+            iconTransformation(extent={{90,-10},{110,10}})));
+     Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+            transformation(extent={{-28,-120},{12,-80}}), iconTransformation(extent={{-20,
+                -120},{20,-80}})));
+    equation
+      connect(Pulmonary1.thoracic_pressure, thoracic_pressure) annotation (Line(
+            points={{0,-10},{0,-56},{0,-100},{-8,-100}}, color={0,0,127}));
+      connect(la.port_a, port_b) annotation (Line(
+          points={{80,0},{100,0}},
+          color={0,0,0},
+          thickness=1));
+      connect(port_a, puv.port_a) annotation (Line(
+          points={{-100,0},{-80,0}},
+          color={0,0,0},
+          thickness=1));
+
+    //  puv.u = Pulmonary1.u_pas;
+    //  la.v = Pulmonary1.v_pvn;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Pulmonary_circulation;
+
+    model Heart
+
+      replaceable Auxiliary.Heart_ADAN_Heart                                          Heart1(
+          v_sup_venacava = systemic_veins.v,
+          v_inf_venacava = 0,
+          u_sas = systemic_arteries.u,
+          u_par = pulmonary_arteries.u,
+          v_pvn = pulmonary_veins.v,
+          t = t)
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+      Real t;
+      Auxiliary.AcausalConnector.Pq_terminator_p systemic_veins(u = Heart1.u_ra)
+        annotation (Placement(transformation(extent={{-60,20},{-80,40}})));
+      Auxiliary.AcausalConnector.Pq_terminator_v systemic_arteries(v = -Heart1.v_aov)
+        annotation (Placement(transformation(extent={{60,20},{80,40}})));
+      Auxiliary.AcausalConnector.Pq_terminator_v pulmonary_arteries(v = -Heart1.v_puv)
+        annotation (Placement(transformation(extent={{60,-40},{80,-20}})));
+      Auxiliary.AcausalConnector.Pq_terminator_p pulmonary_veins(u = Heart1.u_la)
+        annotation (Placement(transformation(extent={{-60,-40},{-80,-20}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a sv
+        annotation (Placement(transformation(extent={{-110,90},{-90,110}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a pv
+        annotation (Placement(transformation(extent={{-110,-110},{-90,-90}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b sa
+        annotation (Placement(transformation(extent={{90,90},{110,110}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b pa
+        annotation (Placement(transformation(extent={{90,-110},{110,-90}})));
+      Physiolibrary.Types.RealIO.FrequencyInput frequency annotation (Placement(
+            transformation(extent={{-126,-20},{-86,20}}), iconTransformation(extent={{-120,
+                -20},{-80,20}})));
+      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+            transformation(extent={{-28,-120},{12,-80}}), iconTransformation(extent={{-20,
+                -120},{20,-80}})));
+    equation
+      t = time;
+
+      connect(systemic_arteries.port_a, sa) annotation (Line(
+          points={{80,30},{90,30},{90,100},{100,100}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonary_arteries.port_a, pa) annotation (Line(
+          points={{80,-30},{90,-30},{90,-100},{100,-100}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonary_veins.port_a, pv) annotation (Line(
+          points={{-80,-30},{-90,-30},{-90,-100},{-100,-100}},
+          color={0,0,0},
+          thickness=1));
+      connect(systemic_veins.port_a, sv) annotation (Line(
+          points={{-80,30},{-90,30},{-90,100},{-100,100}},
+          color={0,0,0},
+          thickness=1));
+      connect(Heart1.frequency, frequency)
+        annotation (Line(points={{-10,0},{-106,0}}, color={0,0,127}));
+      connect(Heart1.thoracic_pressure, thoracic_pressure)
+        annotation (Line(points={{0,-10},{-8,-10},{-8,-100}}, color={0,0,127}));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Heart;
+  end Components;
+
+  model ADAN
+    Components.arteries_ADAN86_dv arteries_ADAN86_dv
+      annotation (Placement(transformation(extent={{-42,6},{-22,26}})));
+    Components.Heart heart(redeclare Auxiliary.Heart_ADAN_Heart Heart1)
+      annotation (Placement(transformation(extent={{0,-40},{-20,-20}})));
+    Components.Pulmonary_circulation pulmonary_circulation
+      annotation (Placement(transformation(extent={{-20,-80},{0,-60}})));
+    Modelica.Blocks.Sources.Constant thoracic_pressure(k=0)
+      annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
+    Modelica.Blocks.Sources.Constant heart_frequency(k=1.2)
+      annotation (Placement(transformation(extent={{80,-40},{60,-20}})));
+    Components.Vains
+          veinSuperior(
+      C_vl=Parameters_Systemic1.C_svl,
+      C_vn=Parameters_Systemic1.C_svn,
+      C_vc=Parameters_Systemic1.C_svc,
+      R_vl=Parameters_Systemic1.R_svl,
+      R_vn=Parameters_Systemic1.R_svn,
+      R_vc=Parameters_Systemic1.R_svc,
+      I_vl=Parameters_Systemic1.I_svl,
+      I_vn=Parameters_Systemic1.I_svn,
+      I_vc=Parameters_Systemic1.I_svc)
+      annotation (Placement(transformation(extent={{0,26},{20,46}})));
+    Components.Vains
+          veinInferior(
+      C_vl=Parameters_Systemic1.C_ivl,
+      C_vn=Parameters_Systemic1.C_ivn,
+      C_vc=Parameters_Systemic1.C_ivc,
+      R_vl=Parameters_Systemic1.R_ivl,
+      R_vn=Parameters_Systemic1.R_ivn,
+      R_vc=Parameters_Systemic1.R_ivc,
+      I_vl=Parameters_Systemic1.I_ivl,
+      I_vn=Parameters_Systemic1.I_ivn,
+      I_vc=Parameters_Systemic1.I_ivc,
+      u_svn(start=800))
+      annotation (Placement(transformation(extent={{0,-14},{20,6}})));
+    main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+      Parameters_Systemic1
+      annotation (Placement(transformation(extent={{-100,78},{-80,98}})));
+  equation
+    connect(heart.pa, pulmonary_circulation.port_a) annotation (Line(
+        points={{-20,-40},{-30,-40},{-30,-70},{-20,-70}},
+        color={0,0,0},
+        thickness=1));
+    connect(heart.pv, pulmonary_circulation.port_b) annotation (Line(
+        points={{0,-40},{12,-40},{12,-70},{0,-70}},
+        color={0,0,0},
+        thickness=1));
+    connect(heart.sa, arteries_ADAN86_dv.port_a) annotation (Line(
+        points={{-20,-20},{-60,-20},{-60,16},{-42,16}},
+        color={0,0,0},
+        thickness=1));
+    connect(thoracic_pressure.y, arteries_ADAN86_dv.thoracic_pressure)
+      annotation (Line(points={{-79,-50},{-42,-50},{-42,6}}, color={0,140,72}));
+    connect(thoracic_pressure.y, pulmonary_circulation.thoracic_pressure)
+      annotation (Line(points={{-79,-50},{-40,-50},{-40,-80},{-10,-80}}, color=
+            {0,140,72}));
+    connect(thoracic_pressure.y, heart.thoracic_pressure) annotation (Line(
+          points={{-79,-50},{-10,-50},{-10,-40}}, color={0,140,72}));
+    connect(heart_frequency.y, heart.frequency)
+      annotation (Line(points={{59,-30},{0,-30}}, color={0,0,127}));
+    connect(arteries_ADAN86_dv.port_b_inferior, veinInferior.port_a)
+      annotation (Line(
+        points={{-22,6},{-8,6},{-8,-4},{0,-4}},
+        color={0,0,0},
+        thickness=1));
+    connect(arteries_ADAN86_dv.port_b_superior, veinSuperior.port_a)
+      annotation (Line(
+        points={{-22,26},{-8,26},{-8,36},{0,36}},
+        color={0,0,0},
+        thickness=1));
+    connect(thoracic_pressure.y, veinInferior.thoracic_pressure) annotation (
+        Line(points={{-79,-50},{-40,-50},{-40,-14},{-0.4,-14}}, color={0,140,72}));
+    connect(thoracic_pressure.y, veinSuperior.thoracic_pressure) annotation (
+        Line(points={{-79,-50},{-40,-50},{-40,-14},{-4,-14},{-4,26},{-0.4,26}},
+          color={0,140,72}));
+    connect(heart.sv, veinInferior.port_b) annotation (Line(
+        points={{0,-20},{40,-20},{40,10},{30,10},{30,-4},{20,-4}},
+        color={0,0,0},
+        thickness=1));
+    connect(veinSuperior.port_b, veinInferior.port_b) annotation (Line(
+        points={{20,36},{30,36},{30,-4},{20,-4}},
+        color={0,0,0},
+        thickness=1));
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+          coordinateSystem(preserveAspectRatio=false)));
+  end ADAN;
+
+  model ADAN_test2
+    Components.arteries_ADAN86_dv arteries_ADAN86_dv
+      annotation (Placement(transformation(extent={{-40,26},{-20,46}})));
+    Modelica.Blocks.Sources.Constant thoracic_pressure(k=0)
+      annotation (Placement(transformation(extent={{-96,-2},{-76,18}})));
+    Components.Vains
+          veinSuperior(
+      C_vl=Parameters_Systemic1.C_svl,
+      C_vn=Parameters_Systemic1.C_svn,
+      C_vc=Parameters_Systemic1.C_svc,
+      R_vl=Parameters_Systemic1.R_svl,
+      R_vn=Parameters_Systemic1.R_svn,
+      R_vc=Parameters_Systemic1.R_svc,
+      I_vl=Parameters_Systemic1.I_svl,
+      I_vn=Parameters_Systemic1.I_svn,
+      I_vc=Parameters_Systemic1.I_svc)
+      annotation (Placement(transformation(extent={{2,46},{22,66}})));
+    Components.Vains
+          veinInferior(
+      C_vl=Parameters_Systemic1.C_ivl,
+      C_vn=Parameters_Systemic1.C_ivn,
+      C_vc=Parameters_Systemic1.C_ivc,
+      R_vl=Parameters_Systemic1.R_ivl,
+      R_vn=Parameters_Systemic1.R_ivn,
+      R_vc=Parameters_Systemic1.R_ivc,
+      I_vl=Parameters_Systemic1.I_ivl,
+      I_vn=Parameters_Systemic1.I_ivn,
+      I_vc=Parameters_Systemic1.I_ivc,
+      u_svn(start=800))
+      annotation (Placement(transformation(extent={{2,6},{22,26}})));
+    main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+      Parameters_Systemic1
+      annotation (Placement(transformation(extent={{-100,78},{-80,98}})));
+    Physiolibrary.Hydraulic.Components.ElasticVessel elasticVessel(volume_start
+        =0.005, Compliance=7.5006157584566e-7)
+      annotation (Placement(transformation(extent={{-18,80},{2,100}})));
+    Physiolibrary.Hydraulic.Components.Resistor resistor4(Resistance=
+          7999343244.9)
+      annotation (Placement(transformation(extent={{12,80},{32,100}})));
+    Physiolibrary.Hydraulic.Components.Pump pump(SolutionFlow=
+          8.3333333333333e-5)
+      annotation (Placement(transformation(extent={{-20,80},{-40,100}})));
+  equation
+    connect(thoracic_pressure.y, arteries_ADAN86_dv.thoracic_pressure)
+      annotation (Line(points={{-75,8},{-40,8},{-40,26}},    color={0,140,72}));
+    connect(arteries_ADAN86_dv.port_b_inferior, veinInferior.port_a)
+      annotation (Line(
+        points={{-20,26},{-6,26},{-6,16},{2,16}},
+        color={0,0,0},
+        thickness=1));
+    connect(arteries_ADAN86_dv.port_b_superior, veinSuperior.port_a)
+      annotation (Line(
+        points={{-20,46},{-6,46},{-6,56},{2,56}},
+        color={0,0,0},
+        thickness=1));
+    connect(thoracic_pressure.y, veinInferior.thoracic_pressure) annotation (
+        Line(points={{-75,8},{-36,8},{-36,6},{1.6,6}},          color={0,140,72}));
+    connect(thoracic_pressure.y, veinSuperior.thoracic_pressure) annotation (
+        Line(points={{-75,8},{-2,8},{-2,46},{1.6,46}},
+          color={0,140,72}));
+    connect(veinSuperior.port_b, veinInferior.port_b) annotation (Line(
+        points={{22,56},{32,56},{32,16},{22,16}},
+        color={0,0,0},
+        thickness=1));
+    connect(elasticVessel.q_in, resistor4.q_in) annotation (Line(
+        points={{-8,90},{12,90}},
+        color={0,0,0},
+        thickness=1));
+    connect(resistor4.q_out, veinInferior.port_b) annotation (Line(
+        points={{32,90},{68,90},{68,30},{32,30},{32,16},{22,16}},
+        color={0,0,0},
+        thickness=1));
+    connect(elasticVessel.q_in, pump.q_in) annotation (Line(
+        points={{-8,90},{-20,90}},
+        color={0,0,0},
+        thickness=1));
+    connect(pump.q_out, arteries_ADAN86_dv.port_a) annotation (Line(
+        points={{-40,90},{-56,90},{-56,36},{-40,36}},
+        color={0,0,0},
+        thickness=1));
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+          coordinateSystem(preserveAspectRatio=false)));
+  end ADAN_test2;
+
+  model ADAN_test3
+    Components.Pulmonary_circulation pulmonary_circulation
+      annotation (Placement(transformation(extent={{22,-16},{42,4}})));
+    Modelica.Blocks.Sources.Constant thoracic_pressure(k=0)
+      annotation (Placement(transformation(extent={{-96,-2},{-76,18}})));
+    main_ADAN_86_Heart_cellml_converted.Parameters_cellml.Parameters_Systemic
+      Parameters_Systemic1
+      annotation (Placement(transformation(extent={{-100,78},{-80,98}})));
+    Physiolibrary.Hydraulic.Components.ElasticVessel elasticVessel3(
+        volume_start=0.005, Compliance=7.5006157584566e-7)
+      annotation (Placement(transformation(extent={{22,-38},{42,-18}})));
+    Physiolibrary.Hydraulic.Components.Resistor resistor3(Resistance=
+          7999343244.9)
+      annotation (Placement(transformation(extent={{-40,-38},{-20,-18}})));
+    Physiolibrary.Hydraulic.Components.Resistor resistor7(Resistance=
+          7999343244.9)
+      annotation (Placement(transformation(extent={{-44,-18},{-24,2}})));
+  equation
+    connect(thoracic_pressure.y, pulmonary_circulation.thoracic_pressure)
+      annotation (Line(points={{-75,8},{2,8},{2,-16},{32,-16}},          color=
+            {0,140,72}));
+    connect(pulmonary_circulation.port_b, elasticVessel3.q_in) annotation (Line(
+        points={{42,-6},{58,-6},{58,-28},{32,-28}},
+        color={0,0,0},
+        thickness=1));
+    connect(elasticVessel3.q_in, resistor3.q_out) annotation (Line(
+        points={{32,-28},{-20,-28}},
+        color={0,0,0},
+        thickness=1));
+    connect(pulmonary_circulation.port_a, resistor7.q_out) annotation (Line(
+        points={{22,-6},{-16,-6},{-16,-8},{-24,-8}},
+        color={0,0,0},
+        thickness=1));
+    connect(resistor7.q_in, resistor3.q_in) annotation (Line(
+        points={{-44,-8},{-50,-8},{-50,-28},{-40,-28}},
+        color={0,0,0},
+        thickness=1));
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+          coordinateSystem(preserveAspectRatio=false)));
+  end ADAN_test3;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
             "3.2.2")));
 end ADAN_main;

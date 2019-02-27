@@ -1,4 +1,4 @@
-package main_ADAN_86_Heart_cellml_converted
+package main_ADAN_86_Heart_vanilla_cellml_converted
 package Parameters_cellml
   model Parameters_Pulmonary
     parameter Real C_pas(unit = "m6.J-1") = 0.00135e-6;
@@ -2358,7 +2358,7 @@ package BG_Modules_cellml
 
   end vp_jII_type;
 end BG_Modules_cellml;
-package main_ADAN_86_Heart_cellml
+package main_ADAN_86_Heart_vanilla_cellml
   model environment
     Real time_(unit = "s");
   equation
@@ -3834,22 +3834,22 @@ package main_ADAN_86_Heart_cellml
     
 
   end Heart;
-end main_ADAN_86_Heart_cellml;
+end main_ADAN_86_Heart_vanilla_cellml;
   model CardiovascularSystem
-    main_ADAN_86_Heart_cellml.environment environment1(
+    main_ADAN_86_Heart_vanilla_cellml.environment environment1(
         )
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
-    replaceable main_ADAN_86_Heart_cellml.Systemic Systemic1(
+    replaceable main_ADAN_86_Heart_vanilla_cellml.Systemic Systemic1(
         u_ra = Heart1.u_ra,
         v_aov = Heart1.v_aov,
         t = environment1.time_)
     annotation (Placement(transformation(extent={{-70,80},{-50,100}})));
-    replaceable main_ADAN_86_Heart_cellml.Pulmonary Pulmonary1(
+    replaceable main_ADAN_86_Heart_vanilla_cellml.Pulmonary Pulmonary1(
         u_la = Heart1.u_la,
         v_puv = Heart1.v_puv,
         t = environment1.time_)
     annotation (Placement(transformation(extent={{-40,80},{-20,100}})));
-    replaceable main_ADAN_86_Heart_cellml.Heart Heart1(
+    replaceable main_ADAN_86_Heart_vanilla_cellml.Heart Heart1(
         v_sup_venacava = Systemic1.v_sup_venacava,
         v_inf_venacava = Systemic1.v_inf_venacava,
         u_sas = Systemic1.u_sas,
@@ -3860,4 +3860,4 @@ end main_ADAN_86_Heart_cellml;
   equation
 
   end CardiovascularSystem;
-end main_ADAN_86_Heart_cellml_converted;
+end main_ADAN_86_Heart_vanilla_cellml_converted;

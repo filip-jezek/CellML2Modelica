@@ -3,7 +3,9 @@ import re
 
 class ADANModel(ds.Object):
 
+
     UseConnectionMapping = True
+    UseIntrathoracicPressure = True
 
 
     @classmethod
@@ -11,7 +13,8 @@ class ADANModel(ds.Object):
         """
         1. gets rid of non-module stuff
         2. specify some components replaceable
-        3. generate connections
+        3. substitute intrathoracic components with intrathoracic-pressure capable
+        4. generate connections
         
         """
         o = cls.buildFromFile(filename)
@@ -37,12 +40,14 @@ class ADANModel(ds.Object):
         if c.instance_name == 'internal_carotid_R8_A_module':
             c.replaceable = True
 
-        # move all BG modules into the main file
-        if self.instance_name == 'Systemic' and '_module' in c.instance_name:
-            c.package_name = 'ADAN_main.BG_Modules_extended'
+        if self.UseConnectionMapping:
+            # move all BG modules into the main file
+            if self.instance_name == 'Systemic' and '_module' in c.instance_name:
+                c.package_name = 'ADAN_main.BG_Modules_extended'
         
-        # change those in thoracic cavity
-        self.intraThoracicPressure(c)
+        if self.UseIntrathoracicPressure:
+            # change those in thoracic cavity
+            self.intraThoracicPressure(c)
 
     def intraThoracicPressure(self, c):
         # make thoracic arteries dependent on the intrathoracic pressure

@@ -70,7 +70,7 @@ def model CardiovascularSystem as
 
         var v_aov: m3_per_s {pub: in};
         var u_ra: J_per_m3 {pub: in};
-        var u_svl: J_per_m3 {init: 100, priv: out};
+        var u_svl: J_per_m3 {init: 1000, priv: out};
         var u_svn: J_per_m3 {init: 0.0, priv: out};
         var u_svc: J_per_m3 {init: 0.0, priv: out};
         var u_ivl: J_per_m3 {init: 100, priv: out};

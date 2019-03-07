@@ -1953,16 +1953,24 @@ package Vessel_modules
     input Physiolibrary.Types.Volume v "volume of vessel";
     input Physiolibrary.Types.Volume v0 "reference vessel volume";
     Real d=sqrt(v/v0) "The distension ratio r/r0. Should be around 1, but not necesarily exactly 1, as it is compensated by other paraemters";
-    Real epsilon( start = 1) "Averaged distension ratio";
+    Real epsilon( start = epsilon_start) "Averaged distension ratio";
     parameter Physiolibrary.Types.Time Ts = 30 "Time constant for averaging";
     Real delta=max(d - epsilon, 0) "Positive peaks detected";
     parameter Real f0( unit = "Hz")= 300 "Base firing frequency";
     parameter Real delta0 = 0.4965 "Baseline delta";
     Real fbr( unit = "Hz") = f0*s*(delta/(delta + delta0)) "Baroreceptor firing frequency";
-    Real s(start = 0.9);
+    Real s(start = s_start);
     parameter Real a(unit="s-1") = 0.0651;
     parameter Real b(unit="s-1") = 0.2004;
+    parameter Real epsilon_start = 1;
+    parameter Real s_start = 1;
+    parameter Modelica.SIunits.Time resetAt = 5 "resets initial conditions to counter transients";
   equation
+
+    when time > resetAt then
+      reinit(epsilon, epsilon_start);
+      reinit(s, s_start);
+    end when;
 
     der(epsilon) =(d - epsilon)/Ts;
     der(s) =a*(1 - s) - b*s*(delta/(delta + delta0));
@@ -2959,8 +2967,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_brachiocephalic_trunk_C4,
         r=Parameters_Systemic1.r_brachiocephalic_trunk_C4)
         annotation (Placement(transformation(extent={{-98,127},{-78,132}})));
-      replaceable ADAN_main.Vessel_modules.pv_jII_type_thoracic aortic_arch_C46
-        (
+      replaceable ADAN_main.Vessel_modules.pv_jII_type_thoracic aortic_arch_C46(
         thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_aortic_arch_C46,
         E=Parameters_Systemic1.E_aortic_arch_C46,
@@ -5664,8 +5671,8 @@ type"),         Text(
         annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(P=u_v)
         annotation (Placement(transformation(extent={{0,80},{-20,100}})));
-      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump1(SolutionFlow
-          =v) annotation (Placement(transformation(extent={{-100,0},{-80,20}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump1(SolutionFlow=
+           v) annotation (Placement(transformation(extent={{-100,0},{-80,20}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(P=u_v)
         annotation (Placement(transformation(extent={{0,0},{-20,20}})));
 
@@ -5678,19 +5685,19 @@ type"),         Text(
         annotation (Placement(transformation(extent={{-60,-40},{-40,-20}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume2(P=u_a)
         annotation (Placement(transformation(extent={{0,-30},{-20,-10}})));
-      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump2(SolutionFlow
-          =v)
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump2(SolutionFlow=
+           v)
         annotation (Placement(transformation(extent={{-100,-30},{-80,-10}})));
-      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump3(SolutionFlow
-          =v)
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump3(SolutionFlow=
+           v)
         annotation (Placement(transformation(extent={{-100,-50},{-80,-30}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume3(P=u_a)
         annotation (Placement(transformation(extent={{0,-50},{-20,-30}})));
       Components.arteries_ADAN86_dv
                                  arteries_ADAN86_dv
         annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
-      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump4(SolutionFlow
-          =v)
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump4(SolutionFlow=
+           v)
         annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume4(P=u_v)
         annotation (Placement(transformation(extent={{0,40},{-20,60}})));
@@ -5781,6 +5788,12 @@ type"),         Text(
           u_ivc(start=500.0),
           u_ivn(start=500.0)), Valsalva(amplitude=2200.0, startTime=160.0));
     end Cardiovascular_ADAN86_heart_valsalva;
+
+    model baroreflex_fit
+      extends ADAN_venous(arteries_ADAN86(aortic_arch_C46(baroreceptor(
+                epsilon_start=0.76, s_start=0.91)), internal_carotid_R8_A(
+              baroreceptor(epsilon_start=0.4, s_start=0.95))));
+    end baroreflex_fit;
   end Experiments;
 
   package thrash
@@ -7724,12 +7737,12 @@ type"),         Text(
       annotation (Placement(transformation(extent={{40,-30},{20,-10}})));
     Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(P(
           displayUnit="Pa") = 1000)
-      annotation (Placement(transformation(extent={{40,30},{20,50}})));
+      annotation (Placement(transformation(extent={{40,44},{20,64}})));
     Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(P(
           displayUnit="Pa") = 100)
       annotation (Placement(transformation(extent={{40,10},{20,30}})));
     Physiolibrary.Hydraulic.Sensors.FlowMeasure flowMeasure
-      annotation (Placement(transformation(extent={{-10,50},{10,30}})));
+      annotation (Placement(transformation(extent={{-10,64},{10,44}})));
     Physiolibrary.Hydraulic.Sensors.FlowMeasure flowMeasure1
       annotation (Placement(transformation(extent={{-6,30},{14,10}})));
     Modelica.Blocks.Math.Add add
@@ -7762,11 +7775,11 @@ type"),         Text(
         thickness=1));
     connect(arteries_ADAN86_dv.port_b_superior, flowMeasure.q_in) annotation (
         Line(
-        points={{-20,40},{-10,40}},
+        points={{-20,40},{-16,40},{-16,54},{-10,54}},
         color={0,0,0},
         thickness=1));
     connect(flowMeasure.q_out, unlimitedVolume.y) annotation (Line(
-        points={{10,40},{20,40}},
+        points={{10,54},{20,54}},
         color={0,0,0},
         thickness=1));
     connect(arteries_ADAN86_dv.port_b_inferior, flowMeasure1.q_in) annotation (
@@ -7783,7 +7796,7 @@ type"),         Text(
     connect(unlimitedPump.solutionFlow, add.y)
       annotation (Line(points={{30,-13},{30,-1},{22.5,-1}}, color={0,0,127}));
     connect(add.u2, flowMeasure.volumeFlow)
-      annotation (Line(points={{11,-4},{0,-4},{0,28}}, color={0,0,127}));
+      annotation (Line(points={{11,-4},{0,-4},{0,42}}, color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)));
   end ADAN;
@@ -7874,8 +7887,9 @@ type"),         Text(
       Resistance=totalVenousResistance*(1-thoracicResistance))
       annotation (Placement(transformation(extent={{-20,20},{0,40}})));
     Physiolibrary.Hydraulic.Components.ElasticVessel thoracicVeinsCompliance(
-        volume_start=7.5e-5, Compliance=7.5e-5/thoracicVenousPressure)
-      annotation (Placement(transformation(extent={{10,20},{30,40}})));
+      volume_start=7.5e-5,   Compliance=7.5e-5/thoracicVenousPressure,
+      useExternalPressureInput=true)
+      annotation (Placement(transformation(extent={{10,40},{30,20}})));
     Physiolibrary.Hydraulic.Components.Resistor thoracicVeinsResistance(
         Resistance= totalVenousResistance*thoracicResistance)
       annotation (Placement(transformation(extent={{40,20},{60,40}})));
@@ -7927,6 +7941,9 @@ type"),         Text(
         points={{40,30},{20,30}},
         color={0,0,0},
         thickness=1));
+    connect(thoracic_pressure.y, thoracicVeinsCompliance.externalPressure)
+      annotation (Line(points={{-79,-50},{-76,-50},{-76,2},{28,2},{28,22}},
+          color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)));
   end ADAN_venous_thoracic;

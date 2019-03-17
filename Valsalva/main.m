@@ -58,4 +58,4 @@ plot(t,V_sv);
 plot(t,V_tv);
 plot(t,V_pv);
 legend('ta', 'sa', 'sv', 'tv', 'pv')
-% figure(3); plot(t,V_pv)
+figure(3); plot(t,Pth)

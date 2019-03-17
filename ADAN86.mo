@@ -1952,7 +1952,7 @@ package Vessel_modules
   model Baroreceptor
     input Physiolibrary.Types.Volume v "volume of vessel";
     input Physiolibrary.Types.Volume v0 "reference vessel volume";
-    Real d=sqrt(v/v0) "The distension ratio r/r0. Should be around 1, but not necesarily exactly 1, as it is compensated by other paraemters";
+    Real d= noEvent( if v > 0 then sqrt(v/v0) else 0) "The distension ratio r/r0. Should be around 1, but not necesarily exactly 1, as it is compensated by other paraemters";
     Real epsilon( start = epsilon_start) "Averaged distension ratio";
     parameter Physiolibrary.Types.Time Ts = 30 "Time constant for averaging";
     Real delta=max(d - epsilon, 0) "Positive peaks detected";
@@ -2791,50 +2791,56 @@ type"),         Text(
         q_lv_0 = Parameters_Heart1.q_lv_0;
 
         der(int_f) = frequency;
-        mt = int_f - floor(int_f);
+
+        // mt = int_f - floor(int_f);
+        when int_f > 1 then
+          reinit(int_f, 0);
+        end when;
+        mt = int_f;
+
 
       //       mt = t-T*floor(t/T);
 
-            e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
+            e_a = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
                     0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
                 elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then
                     0
                 elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then
                     0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
                 else
-                    0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T))));
+                    0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)));
                      /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */
 
-            e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then
+            e_v = if (mt >= 0) and (mt <= T_vc*T) then
                     0.5*(1-cos(Modelica.Constants.pi*mt/(T_vc*T)))
                 elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then
                     0.5*(1+cos(Modelica.Constants.pi*(mt-T_vc*T)/(T_vr*T)))
                 else
-                    0);
+                    0;
                      /*  (mt > (T_vc+T_vr)*T) and (mt < T) */
 
-            der(v_trv) = noEvent(if u_ra >= u_rv then
+            der(v_trv) = if u_ra >= u_rv then
                     (u_ra-u_rv-(R_trv+B_trv*abs(v_trv))*v_trv)/L_trv
                 else
-                    -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv);
+                    -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv;
                      /*  u_ra < u_rv */
 
-            der(v_puv) = noEvent(if u_rv >= u_par then
+            der(v_puv) = if u_rv >= u_par then
                     (u_rv-u_par-(R_puv+B_puv*abs(v_puv))*v_puv)/L_puv
                 else
-                    -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv);
+                    -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv;
                      /*  u_rv < u_par */
 
-            der(v_miv) = noEvent(if u_la >= u_lv then
+            der(v_miv) = if u_la >= u_lv then
                     (u_la-u_lv-(R_miv+B_miv*abs(v_miv))*v_miv)/L_miv
                 else
-                    -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv);
+                    -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv;
                      /*  u_la < u_lv */
 
-            der(v_aov) = noEvent(if u_lv >= u_sas then
+            der(v_aov) = if u_lv >= u_sas then
                     (u_lv-u_sas-(R_aov+B_aov*abs(v_aov))*v_aov)/L_aov
                 else
-                    -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov);
+                    -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov;
                      /*  u_lv < u_sas */
 
             u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0) + thoracic_pressure;
@@ -5781,19 +5787,23 @@ type"),         Text(
   end tests;
 
   package Experiments
-    model Cardiovascular_ADAN86_heart_valsalva
-      extends thrash.Cardiovascular_ADAN86_heart(
-                                          Systemic1(
-          aortic_arch_C46_module(baroreceptor(epsilon(start=0.8))),
-          u_ivc(start=500.0),
-          u_ivn(start=500.0)), Valsalva(amplitude=2200.0, startTime=160.0));
-    end Cardiovascular_ADAN86_heart_valsalva;
-
     model baroreflex_fit
-      extends ADAN_venous(arteries_ADAN86(aortic_arch_C46(baroreceptor(
-                epsilon_start=0.76, s_start=0.91)), internal_carotid_R8_A(
-              baroreceptor(epsilon_start=0.4, s_start=0.95))));
+      extends ADAN_venous(arteries_ADAN86(
+          aortic_arch_C46(baroreceptor(epsilon_start=0.76, s_start=0.91)),
+          internal_carotid_R8_A(baroreceptor(epsilon_start=0.4, s_start=0.95)),
+          baroreflex(fiSN(start=0.4))));
+
     end baroreflex_fit;
+
+    model HR_sensitivity
+      extends ADAN_venous(redeclare Modelica.Blocks.Sources.Ramp heart_frequency(
+          duration=0,
+          offset=1,
+          startTime=30), arteries_ADAN86(
+          aortic_arch_C46(baroreceptor(epsilon_start=0.76, s_start=0.91)),
+          internal_carotid_R8_A(baroreceptor(epsilon_start=0.4, s_start=0.95)),
+          baroreflex(fiSN(start=0.4))));
+    end HR_sensitivity;
   end Experiments;
 
   package thrash
@@ -7812,7 +7822,9 @@ type"),         Text(
       annotation (Placement(transformation(extent={{-20,-80},{0,-60}})));
     Modelica.Blocks.Sources.Constant thoracic_pressure(k=0)
       annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
-    Modelica.Blocks.Sources.Constant heart_frequency(k=1)
+    replaceable
+    Modelica.Blocks.Sources.Constant heart_frequency(k=1) constrainedby
+      Modelica.Blocks.Interfaces.SO
       annotation (Placement(transformation(extent={{80,-40},{60,-20}})));
     Physiolibrary.Hydraulic.Components.ElasticVessel veins(volume_start=0.003,
         Compliance=2.250184727537e-6)
@@ -7840,8 +7852,6 @@ type"),         Text(
             {0,140,72}));
     connect(thoracic_pressure.y, heart.thoracic_pressure) annotation (Line(
           points={{-79,-50},{-10,-50},{-10,-40}}, color={0,140,72}));
-    connect(heart_frequency.y, heart.frequency)
-      annotation (Line(points={{59,-30},{0,-30}}, color={0,0,127}));
     connect(veins.q_in, venousResistance.q_in) annotation (Line(
         points={{-40,30},{-20,30}},
         color={0,0,0},
@@ -7854,6 +7864,8 @@ type"),         Text(
         points={{-56,30},{-40,30}},
         color={0,0,0},
         thickness=1));
+    connect(arteries_ADAN86.HR, heart.frequency) annotation (Line(points={{
+            -55.8,20},{18,20},{18,-30},{0,-30}}, color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)));
   end ADAN_venous;
@@ -7868,17 +7880,22 @@ type"),         Text(
     Modelica.Blocks.Sources.Trapezoid thoracic_pressure(
       amplitude=5320,
       rising=1,
-      width=20,
+      width=18.0,
       falling=1,
       period=60,
       nperiod=1,
       offset=0,
-      startTime=20)
+      startTime=30)
       annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
-    Modelica.Blocks.Sources.Constant heart_frequency(k=1)
+    Modelica.Blocks.Sources.Ramp     heart_frequency(
+      duration=1,
+      offset=1,
+      startTime=5)
       annotation (Placement(transformation(extent={{80,-40},{60,-20}})));
     ADAN_main.Components.arteries_ADAN86_baroreflex
-                                          arteries_ADAN86
+                                          arteries_ADAN86(aortic_arch_C46(u_C(
+            start=13332.2387415, displayUnit="mmHg")), internal_carotid_R8_A(
+          u_C(displayUnit="mmHg", start=13332.2387415)))
       annotation (Placement(transformation(extent={{-76,20},{-56,40}})));
     Physiolibrary.Hydraulic.Components.ElasticVessel veins(volume_start=0.003,
         Compliance=0.003/venousPressure)
@@ -7887,16 +7904,18 @@ type"),         Text(
       Resistance=totalVenousResistance*(1-thoracicResistance))
       annotation (Placement(transformation(extent={{-20,20},{0,40}})));
     Physiolibrary.Hydraulic.Components.ElasticVessel thoracicVeinsCompliance(
-      volume_start=7.5e-5,   Compliance=7.5e-5/thoracicVenousPressure,
+      volume_start=thoracicVolume,
+      Compliance=thoracicVolume/thoracicVenousPressure,
       useExternalPressureInput=true)
       annotation (Placement(transformation(extent={{10,40},{30,20}})));
     Physiolibrary.Hydraulic.Components.Resistor thoracicVeinsResistance(
         Resistance= totalVenousResistance*thoracicResistance)
       annotation (Placement(transformation(extent={{40,20},{60,40}})));
-      parameter Physiolibrary.Types.HydraulicResistance totalVenousResistance = 1.3332e7;
-      parameter Physiolibrary.Types.Fraction thoracicResistance = 0.02;
-      parameter Physiolibrary.Types.Pressure venousPressure = 1333.2;
-      parameter Physiolibrary.Types.Pressure thoracicVenousPressure = 133.32;
+      parameter Physiolibrary.Types.HydraulicResistance totalVenousResistance=13332000;
+      parameter Physiolibrary.Types.Fraction thoracicResistance=0.02;
+      parameter Physiolibrary.Types.Pressure venousPressure=1333.2;
+      parameter Physiolibrary.Types.Pressure thoracicVenousPressure=133.32;
+      parameter Physiolibrary.Types.Volume thoracicVolume=9e-5;
   equation
     connect(heart.pa, pulmonary_circulation.port_a) annotation (Line(
         points={{-20,-40},{-30,-40},{-30,-70},{-20,-70}},
@@ -7947,6 +7966,125 @@ type"),         Text(
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)));
   end ADAN_venous_thoracic;
+
+  package SimpleValsalva
+    model SimplestValsalva
+      parameter Real alphaR = 1.5;
+    parameter Real alphaC = 2.5;
+    parameter Real phi = 0.25 " sympathetic tone";
+    parameter Real ep = 1;
+    parameter Real H = 1 " HR sec.^(-1)";
+
+    // State variables
+    Real theta( start = 0)
+                          "beat counter ";
+    Real V_ta(  start = 7)
+                          "volume thoracic aorta (mL)                  ";
+    Real V_sa(  start = 100)
+                            "volume systemic arteries, outside of TC (mL)";
+    Real V_sv(  start = 3000)
+                             "volume systemic veins, outside of TC (mL)   ";
+    Real V_tv(  start = 75)
+                           "volume thoracic vena cava (mL)              ";
+    Real V_LV(  start = 100)
+                            "volume thoracic LV (mL)                     ";
+    Real V_pa(  start = 100)
+                            "volume pulmonary arteries (mL)              ";
+    Real V_pv(  start = 100)
+                            "volume pulmonary veins (mL)                 ";
+    Real V_RV(  start = 100)
+                            "volume right ventricle (mL)                 ";
+
+    // element values
+    parameter Real R_ta = (100-98)/83.3;
+    parameter Real R_sa = (98-50)/83.3 * (1 + alphaR*(phi-0.25));
+    parameter Real R_sv = (50-1)/83.3;
+    parameter Real R_tv = 1/83.3;
+    parameter Real R_pa = (18-1)/83.3;
+    parameter Real R_pv = 1/83.3;
+    parameter Real Rv = 0.001;
+    parameter Real C_ta = 7/100;
+    parameter Real C_sa = 100/98;
+    parameter Real C_sv = 3000/50 / (1 + alphaC*(phi-0.25));
+    parameter Real C_tv = 75/1;
+    parameter Real C_pa = 100/18;
+    parameter Real C_pv = 100/1;
+
+    Real Pth;
+
+    // Pressures
+    Real P_ta = V_ta/C_ta + Pth;
+    Real P_sa = V_sa/C_sa;
+    Real P_sv = V_sv/C_sv;
+    Real P_tv = V_tv/C_tv + Pth;
+    //Real P_tv = 2.2;
+    Real P_pa = V_pa/C_pa + Pth;
+    Real P_pv = V_pv/C_pv + 1.05*Pth;
+
+    Real P_LV = PVfunction(theta,V_LV,ep) + Pth;
+    Real P_RV = PVfunction(theta,V_RV,0.3) + Pth;
+    Real Fout_LV = max(0, (P_LV-P_ta)/Rv);
+    Real Fin_RV =  max(0, (P_tv-P_RV)/R_tv);
+    Real Fout_RV = max(0, (P_RV-P_pa)/Rv);
+    Real Fin_LV =  max(0, (P_pv-P_LV)/R_pv);
+
+    equation
+    // Thoracic pressure
+    if time < 30 then
+      Pth = 0;
+    elseif time < 49 then
+        Pth = 38*(1 - exp( -2*(time-30)));
+    else
+        Pth = 38*exp( -2*(time-49));
+    end if;
+
+
+    der(theta) = H;
+    der(V_ta)  = Fout_LV - (P_ta-P_sa)/R_ta;
+    der(V_sa)  = (P_ta-P_sa)/R_ta - (P_sa-P_sv)/R_sa;
+    der(V_sv)  = (P_sa-P_sv)/R_sa - (P_sv-P_tv)/R_sv;
+    der(V_tv)  = (P_sv-P_tv)/R_sv - Fin_RV;
+    der(V_LV)  = Fin_LV - Fout_LV;
+    der(V_pa)  = Fout_RV - (P_pa-P_pv)/R_pa;
+    der(V_pv)  = (P_pa-P_pv)/R_pa - Fin_LV;
+    der(V_RV)  = Fin_RV - Fout_RV;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end SimplestValsalva;
+
+    function PVfunction
+      import Modelica.Constants.pi;
+      input Real Theta,V_LV,ep;
+      output Real P_LV;
+
+      parameter Real Vd = 0 "% unstressed volume (ml)";
+      Real   Emax = ep*2.6;
+      parameter Real Emin = 0.008;
+      parameter Real   T_Mf =  0.3 " time to max E";
+      parameter Real   T_Rf =  0.15
+                                   " relaxation time";
+
+    //  constant Real pi = Modelica.Constants.pi;
+      Real tTilde;
+      Real E;
+    algorithm
+      tTilde := mod(Theta,1); // fraction of cardiac cycle
+
+      if tTilde < T_Mf then
+        E :=(Emax - Emin)*(1 - cos(pi*tTilde/T_Mf))/2 + Emin;
+      elseif (tTilde >= T_Mf) and (tTilde < (T_Mf + T_Rf)) then
+        E :=(Emax - Emin)*(cos(pi*(tTilde - T_Mf)/T_Rf) + 1)/2 + Emin;
+      else
+        //tTilde >= (T_Mf + T_Rf)
+        E :=Emin;
+      end if;
+    //% plv = E*Vd*( Vlv/Vd - 1 );
+    P_LV :=E*(V_LV - Vd);
+    //% plv = E*Vd*( (Vlv/Vd-1) + 0.2*(Vlv/Vd-1)^2 );
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end PVfunction;
+  end SimpleValsalva;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
             "3.2.2")), experiment(
       StopTime=80,

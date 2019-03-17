@@ -1,4 +1,4 @@
- def model Vessel_BG_Units as
+def model Vessel_BG_Units as
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////// non-BC Vessel ////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,6 +243,7 @@
         var r: metre {pub: in};
         var radius: metre {pub: out};
         var I: J_s2_per_m6 {pub: out};
+        var I_e: J_s2_per_m6 {pub: out};
         var C: m6_per_J {pub: out};
         var R: J_s_per_m6 {pub: out};
         var R_v: J_s_per_m6 {pub: out};
@@ -260,13 +261,13 @@
         var v: m3_per_s {init: 0.0, pub: out};
         var u: J_per_m3 {pub: out};
         var u_C: J_per_m3 {init: 0.0, pub: out};
-        var u_C_T: J_per_m3 {init: 0.0, pub: out};
+        var u_T: J_per_m3 {init: 0.0, pub: out};
         var v_T: m3_per_s {init: 0.0, pub: out};
-        var v_T_2: m3_per_s {init: 0.0, pub: out};
         var u_out: J_per_m3 {pub: in};
 
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(pi*sqr(r));
+        I_e = I*1e-6{dimensionless};
         C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
         R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
         R_v = 0.01{second}/C;
@@ -281,9 +282,8 @@
         ode(v, t) = (u_in-u-R*v)/I;
         ode(u_C, t) = (v-v_T)/C;
         u = u_C+R_v*(v-v_T);
-        ode(v_T, t) = (u-u_out-u_C_T-1.3{dimensionless}*R_T*v_T)/(I*1e-6{dimensionless});
-        ode(u_C_T, t) = (v_T-v_T_2)/C_T;
-        ode(v_T_2, t) = (u_C_T-1.3{dimensionless}*R_T_2*v_T_2)/(I*1e-6{dimensionless});
+        ode(v_T, t) = (u-u_out-u_T-1.3{dimensionless}*R_T*v_T)/I_e;
+        ode(u_T, t) = (v_T-u_T/(1.3{dimensionless}*R_T_2))/C_T;
     enddef;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -306,10 +306,12 @@
         var r: metre {pub: in};
         var radius: metre {pub: out};
         var I: J_s2_per_m6 {pub: out};
+        var I_e: J_s2_per_m6 {pub: out};
         var C: m6_per_J {pub: out};
         var R: J_s_per_m6 {pub: out};
         var R_v: J_s_per_m6 {pub: out};
         var R_T: J_s_per_m6 {pub: in};
+        var C_T: m6_per_J {pub: in};
         var a: dimensionless {init: 0.2802};
         var b: per_m {init: -505.3};
         var c: dimensionless {init: 0.1324};
@@ -326,6 +328,7 @@
 
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(pi*sqr(r));
+        I_e = I*1e-6{dimensionless};
         C = 2{dimensionless}*pi*pow(r, 3{dimensionless})*l/(E*h);
         R = 8{dimensionless}*mu*l/(pi*pow(r, 4{dimensionless}));
         R_v = 0.01{second}/C;
@@ -339,7 +342,7 @@
         ode(v, t) = (u_in-u-R*v)/I;
         ode(u_C, t) = (v-v_T)/C;
         u = u_C+R_v*(v-v_T);
-        ode(v_T, t) = (u-u_out-0.5{dimensionless}*R_T*v_T)/I;
+        ode(v_T, t) = (u-u_out-1.0{dimensionless}*R_T*v_T)/I_e;
     enddef;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

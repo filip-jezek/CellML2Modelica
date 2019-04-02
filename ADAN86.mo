@@ -1825,6 +1825,12 @@ package Vessel_modules
               lineColor={0,140,72},
               lineThickness=0.5)}));
     end bg_thoracic;
+
+    type simplificationLevel = enumeration(
+          detailed,
+          original,
+          simplified,
+          noL3);
   end Interfaces;
 
   model vv_type_thoracic
@@ -2212,10 +2218,14 @@ end pv_jII_type_baroreceptor;
     Real u(unit = "Pa");
     Real u_C(unit = "Pa", start = 0.0);
     Real u_C_T(unit = "Pa", start = 0.0);
-    Real v_T(unit = "m3.s-1", start = 0.0);
-    Real v_T_2(unit = "m3.s-1", start = 0.0);
+    Real v_T(unit = "m3.s-1", start = 1e-7);
+    Real v_T_2(unit = "m3.s-1", start = 1e-7);
     input Real u_out(unit = "Pa");
     Real v_out(unit = "m3.s-1") = v_T;
+    parameter Real ups = 1e-6;
+    outer parameter Real periferyModifier = 1.3;
+    Real u1, v_c, u2, v3, u3, u4;
+    parameter Interfaces.simplificationLevel simplification = Interfaces.simplificationLevel.noL3;
   equation
 
         h = r*(a*exp(b*r)+c*exp(d*r));
@@ -2229,12 +2239,63 @@ end pv_jII_type_baroreceptor;
         radius = r;
         thickness = h;
 
-    der(v_in) = (u_in - u - R*v_in)/I;
-        der(u_C) =(v_in - v_T)/C;
-        u =u_C + R_v*(v_in - v_T);
+    if simplification == Interfaces.simplificationLevel.original then
+        der(v_in) = (u_in-u-R*v_in)/I;
+        der(u_C) = (v_in-v_T)/C;
+        u = u_C+R_v*(v_in-v_T);
         der(v_T) = (u-u_out-u_C_T-1.3*R_T*v_T)/(I*1e-6);
         der(u_C_T) = (v_T-v_T_2)/C_T;
         der(v_T_2) = (u_C_T-1.3*R_T_2*v_T_2)/(I*1e-6);
+        u1 = u_in-R*v_in;
+        v_c = v_in - v_T;
+        u2 = u - periferyModifier*R_T*v_T;
+        v3 = (v_T-u_C_T/(periferyModifier*R_T_2));
+        u3 = u_out+u_C_T;
+        u4 = u3 - periferyModifier*R_T_2*v_T_2;
+        //v_T_2 = u_C_T/(periferyModifier*R_T_2);
+    elseif simplification == Interfaces.simplificationLevel.detailed then
+        der(v_in) = (u1 - u)/I;
+        R*v_in = u_in - u1 "u1 = u_in - R*v_in";
+        u = u_C + R_v*(v_c);
+        der(u_C) =(v_c)/C;
+        v_c = v_in - v_T;
+        u2 = u - periferyModifier*R_T*v_T;
+        der(v_T) = (u2-u3)/(I*ups);
+        u3 = u_out+u_C_T;
+        v3 = v_T-v_T_2;
+        der(u_C_T) = (v3)/C_T;
+        u4 = u3 - periferyModifier*R_T_2*v_T_2;
+        der(v_T_2) = (u_out-u4)/(I*ups);
+    elseif simplification == Interfaces.simplificationLevel.simplified then
+        // simplified model acc to Soroush 2019/03 commit
+        der(v_in) = (u_in-u-R*v_in)/I;
+        der(u_C) = (v_in-v_T)/C;
+        u = u_C+R_v*(v_in-v_T);
+        der(v_T) = (u-u_out-u_C_T-periferyModifier*R_T*v_T)/(I*ups);
+        der(u_C_T) = (v_T-u_C_T/(periferyModifier*R_T_2))/C_T;
+        u1 = u_in-R*v_in;
+        v_c = v_in - v_T;
+        u2 = u - periferyModifier*R_T*v_T;
+        v3 = (v_T-u_C_T/(periferyModifier*R_T_2));
+        u3 = u_out-u_C_T;
+        u4 = u3 - periferyModifier*R_T_2*v_T_2;
+        v_T_2 = u_C_T/(periferyModifier*R_T_2);
+    elseif simplification == Interfaces.simplificationLevel.noL3 then
+        der(v_in) = (u1 - u)/I;
+        R*v_in = u_in - u1 "u1 = u_in - R*v_in";
+        u = u_C + R_v*(v_c);
+        der(u_C) =(v_c)/C;
+        v_c = v_in - v_T;
+        u2 = u - periferyModifier*R_T*v_T;
+        //u2=u3;
+        der(v_T) = (u2-u3)/(I*ups);
+        u3 = u_out+u_C_T;
+        v3 = v_T-v_T_2;
+        der(u_C_T) = (v3)/C_T;
+        u4 = u3 - periferyModifier*R_T_2*v_T_2;
+        u4 = u_out;
+  //      der(v_T_2) = (u_out-u4)/(I*ups);
+    end if;
 
     annotation (Icon(graphics={
           Rectangle(
@@ -2250,9 +2311,365 @@ end pv_jII_type_baroreceptor;
           Line(
             points={{60,0},{100,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Filled})}));
+            arrow={Arrow.None,Arrow.Filled})}), Diagram(graphics={
+          Rectangle(extent={{-74,6},{-64,10}}, lineColor={28,108,200}),
+          Line(
+            points={{-58,8},{-56,12},{-54,8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-54,8},{-52,12},{-50,8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-50,8},{-48,12},{-46,8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-44,-10},{-36,-10}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-44,-12},{-36,-12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-44,-18},{-36,-18}},
+            color={28,108,200},
+            smooth=Smooth.Bezier,
+            thickness=1),
+          Rectangle(extent={{-34,6},{-24,10}}, lineColor={28,108,200}),
+          Line(
+            points={{-18,8},{-16,12},{-14,8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-14,8},{-12,12},{-10,8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-10,8},{-8,12},{-6,8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Rectangle(
+            extent={{-5,-2},{5,2}},
+            lineColor={28,108,200},
+            origin={-40,-1},
+            rotation=90),
+          Rectangle(extent={{6,10},{16,14}}, lineColor={28,108,200}),
+          Line(
+            points={{22,12},{24,16},{26,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{26,12},{28,16},{30,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{30,12},{32,16},{34,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-4,-1},{4,-1}},
+            color={28,108,200},
+            smooth=Smooth.Bezier,
+            origin={19,4},
+            rotation=90),
+          Line(
+            points={{-4,1},{4,1}},
+            color={28,108,200},
+            smooth=Smooth.Bezier,
+            origin={23,4},
+            rotation=90),
+          Line(points={{-80,8},{-74,8}}, color={28,108,200}),
+          Line(points={{-64,8},{-58,8}}, color={28,108,200}),
+          Line(points={{-46,8},{-40,8}}, color={28,108,200}),
+          Line(points={{-40,8},{-34,8}}, color={28,108,200}),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={-39,6},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={-39,-8},
+            rotation=90),
+          Line(
+            points={{-4,1},{2,1}},
+            color={28,108,200},
+            origin={-39,-14},
+            rotation=90),
+          Line(points={{-24,8},{-18,8}}, color={28,108,200}),
+          Line(points={{-6,8},{0,8}}, color={28,108,200}),
+          Line(points={{0,12},{6,12}}, color={28,108,200}),
+          Line(points={{16,12},{22,12}}, color={28,108,200}),
+          Line(points={{34,12},{40,12}}, color={28,108,200}),
+          Line(points={{0,4},{20,4}}, color={28,108,200}),
+          Line(points={{22,4},{40,4}}, color={28,108,200}),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={1,10},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={1,6},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={41,10},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={41,6},
+            rotation=90),
+          Line(points={{40,8},{46,8}}, color={28,108,200}),
+          Text(
+            extent={{-84,10},{-74,14}},
+            lineColor={0,0,0},
+            textString="u_in"),
+          Text(
+            extent={{-66,10},{-56,14}},
+            lineColor={0,0,0},
+            textString="u1"),
+          Text(
+            extent={{-44,10},{-34,14}},
+            lineColor={0,0,0},
+            textString="u"),
+          Text(
+            extent={{-26,10},{-16,14}},
+            lineColor={0,0,0},
+            textString="u2"),
+          Text(
+            extent={{-8,10},{2,14}},
+            lineColor={0,0,0},
+            textString="u3"),
+          Text(
+            extent={{14,14},{24,18}},
+            lineColor={0,0,0},
+            textString="u4"),
+          Text(
+            extent={{16,-6},{26,-2}},
+            lineColor={0,0,0},
+            textString="u_C_T"),
+          Text(
+            extent={{40,10},{50,14}},
+            lineColor={0,0,0},
+            textString="u_out"),
+          Text(
+            extent={{-18,2},{-8,6}},
+            lineColor={28,108,200},
+            textString="L2"),
+          Text(
+            extent={{24,8},{34,12}},
+            lineColor={28,108,200},
+            textString="L3")}));
   end pp_BC_type;
 
+  model pp_BC_type2
+     extends ADAN_main.Vessel_modules.Interfaces.bg_base;
+    parameter Real mu(unit = "J.s.m-3") = 0.004;
+    parameter Real rho(unit = "J.s.m-3") = 1050;
+    input Real E(unit = "Pa");
+    Real E_m(unit = "Pa");
+    input Real l(unit = "m");
+    Real length(unit = "m");
+    Real h(unit = "m");
+    Real thickness(unit = "m");
+    input Real r(unit = "m");
+    Real radius(unit = "m");
+    Real I(unit = "J.s2.m-6");
+    Real C(unit = "m6.J-1");
+    Real R(unit = "J.s.m-6");
+    Real R_v(unit = "J.s.m-6");
+    input Real R_T(unit = "J.s.m-6");
+    Real R_T_2(unit = "J.s.m-6");
+    input Real C_T(unit = "m6.J-1");
+    parameter Real a(unit = "1") = 0.2802;
+    parameter Real b(unit = "m-1") = -505.3;
+    parameter Real c(unit = "1") = 0.1324;
+    parameter Real d(unit = "m-1") = -11.14;
+  //   input Real u_in(unit = "Pa");
+  //   Real v_in(unit="m3.s-1", start=0.0);
+    Real u(unit = "Pa");
+    Real u_C(unit = "Pa", start = 0.0);
+    Real u_C_T(unit = "Pa", start = 0.0);
+    Real v_T(unit = "m3.s-1", start = 0.0);
+    Real v_T_2(unit = "m3.s-1", start = 0.0);
+    input Real u_out(unit = "Pa");
+    Real v_out(unit = "m3.s-1") = v_T;
+    parameter Real ups = 1e-6;
+    outer parameter Real periferyModifier = 1.3;
+    Real u1, v_c, u2, v3, u3, u4;
+  equation
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(Modelica.Constants.pi*(r)^2);
+        C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R_v = 0.01/C;
+        R_T_2 = 4*R_T;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        // der(v) = (u_in-u-R*v)/I;
+        // der(u_C) = (v-v_T)/C;
+        // u = u_C+R_v*(v-v_T);
+        // der(v_T) = (u-u_out-u_C_T-1.3*R_T*v_T)/(I*1e-6);
+        // der(u_C_T) = (v_T-v_T_2)/C_T;
+        // der(v_T_2) = (u_C_T-1.3*R_T_2*v_T_2)/(I*1e-6);
+
+        der(v_in) = (u1 - u)/I;
+        R*v_in = u_in - u1 "u1 = u_in - R*v_in";
+        u = u_C + R_v*(v_c);
+        der(u_C) =(v_c)/C;
+        v_c = v_in - v_T;
+        u2 = u - periferyModifier*R_T*v_T;
+        der(v_T) = (u2-u3)/(I*ups);
+        u3 = u_out-u_C_T;
+        v3 = v_T-v_T_2;
+        der(u_C_T) = (v3)/C_T;
+        u4 = u3 - periferyModifier*R_T_2*v_T_2;
+        der(v_T_2) = (u_C_T-u4)/(I*ups);
+
+    annotation (Icon(graphics={
+          Rectangle(
+            extent={{80,20},{100,-20}},
+            lineThickness=0.5,
+            fillColor={244,125,35},
+            fillPattern=FillPattern.Solid,
+            pattern=LinePattern.None),
+          Line(
+            points={{-100,0},{-60,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Filled}),
+          Line(
+            points={{60,0},{100,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Filled})}), Diagram(graphics={
+          Rectangle(extent={{-90,10},{-80,14}}, lineColor={28,108,200}),
+          Line(
+            points={{-74,12},{-72,16},{-70,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-70,12},{-68,16},{-66,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-66,12},{-64,16},{-62,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-60,-6},{-52,-6}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-60,-8},{-52,-8}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-60,-14},{-52,-14}},
+            color={28,108,200},
+            smooth=Smooth.Bezier,
+            thickness=1),
+          Rectangle(extent={{-50,10},{-40,14}}, lineColor={28,108,200}),
+          Line(
+            points={{-34,12},{-32,16},{-30,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-30,12},{-28,16},{-26,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-26,12},{-24,16},{-22,12}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Rectangle(
+            extent={{-5,-2},{5,2}},
+            lineColor={28,108,200},
+            origin={-56,3},
+            rotation=90),
+          Rectangle(extent={{-10,14},{0,18}}, lineColor={28,108,200}),
+          Line(
+            points={{6,16},{8,20},{10,16}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{10,16},{12,20},{14,16}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{14,16},{16,20},{18,16}},
+            color={28,108,200},
+            smooth=Smooth.Bezier),
+          Line(
+            points={{-4,-1},{4,-1}},
+            color={28,108,200},
+            smooth=Smooth.Bezier,
+            origin={3,8},
+            rotation=90),
+          Line(
+            points={{-4,1},{4,1}},
+            color={28,108,200},
+            smooth=Smooth.Bezier,
+            origin={7,8},
+            rotation=90),
+          Line(points={{-96,12},{-90,12}}, color={28,108,200}),
+          Line(points={{-80,12},{-74,12}}, color={28,108,200}),
+          Line(points={{-62,12},{-56,12}}, color={28,108,200}),
+          Line(points={{-56,12},{-50,12}}, color={28,108,200}),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={-55,10},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={-55,-4},
+            rotation=90),
+          Line(
+            points={{-4,1},{2,1}},
+            color={28,108,200},
+            origin={-55,-10},
+            rotation=90),
+          Line(points={{-40,12},{-34,12}}, color={28,108,200}),
+          Line(points={{-22,12},{-16,12}}, color={28,108,200}),
+          Line(points={{-16,16},{-10,16}}, color={28,108,200}),
+          Line(points={{0,16},{6,16}}, color={28,108,200}),
+          Line(points={{18,16},{24,16}}, color={28,108,200}),
+          Line(points={{-16,8},{4,8}}, color={28,108,200}),
+          Line(points={{6,8},{24,8}}, color={28,108,200}),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={-15,14},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={-15,10},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={25,14},
+            rotation=90),
+          Line(
+            points={{-2,1},{2,1}},
+            color={28,108,200},
+            origin={25,10},
+            rotation=90),
+          Line(points={{24,12},{30,12}}, color={28,108,200})}));
+  end pp_BC_type2;
 end Vessel_modules;
 
   package Components
@@ -2493,7 +2910,7 @@ type"),         Text(
                                               iconTransformation(extent={{-120,-120},{
                   -80,-80}})));
 
-      Real fiSN(start = 0.25);
+      Real fiSN(start = fiSN_start);
       parameter Real fsn( unit = "s-1") = 0.041;
       parameter Real f1 = 0.0046;
       parameter Real g = 0.66;
@@ -2502,9 +2919,19 @@ type"),         Text(
       parameter Real H0 = 28/60;
       parameter Real H1 = 156/60;
         Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
-              transformation(extent={{96,-10},{116,10}}), iconTransformation(extent={{80,-10},
-                  {100,10}})));
+              transformation(extent={{96,-10},{116,10}}), iconTransformation(extent={{90,-108},
+                  {110,-88}})));
+      parameter Modelica.SIunits.Time resetAt = 5;
+      parameter Real fiSN_start = 0.25;
+        Physiolibrary.Types.RealIO.FractionOutput phi = fsn / 0.25
+                                                      annotation (Placement(
+              transformation(extent={{96,70},{116,90}}),  iconTransformation(extent={{92,-10},
+                  {112,10}})));
       equation
+        when time > resetAt then
+          reinit(fiSN, fiSN_start);
+        end when;
+
         HR = H0 + H1*fiSN;
         der(fiSN) = fsn*(1-fiSN) - fiSN*f1*(aorticWeight + carotidWeight);
         annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
@@ -2792,55 +3219,55 @@ type"),         Text(
 
         der(int_f) = frequency;
 
-        // mt = int_f - floor(int_f);
-        when int_f > 1 then
-          reinit(int_f, 0);
-        end when;
-        mt = int_f;
+        mt = int_f - noEvent(floor(int_f));
+      //   when int_f > 1 then
+      //     reinit(int_f, 0);
+      //   end when;
+      //  mt = int_f;
 
 
       //       mt = t-T*floor(t/T);
 
-            e_a = if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
+            e_a = noEvent(if (mt >= 0) and (mt <= (t_ar+T_ar)*T-T) then
                     0.5*(1+cos(Modelica.Constants.pi*(mt+T-t_ar*T)/(T_ar*T)))
                 elseif  (mt > (t_ar+T_ar)*T-T) and (mt <= t_ac*T) then
                     0
                 elseif  (mt > t_ac*T) and (mt <= (t_ac+T_ac)*T) then
                     0.5*(1-cos(Modelica.Constants.pi*(mt-t_ac*T)/(T_ac*T)))
                 else
-                    0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T)));
+                    0.5*(1+cos(Modelica.Constants.pi*(mt-t_ar*T)/(T_ar*T))));
                      /*  (mt > (t_ac+T_ac)*T) and (mt <= T) */
 
-            e_v = if (mt >= 0) and (mt <= T_vc*T) then
+            e_v = noEvent(if (mt >= 0) and (mt <= T_vc*T) then
                     0.5*(1-cos(Modelica.Constants.pi*mt/(T_vc*T)))
                 elseif  (mt > T_vc*T) and (mt <= (T_vc+T_vr)*T) then
                     0.5*(1+cos(Modelica.Constants.pi*(mt-T_vc*T)/(T_vr*T)))
                 else
-                    0;
+                    0);
                      /*  (mt > (T_vc+T_vr)*T) and (mt < T) */
 
-            der(v_trv) = if u_ra >= u_rv then
+            der(v_trv) = noEvent(if u_ra >= u_rv then
                     (u_ra-u_rv-(R_trv+B_trv*abs(v_trv))*v_trv)/L_trv
                 else
-                    -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv;
+                    -(R_trv+B_trv*abs(v_trv))*v_trv/L_trv);
                      /*  u_ra < u_rv */
 
-            der(v_puv) = if u_rv >= u_par then
+            der(v_puv) = noEvent(if u_rv >= u_par then
                     (u_rv-u_par-(R_puv+B_puv*abs(v_puv))*v_puv)/L_puv
                 else
-                    -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv;
+                    -(R_puv+B_puv*abs(v_puv))*v_puv/L_puv);
                      /*  u_rv < u_par */
 
-            der(v_miv) = if u_la >= u_lv then
+            der(v_miv) = noEvent(if u_la >= u_lv then
                     (u_la-u_lv-(R_miv+B_miv*abs(v_miv))*v_miv)/L_miv
                 else
-                    -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv;
+                    -(R_miv+B_miv*abs(v_miv))*v_miv/L_miv);
                      /*  u_la < u_lv */
 
-            der(v_aov) = if u_lv >= u_sas then
+            der(v_aov) = noEvent(if u_lv >= u_sas then
                     (u_lv-u_sas-(R_aov+B_aov*abs(v_aov))*v_aov)/L_aov
                 else
-                    -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov;
+                    -(R_aov+B_aov*abs(v_aov))*v_aov/L_aov);
                      /*  u_lv < u_sas */
 
             u_ra = (e_a*E_ra_A+E_ra_B)*(q_ra-q_ra_0) + thoracic_pressure;
@@ -2927,9 +3354,28 @@ type"),         Text(
 
       end Pulmonary;
 
+      partial model HeartBase
+        extends Physiolibrary.Icons.Heart;
+        Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a sv
+          annotation (Placement(transformation(extent={{-110,90},{-90,110}})));
+        Physiolibrary.Types.RealIO.FrequencyInput frequency annotation (Placement(
+              transformation(extent={{-126,-20},{-86,20}}), iconTransformation(extent={{-120,
+                  -20},{-80,20}})));
+        Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a pv
+          annotation (Placement(transformation(extent={{-110,-110},{-90,-90}})));
+        Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
+              transformation(extent={{-28,-120},{12,-80}}), iconTransformation(extent={{-20,
+                  -120},{20,-80}})));
+        Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b pa
+          annotation (Placement(transformation(extent={{90,-110},{110,-90}})));
+        Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b sa
+          annotation (Placement(transformation(extent={{90,90},{110,110}})));
+      end HeartBase;
     end Auxiliary;
 
     model arteries_ADAN86
+      inner parameter Real periferyModifier = 1.3;
+
       Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
           transformation(extent={{-124,-120},{-84,-80}}),
                                                         iconTransformation(extent={{-124,
@@ -4040,6 +4486,8 @@ type"),         Text(
     end arteries_ADAN86;
 
     model arteries_ADAN86_dv
+      inner parameter Real periferyModifier = 1.3;
+
       Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
           transformation(extent={{-120,-120},{-80,-80}}),
                                                         iconTransformation(extent={{-120,
@@ -5174,8 +5622,9 @@ type"),         Text(
             coordinateSystem(preserveAspectRatio=false)));
     end Pulmonary_circulation;
 
-    model Heart
-      extends Physiolibrary.Icons.Heart;
+    model HeartADAN
+      extends Auxiliary.HeartBase;
+
       replaceable ADAN_main.Components.Auxiliary.Heart_ADAN_Heart Heart1(
         v_sup_venacava=systemic_veins.v,
         v_inf_venacava=0,
@@ -5196,20 +5645,6 @@ type"),         Text(
       ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p
         pulmonary_veins(u=Heart1.u_la)
         annotation (Placement(transformation(extent={{-60,-40},{-80,-20}})));
-      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a sv
-        annotation (Placement(transformation(extent={{-110,90},{-90,110}})));
-      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a pv
-        annotation (Placement(transformation(extent={{-110,-110},{-90,-90}})));
-      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b sa
-        annotation (Placement(transformation(extent={{90,90},{110,110}})));
-      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b pa
-        annotation (Placement(transformation(extent={{90,-110},{110,-90}})));
-      Physiolibrary.Types.RealIO.FrequencyInput frequency annotation (Placement(
-            transformation(extent={{-126,-20},{-86,20}}), iconTransformation(extent={{-120,
-                -20},{-80,20}})));
-      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
-            transformation(extent={{-28,-120},{12,-80}}), iconTransformation(extent={{-20,
-                -120},{20,-80}})));
     equation
       t = time;
 
@@ -5235,7 +5670,7 @@ type"),         Text(
         annotation (Line(points={{0,-10},{-8,-10},{-8,-100}}, color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
-    end Heart;
+    end HeartADAN;
 
     model arteries_ADAN86_baroreflex
       extends arteries_ADAN86(redeclare Vessel_modules.pv_jII_type_baroreceptor
@@ -5248,14 +5683,135 @@ type"),         Text(
             transformation(extent={{144,40},{164,60}}), iconTransformation(extent={{92,-110},
                 {112,-90}})));
     equation
-      connect(baroreflex.HR,HR)  annotation (Line(points={{153,72},{150,72},{
-              150,50},{154,50}},
+      connect(baroreflex.HR,HR)  annotation (Line(points={{154,81.8},{150,81.8},
+              {150,50},{154,50}},
                                color={0,0,127}));
       connect(baroreflex.carotid_BR, internal_carotid_R8_A.y) annotation (Line(
             points={{134,82},{22,82},{22,135.5},{22.2,135.5}}, color={0,0,127}));
       connect(aortic_arch_C46.y, baroreflex.aortic_BR) annotation (Line(points=
               {{-84.6,49.5},{-85.3,49.5},{-85.3,62},{134,62}}, color={0,0,127}));
     end arteries_ADAN86_baroreflex;
+
+    model HeartSmith
+      extends Auxiliary.HeartBase;
+      Physiolibrary.Hydraulic.Components.IdealValveResistance
+                           aorticValve(Pknee=0, _Ron(displayUnit="(mmHg.s)/ml")=
+             2399802.97347)
+        annotation (Placement(transformation(extent={{-68,-30},{-88,-10}})));
+      Physiolibrary.Hydraulic.Components.IdealValveResistance
+                           tricuspidValve(Pknee=0, _Ron(displayUnit=
+              "(mmHg.s)/ml") = 3159740.5817355)
+        annotation (Placement(transformation(extent={{-62,24},{-42,44}})));
+      Physiolibrary.Hydraulic.Components.Inertia
+              Lav(I(displayUnit="mmHg.s2/ml") = 16250.665802014,
+          volumeFlow_start(displayUnit="m3/s") = -1.4e-8) annotation (
+          Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=180,
+            origin={-44,-20})));
+      Physiolibrary.Hydraulic.Components.Inertia
+              Lpv(I(displayUnit="mmHg.s2/ml") = 19822.372560862,
+          volumeFlow_start(displayUnit="m3/s") = -1.9e-9)
+        annotation (Placement(transformation(extent={{32,24},{52,44}})));
+      Physiolibrary.Hydraulic.Components.IdealValveResistance
+                           pulmonaryValve(Pknee=0, _Ron(displayUnit=
+              "(mmHg.s)/ml") = 733273.1307825)
+        annotation (Placement(transformation(extent={{62,24},{82,44}})));
+      Physiolibrary.Hydraulic.Components.IdealValveResistance
+                           mitralValve(Pknee=0, _Ron(displayUnit="(mmHg.s)/ml")=
+             2106493.721157)
+        annotation (Placement(transformation(extent={{52,-30},{32,-10}})));
+      Physiolibrary.Hydraulic.Components.Inertia
+              Ltc(I(displayUnit="mmHg.s2/ml") = 10678.18997523,
+          volumeFlow_start(displayUnit="m3/s") = 0.0001372)
+        annotation (Placement(transformation(extent={{-88,24},{-68,44}})));
+      Physiolibrary.Hydraulic.Components.Inertia
+              Lmt(I(displayUnit="mmHg.s2/ml") = 10261.557514558,
+          volumeFlow_start(displayUnit="m3/s") = 0.0001141) annotation (
+          Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=180,
+            origin={70,-20})));
+    Cardiovascular.Model.Smith2004.Parts.VentricularInteraction_flat
+                                      ventricularInteraction_flat(
+        lambdalv=33000,
+        lambdaperi=30000,
+        lambdas(displayUnit="1/m3") = 435000,
+        lambdarv(displayUnit="1/m3") = 23000,
+        Essept(displayUnit="mmHg/ml") = 6499999676.0309,
+        V0peri=0.0002,
+        Pi0sept=148.00118226939,
+        Pi0rv=28.757638965416,
+        Pi0lv=16.038683206025,
+        Pi0peri=66.701190423724,
+        Esrv=77993596.637775,
+        Eslv=383941811.27772)
+        annotation (Placement(transformation(extent={{-18,-12},{20,28}})));
+    equation
+      connect(Lav.q_out,aorticValve. q_in) annotation (Line(
+          points={{-54,-20},{-68,-20}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(Ltc.q_out,tricuspidValve. q_in) annotation (Line(
+          points={{-68,34},{-62,34}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(Lpv.q_out,pulmonaryValve. q_in) annotation (Line(
+          points={{52,34},{62,34}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(mitralValve.q_in,Lmt. q_out) annotation (Line(
+          points={{52,-20},{60,-20}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(tricuspidValve.q_out,ventricularInteraction_flat. rvflow)
+        annotation (Line(
+          points={{-42,34},{0.62,34},{0.62,28}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(Lpv.q_in,ventricularInteraction_flat. rvflow) annotation (Line(
+          points={{32,34},{0.62,34},{0.62,28}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(ventricularInteraction_flat.lvflow,Lav. q_in) annotation (Line(
+          points={{1,-12},{2,-12},{2,-20},{-34,-20}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(mitralValve.q_out,Lav. q_in) annotation (Line(
+          points={{32,-20},{-34,-20}},
+          color={0,0,0},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(sa, aorticValve.q_out) annotation (Line(
+          points={{100,100},{100,-60},{-96,-60},{-96,-20},{-88,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(Lmt.q_in, pv) annotation (Line(
+          points={{80,-20},{80,-82},{-100,-82},{-100,-100}},
+          color={0,0,0},
+          thickness=1));
+      connect(sv, Ltc.q_in) annotation (Line(
+          points={{-100,100},{-100,34},{-88,34}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonaryValve.q_out, pa) annotation (Line(
+          points={{82,34},{92,34},{92,-100},{100,-100}},
+          color={0,0,0},
+          thickness=1));
+      connect(frequency, ventricularInteraction_flat.HR) annotation (Line(
+            points={{-106,0},{-62,0},{-62,8},{-14.2,8}}, color={0,0,127}));
+      connect(ventricularInteraction_flat.Pth, thoracic_pressure) annotation (
+          Line(points={{16.58,8},{18,8},{18,-100},{-8,-100}}, color={0,0,127}));
+      annotation (Diagram(graphics={  Rectangle(extent={{-84,54},{92,-46}},
+              lineColor={28,108,200})}));
+    end HeartSmith;
   end Components;
 
   package tests
@@ -5394,7 +5950,7 @@ type"),         Text(
       import ADAN_main;
       Components.arteries_ADAN86_dv arteries_ADAN86_dv
         annotation (Placement(transformation(extent={{-42,6},{-22,26}})));
-      Components.Heart heart(redeclare
+      ADAN_main.Components.HeartADAN heart(redeclare
           ADAN_main.Components.Auxiliary.Heart_ADAN_Heart Heart1)
         annotation (Placement(transformation(extent={{0,-40},{-20,-20}})));
       Components.Pulmonary_circulation pulmonary_circulation
@@ -5518,6 +6074,7 @@ type"),         Text(
     end ADAN_test;
 
     model modules "The BG modules are reimplemented correctly"
+        inner parameter Real periferyModifier = 1.3;
       main_ADAN_86_Heart_vanilla_cellml_converted.BG_Modules_cellml.vv_type
                                 ascending_aorta_A_module(
         v_out=ascending_aorta_B_module.v,
@@ -5613,6 +6170,50 @@ type"),         Text(
             Real t;
             Real u_ivl = 1000;
             Real thoracic_pressure = 0;
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume
+                                                    unlimitedVolume(
+          usePressureInput=true, P=13332.2387415)
+        annotation (Placement(transformation(extent={{-80,-44},{-60,-24}})));
+      Vessel_modules.pp_BC_type orig(
+        u_out=u_ivl,
+        l=Parameters_Systemic1.l_posterior_intercostal_T1_L102,
+        E=Parameters_Systemic1.E_posterior_intercostal_T1_L102,
+        R_T=Parameters_Systemic1.R_T_posterior_intercostal_T1_L102,
+        C_T=Parameters_Systemic1.C_T_posterior_intercostal_T1_L102,
+        r=Parameters_Systemic1.r_posterior_intercostal_T1_L102)
+        annotation (Placement(transformation(extent={{-20,-13},{0,-8}})));
+      Vessel_modules.pp_BC_type detail(
+        u_out=u_ivl,
+        l=Parameters_Systemic1.l_posterior_intercostal_T1_L102,
+        E=Parameters_Systemic1.E_posterior_intercostal_T1_L102,
+        R_T=Parameters_Systemic1.R_T_posterior_intercostal_T1_L102,
+        C_T=Parameters_Systemic1.C_T_posterior_intercostal_T1_L102,
+        r=Parameters_Systemic1.r_posterior_intercostal_T1_L102,
+        simplification=ADAN_main.Vessel_modules.Interfaces.simplificationLevel.detailed)
+        annotation (Placement(transformation(extent={{-20,-37},{0,-32}})));
+      Vessel_modules.pp_BC_type simpli(
+        u_out=u_ivl,
+        l=Parameters_Systemic1.l_posterior_intercostal_T1_L102,
+        E=Parameters_Systemic1.E_posterior_intercostal_T1_L102,
+        R_T=Parameters_Systemic1.R_T_posterior_intercostal_T1_L102,
+        C_T=Parameters_Systemic1.C_T_posterior_intercostal_T1_L102,
+        r=Parameters_Systemic1.r_posterior_intercostal_T1_L102,
+        simplification=ADAN_main.Vessel_modules.Interfaces.simplificationLevel.simplified)
+        annotation (Placement(transformation(extent={{-20,-61},{0,-56}})));
+      Modelica.Blocks.Sources.Sine sine(
+        amplitude=3300,
+        freqHz=10,
+        offset=13300)
+        annotation (Placement(transformation(extent={{-64,-8},{-84,12}})));
+      Vessel_modules.pp_BC_type simpli1(
+        u_out=u_ivl,
+        l=Parameters_Systemic1.l_posterior_intercostal_T1_L102,
+        E=Parameters_Systemic1.E_posterior_intercostal_T1_L102,
+        R_T=Parameters_Systemic1.R_T_posterior_intercostal_T1_L102,
+        C_T=Parameters_Systemic1.C_T_posterior_intercostal_T1_L102,
+        r=Parameters_Systemic1.r_posterior_intercostal_T1_L102,
+        simplification=ADAN_main.Vessel_modules.Interfaces.simplificationLevel.decimated)
+        annotation (Placement(transformation(extent={{-20,-81},{0,-76}})));
     equation
       t = time;
     //  v_sas = 1;
@@ -5634,6 +6235,24 @@ type"),         Text(
           thickness=1));
       connect(ascending_aorta_A.port_a, unlimitedPump.q_out) annotation (Line(
           points={{-61,39.5},{-70,39.5},{-70,40},{-80,40}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume.y, orig.port_a) annotation (Line(
+          points={{-60,-34},{-40,-34},{-40,-10.5},{-20,-10.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume.y, detail.port_a) annotation (Line(
+          points={{-60,-34},{-40,-34},{-40,-34.5},{-20,-34.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume.y, simpli.port_a) annotation (Line(
+          points={{-60,-34},{-40,-34},{-40,-58.5},{-20,-58.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(sine.y, unlimitedVolume.pressure) annotation (Line(points={{-85,2},
+              {-106,2},{-106,-34},{-80,-34}}, color={0,0,127}));
+      connect(unlimitedVolume.y, simpli1.port_a) annotation (Line(
+          points={{-60,-34},{-40,-34},{-40,-78.5},{-20,-78.5}},
           color={0,0,0},
           thickness=1));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
@@ -5687,7 +6306,7 @@ type"),         Text(
             parameter Physiolibrary.Types.Pressure u_v = 1000;
             parameter Physiolibrary.Types.VolumeFlowRate v =  8.3e-5;
             Real t;
-      Components.Heart heart
+      Components.HeartADAN heart
         annotation (Placement(transformation(extent={{-60,-40},{-40,-20}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume2(P=u_a)
         annotation (Placement(transformation(extent={{0,-30},{-20,-10}})));
@@ -5804,6 +6423,29 @@ type"),         Text(
           internal_carotid_R8_A(baroreceptor(epsilon_start=0.4, s_start=0.95)),
           baroreflex(fiSN(start=0.4))));
     end HR_sensitivity;
+
+    model SmithHeart
+      extends ADAN_venous_thoracic(redeclare Components.HeartSmith heart);
+    end SmithHeart;
+
+    model venous_thoracic_baroreflex
+      extends ADAN_venous_thoracic(arteries_ADAN86(
+          aortic_arch_C46(baroreceptor(s_start=0.91,
+              epsilon_start=0.74)),
+          internal_carotid_R8_A(baroreceptor(s_start=0.95,
+              epsilon_start=0.394)),
+          baroreflex(fiSN_start=0.38)));
+      annotation (experiment(
+          StopTime=85,
+          Interval=0.02,
+          Tolerance=1e-07,
+          __Dymola_Algorithm="Cvode"), __Dymola_experimentFlags(
+          Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+          Evaluate=false,
+          OutputCPUtime=true,
+          OutputFlatModelica=false));
+
+    end venous_thoracic_baroreflex;
   end Experiments;
 
   package thrash
@@ -7733,7 +8375,7 @@ type"),         Text(
         Vessel_modules.pv_jII_type_baroreceptor aortic_arch_C46, redeclare
         Vessel_modules.pv_type_baroreceptor internal_carotid_R8_A)
       annotation (Placement(transformation(extent={{-40,20},{-20,40}})));
-    Components.Heart heart(redeclare
+    ADAN_main.Components.HeartADAN heart(redeclare
         ADAN_main.Components.Auxiliary.Heart_ADAN_Heart Heart1)
       annotation (Placement(transformation(extent={{0,-40},{-20,-20}})));
     Components.Pulmonary_circulation pulmonary_circulation
@@ -7815,7 +8457,7 @@ type"),         Text(
     import ADAN_main;
     Components.arteries_ADAN86_baroreflex arteries_ADAN86
       annotation (Placement(transformation(extent={{-76,20},{-56,40}})));
-    Components.Heart heart(redeclare
+    ADAN_main.Components.HeartADAN heart(redeclare
         ADAN_main.Components.Auxiliary.Heart_ADAN_Heart Heart1)
       annotation (Placement(transformation(extent={{0,-40},{-20,-20}})));
     Components.Pulmonary_circulation pulmonary_circulation
@@ -7872,9 +8514,10 @@ type"),         Text(
 
   model ADAN_venous_thoracic
     import ADAN_main;
-    Components.Heart heart(redeclare
-        ADAN_main.Components.Auxiliary.Heart_ADAN_Heart Heart1)
-      annotation (Placement(transformation(extent={{0,-40},{-20,-20}})));
+    replaceable ADAN_main.Components.HeartADAN heart constrainedby
+      ADAN_main.Components.Auxiliary.HeartBase annotation (Placement(
+          transformation(extent={{0,-40},{-20,-20}})),
+        __Dymola_choicesAllMatching=true);
     Components.Pulmonary_circulation pulmonary_circulation
       annotation (Placement(transformation(extent={{-20,-80},{0,-60}})));
     Modelica.Blocks.Sources.Trapezoid thoracic_pressure(
@@ -7885,9 +8528,10 @@ type"),         Text(
       period=60,
       nperiod=1,
       offset=0,
-      startTime=30)
+      startTime=300)
       annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
     Modelica.Blocks.Sources.Ramp     heart_frequency(
+      height=0,
       duration=1,
       offset=1,
       startTime=5)
@@ -7915,7 +8559,7 @@ type"),         Text(
       parameter Physiolibrary.Types.Fraction thoracicResistance=0.02;
       parameter Physiolibrary.Types.Pressure venousPressure=1333.2;
       parameter Physiolibrary.Types.Pressure thoracicVenousPressure=133.32;
-      parameter Physiolibrary.Types.Volume thoracicVolume=9e-5;
+      parameter Physiolibrary.Types.Volume thoracicVolume=7.5e-5;
   equation
     connect(heart.pa, pulmonary_circulation.port_a) annotation (Line(
         points={{-20,-40},{-30,-40},{-30,-70},{-20,-70}},
@@ -7964,7 +8608,12 @@ type"),         Text(
       annotation (Line(points={{-79,-50},{-76,-50},{-76,2},{28,2},{28,22}},
           color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-          coordinateSystem(preserveAspectRatio=false)));
+          coordinateSystem(preserveAspectRatio=false)),
+      experiment(
+        StopTime=85,
+        Interval=0.02,
+        Tolerance=1e-07,
+        __Dymola_Algorithm="Cvode"));
   end ADAN_venous_thoracic;
 
   package SimpleValsalva

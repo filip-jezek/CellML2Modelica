@@ -2052,7 +2052,7 @@ package Vessel_modules
     parameter Real c(unit = "1") = 0.1324;
     parameter Real d(unit = "m-1") = -11.14;
   //   Real v(unit = "m3.s-1", start = 0.0);
-    Real u_C(unit = "Pa", start = 0.0);
+    Real u_C(unit = "Pa", start = 12000.0);
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
         Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
             extent={{90,-10},{110,10}})));
@@ -2158,7 +2158,7 @@ package Vessel_modules
     parameter Real c(unit = "1") = 0.1324;
     parameter Real d(unit = "m-1") = -11.14;
   //   Real v(unit = "m3.s-1", start = 0.0);
-    Real u_C(unit = "Pa", start = 0.0);
+    Real u_C(unit = "Pa", start = 12000.0);
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
         Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
             extent={{90,-10},{110,10}})));
@@ -8560,7 +8560,7 @@ type"),         Text(
 
       ElasticVesselElastance venaCava(
         ZeroPressureVolume=0,
-        volume_start=0.0002952,
+        volume_start=2.052e-10,
         Elastance(displayUnit="Pa/m3") = 786602.0857485)
         annotation (Placement(transformation(extent={{-130,24},{-110,44}})));
       IdealValveResistance aorticValve(Pknee=0, _Ron(displayUnit=

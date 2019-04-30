@@ -2091,9 +2091,7 @@ package Vessel_modules
   end pv_type;
 
   model Baroreceptor
-    input Physiolibrary.Types.Volume v "volume of vessel";
-    input Physiolibrary.Types.Volume v0 "reference vessel volume";
-    Real d= noEvent( if v > 0 then sqrt(v/v0) else 0) "The distension ratio r/r0. Should be around 1, but not necesarily exactly 1, as it is compensated by other paraemters";
+    input Real d "The distension ratio r/r0. Should be around 1, but not necesarily exactly 1, as it is compensated by other paraemters";
     Real epsilon( start = epsilon_start) "Averaged distension ratio";
     parameter Physiolibrary.Types.Time Ts = 30 "Time constant for averaging";
     Real delta=max(d - epsilon, 0) "Positive peaks detected";
@@ -2103,9 +2101,9 @@ package Vessel_modules
     Real s(start = s_start);
     parameter Real a(unit="s-1") = 0.0651;
     parameter Real b(unit="s-1") = 0.2004;
-    parameter Real epsilon_start = 1;
-    parameter Real s_start = 1;
-    parameter Modelica.SIunits.Time resetAt = 5 "resets initial conditions to counter transients";
+    parameter Real epsilon_start = 1.075;
+    parameter Real s_start = 0.85;
+    parameter Modelica.SIunits.Time resetAt = 0 "resets initial conditions to counter transients";
     Modelica.Blocks.Interfaces.RealOutput fbr( unit = "Hz") = f0*s*(delta/(delta + delta0)) "Baroreceptor firing frequency" annotation (Placement(transformation(
             extent={{92,-10},{112,10}}), iconTransformation(extent={{92,-10},{112,
               10}})));
@@ -2329,13 +2327,19 @@ model pv_jII_type_baroreceptor
 //  Physiolibrary.Types.Volume volume = u_C*C;
   Physiolibrary.Types.Volume v0 = Modelica.Constants.pi*(r^2) *l;
 
-      Baroreceptor baroreceptor(v=volume, v0=v0)
+      Baroreceptor baroreceptor(d = diameter)
         annotation (Placement(transformation(extent={{-10,-12},{10,8}})));
   Modelica.Blocks.Interfaces.RealOutput y annotation (Placement(transformation(
           extent={{76,-30},{96,-10}}), iconTransformation(extent={{72,-30},{92,-10}})));
 
   Modelica.SIunits.Diameter dc "Current diameter";
   Modelica.SIunits.Diameter rc "Current radius";
+
+  // Real d = noEvent( if v > 0 then sqrt(v/v0) else 0) "The distension ratio r/r0";
+  Real diameter = dc/d0;
+
+  parameter Modelica.SIunits.Diameter d0 = 1e-3 "Normal vessel diameter";
+
 equation
   volume + v0= Modelica.Constants.pi*((dc/2)^2) *l;
     volume + v0= Modelica.Constants.pi*(rc^2) *l;
@@ -11482,17 +11486,17 @@ type"),         Text(
 
     model BaroreflexFit
 
-      ReadData readData
+      ReadData readData(ExperimentNr=2)
         annotation (Placement(transformation(extent={{-100,0},{-80,20}})));
-      Components.Auxiliary.Baroreflex baroreflex
+      Components.Auxiliary.Baroreflex baroreflex(
+        f1=0.0046,
+        fsn=0.041,
+        g=0.5,
+        resetAt=0.0)
         annotation (Placement(transformation(extent={{42,14},{62,34}})));
-      Vessel_modules.Baroreceptor baroreceptorAortic(v = Va, v0 = v0a,
-        epsilon_start=1.25,
-        s_start=0.9)
+      Vessel_modules.Baroreceptor baroreceptorAortic(d = da)
         annotation (Placement(transformation(extent={{-8,24},{12,44}})));
-      Vessel_modules.Baroreceptor baroreceptorCarotid(v = Vc, v0 = v0c,
-        epsilon_start=1.09,
-        s_start=0.98)
+      Vessel_modules.Baroreceptor baroreceptorCarotid(d = dc)
         annotation (Placement(transformation(extent={{-8,0},{12,20}})));
 
     protected
@@ -11504,12 +11508,16 @@ type"),         Text(
     public
       Modelica.Blocks.Math.Add add(k1=-1)
         annotation (Placement(transformation(extent={{-62,30},{-42,50}})));
-       parameter Physiolibrary.Types.Volume v0a = 4.92e-6;
-        parameter Physiolibrary.Types.Volume v0c = 9.11e-7;
+       parameter Physiolibrary.Types.Volume v0a(displayUnit="ml")=2.42E-06;
+        parameter Physiolibrary.Types.Volume v0c(displayUnit="ml")=1.4E-07;
         parameter Physiolibrary.Types.HydraulicCompliance Ca= 2.13e-10;
         parameter Physiolibrary.Types.HydraulicCompliance Cc= 1.10e-11;
-        Physiolibrary.Types.Volume Va = BPa*Ca +v0a;
-        Physiolibrary.Types.Volume Vc = BPc*Cc + v0c;
+        Physiolibrary.Types.Volume Va = BPa*Ca;
+        Physiolibrary.Types.Volume Vc = BPc*Cc;
+
+
+      Real da = noEvent( if Va > 0 then sqrt(Va/v0a) else 0) "The distension ratio r/r0";
+      Real dc = noEvent( if Vc > 0 then sqrt(Vc/v0c) else 0) "The distension ratio r/r0";
     equation
       connect(readData.arterial_pressure, add.u2) annotation (Line(points={{-79.8,10},
               {-70,10},{-70,34},{-64,34}}, color={0,0,127}));

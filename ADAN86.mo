@@ -2109,6 +2109,7 @@ package Vessel_modules
     Modelica.Blocks.Interfaces.RealOutput fbr( unit = "Hz") = f0*s*(delta/(delta + delta0)) "Baroreceptor firing frequency" annotation (Placement(transformation(
             extent={{92,-10},{112,10}}), iconTransformation(extent={{92,-10},{112,
               10}})));
+
   equation
 
     when time > resetAt then
@@ -2130,15 +2131,16 @@ package Vessel_modules
   //  Physiolibrary.Types.Volume volume = u_C*C;
     Physiolibrary.Types.Volume v0 = Modelica.Constants.pi*(r^2) *l;
 
-      Baroreceptor baroreceptor(v=volume, v0=v0)
+      Baroreceptor baroreceptor(v=volume+v0, v0=v0)
         annotation (Placement(transformation(extent={{-10,-12},{10,8}})));
 
     Modelica.Blocks.Interfaces.RealOutput y annotation (Placement(transformation(
-            extent={{76,-30},{96,-10}}), iconTransformation(extent={{72,-30},{
-                92,-10}})));
+            extent={{76,-30},{96,-10}}), iconTransformation(extent={{72,-30},{92,-10}})));
+    Modelica.SIunits.Diameter dc "Current diameter";
   equation
-      connect(baroreceptor.fbr, y) annotation (Line(points={{10.2,-2},{56,-2},{
-              56,-20},{86,-20}}, color={0,0,127}));
+    volume + v0= Modelica.Constants.pi*((dc/2)^2) *l;
+    connect(baroreceptor.fbr, y) annotation (Line(points={{10.2,-2},{56,-2},{56,-20},
+            {86,-20}}, color={0,0,127}));
   end pv_type_baroreceptor;
 
   model pv_type_thoracic
@@ -2330,11 +2332,16 @@ model pv_jII_type_baroreceptor
       Baroreceptor baroreceptor(v=volume, v0=v0)
         annotation (Placement(transformation(extent={{-10,-12},{10,8}})));
   Modelica.Blocks.Interfaces.RealOutput y annotation (Placement(transformation(
-          extent={{76,-30},{96,-10}}), iconTransformation(extent={{72,-30},{92,
-                -10}})));
+          extent={{76,-30},{96,-10}}), iconTransformation(extent={{72,-30},{92,-10}})));
+
+  Modelica.SIunits.Diameter dc "Current diameter";
+  Modelica.SIunits.Diameter rc "Current radius";
 equation
-      connect(baroreceptor.fbr, y) annotation (Line(points={{10.2,-2},{56,-2},{
-              56,-20},{86,-20}}, color={0,0,127}));
+  volume + v0= Modelica.Constants.pi*((dc/2)^2) *l;
+    volume + v0= Modelica.Constants.pi*(rc^2) *l;
+
+  connect(baroreceptor.fbr, y) annotation (Line(points={{10.2,-2},{56,-2},{56,-20},
+          {86,-20}}, color={0,0,127}));
 end pv_jII_type_baroreceptor;
 
   model pp_BC_type
@@ -7840,9 +7847,9 @@ type"),         Text(
               {150,100},{168,100}},
                                color={0,0,127}));
       connect(baroreflex.carotid_BR, internal_carotid_R8_A.y) annotation (Line(
-            points={{134,82},{22,82},{22,135.5},{22.2,135.5}}, color={0,0,127}));
-      connect(aortic_arch_C46.y,baroreflex. aortic_BR) annotation (Line(points=
-              {{-84.6,49.5},{-85.3,49.5},{-85.3,62},{134,62}}, color={0,0,127}));
+            points={{134,82},{22,82},{22,133},{20.2,133}},     color={0,0,127}));
+      connect(aortic_arch_C46.y,baroreflex. aortic_BR) annotation (Line(points={{-86.8,
+              47},{-85.3,47},{-85.3,62},{134,62}},             color={0,0,127}));
       connect(baroreflex.phi, phi) annotation (Line(points={{154.2,72},{162,72},
               {162,64},{178,64}}, color={0,0,127}));
     end arteries_with_volumes;
@@ -11364,7 +11371,11 @@ type"),         Text(
         annotation (Line(points={{-114,48},{-120,48},{-120,42}}, color={0,0,127}));
       connect(arteries_ADAN86.phi, VenousVariableCompliance.phi) annotation (
           Line(points={{-110.4,-10},{-100,-10},{-100,48}}, color={0,0,127}));
-      annotation (experiment(StopTime=100, Interval=0.01));
+      annotation (experiment(
+          StopTime=100,
+          Interval=0.005,
+          Tolerance=1e-06,
+          __Dymola_Algorithm="Cvode"));
     end Valsalva;
 
     model venousVariableCompliance
@@ -11414,6 +11425,7 @@ type"),         Text(
     model ReadData
       parameter Integer ExperimentNr = 1;
       parameter String filename = "Data/valsalva_experiment" + String(ExperimentNr)  + ".mat";
+      constant Real const_mmHg2Pa = 133.32;
     Modelica.Blocks.Sources.CombiTimeTable tbl_thoracic_pressure(
         tableOnFile=true,
         tableName="thoracic_pressure",
@@ -11435,22 +11447,35 @@ type"),         Text(
         smoothness=Modelica.Blocks.Types.Smoothness.LinearSegments,
         extrapolation=Modelica.Blocks.Types.Extrapolation.HoldLastPoint)
         annotation (Placement(transformation(extent={{-80,-40},{-60,-20}})));
-      Modelica.Blocks.Interfaces.RealOutput thoracic_pressure annotation (
-          Placement(transformation(extent={{92,30},{112,50}}),
-            iconTransformation(extent={{92,30},{112,50}})));
-      Modelica.Blocks.Interfaces.RealOutput arterial_pressure annotation (
-          Placement(transformation(extent={{92,-10},{112,10}}),
-            iconTransformation(extent={{92,-10},{112,10}})));
-      Modelica.Blocks.Interfaces.RealOutput heart_rate annotation (Placement(
-            transformation(extent={{92,-50},{112,-30}}), iconTransformation(
-              extent={{92,-50},{112,-30}})));
+      Physiolibrary.Types.RealIO.PressureOutput
+                                            thoracic_pressure annotation (Placement(
+            transformation(extent={{92,30},{112,50}}), iconTransformation(extent={{92,
+                30},{112,50}})));
+      Physiolibrary.Types.RealIO.PressureOutput arterial_pressure annotation (Placement(
+            transformation(extent={{92,-10},{112,10}}), iconTransformation(extent={{
+                92,-10},{112,10}})));
+      Physiolibrary.Types.RealIO.FrequencyOutput heart_rate annotation (Placement(
+            transformation(extent={{92,-50},{112,-30}}), iconTransformation(extent={
+                {92,-50},{112,-30}})));
+      Modelica.Blocks.Math.Gain mmHg2Pa1(k=const_mmHg2Pa)
+        annotation (Placement(transformation(extent={{40,30},{60,50}})));
+      Modelica.Blocks.Math.Gain mmHg2Pa2(k=const_mmHg2Pa)
+        annotation (Placement(transformation(extent={{40,-10},{60,10}})));
+      Modelica.Blocks.Math.Gain BPM2Hz(k=1/60)
+        annotation (Placement(transformation(extent={{40,-50},{60,-30}})));
     equation
-      connect(tbl_thoracic_pressure.y[1], thoracic_pressure) annotation (Line(
-            points={{-59,50},{22,50},{22,40},{102,40}}, color={0,0,127}));
-      connect(tbl_heart_rate.y[1], heart_rate) annotation (Line(points={{-59,
-              -30},{22,-30},{22,-40},{102,-40}}, color={0,0,127}));
-      connect(tbl_arterial_pressure.y[1], arterial_pressure) annotation (Line(
-            points={{-59,10},{22,10},{22,0},{102,0}}, color={0,0,127}));
+      connect(tbl_thoracic_pressure.y[1], mmHg2Pa1.u) annotation (Line(points={{-59,
+              50},{-10,50},{-10,40},{38,40}}, color={0,0,127}));
+      connect(thoracic_pressure, mmHg2Pa1.y)
+        annotation (Line(points={{102,40},{61,40}}, color={0,0,127}));
+      connect(tbl_arterial_pressure.y[1], mmHg2Pa2.u) annotation (Line(points={{-59,
+              10},{-10,10},{-10,0},{38,0}}, color={0,0,127}));
+      connect(arterial_pressure, mmHg2Pa2.y)
+        annotation (Line(points={{102,0},{61,0}}, color={0,0,127}));
+      connect(tbl_heart_rate.y[1], BPM2Hz.u) annotation (Line(points={{-59,-30},{-10,
+              -30},{-10,-40},{38,-40}}, color={0,0,127}));
+      connect(heart_rate, BPM2Hz.y)
+        annotation (Line(points={{102,-40},{61,-40}}, color={0,0,127}));
     annotation (uses(Modelica(version="3.2.3")), experiment(StopTime=100,
           __Dymola_NumberOfIntervals=50));
     end ReadData;
@@ -11461,9 +11486,13 @@ type"),         Text(
         annotation (Placement(transformation(extent={{-100,0},{-80,20}})));
       Components.Auxiliary.Baroreflex baroreflex
         annotation (Placement(transformation(extent={{42,14},{62,34}})));
-      Vessel_modules.Baroreceptor baroreceptorAortic(v = Va, v0 = v0a)
+      Vessel_modules.Baroreceptor baroreceptorAortic(v = Va, v0 = v0a,
+        epsilon_start=1.25,
+        s_start=0.9)
         annotation (Placement(transformation(extent={{-8,24},{12,44}})));
-      Vessel_modules.Baroreceptor baroreceptorCarotid(v = Vc, v0 = v0c)
+      Vessel_modules.Baroreceptor baroreceptorCarotid(v = Vc, v0 = v0c,
+        epsilon_start=1.09,
+        s_start=0.98)
         annotation (Placement(transformation(extent={{-8,0},{12,20}})));
 
     protected
@@ -11479,7 +11508,7 @@ type"),         Text(
         parameter Physiolibrary.Types.Volume v0c = 9.11e-7;
         parameter Physiolibrary.Types.HydraulicCompliance Ca= 2.13e-10;
         parameter Physiolibrary.Types.HydraulicCompliance Cc= 1.10e-11;
-        Physiolibrary.Types.Volume Va = BPa*Ca + v0a;
+        Physiolibrary.Types.Volume Va = BPa*Ca +v0a;
         Physiolibrary.Types.Volume Vc = BPc*Cc + v0c;
     equation
       connect(readData.arterial_pressure, add.u2) annotation (Line(points={{-79.8,10},

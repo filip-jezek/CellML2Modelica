@@ -2129,14 +2129,23 @@ package Vessel_modules
   //  Physiolibrary.Types.Volume volume = u_C*C;
     Physiolibrary.Types.Volume v0 = Modelica.Constants.pi*(r^2) *l;
 
-      Baroreceptor baroreceptor(v=volume+v0, v0=v0)
-        annotation (Placement(transformation(extent={{-10,-12},{10,8}})));
-
+        Baroreceptor baroreceptor(d = diameter)
+          annotation (Placement(transformation(extent={{-10,-12},{10,8}})));
     Modelica.Blocks.Interfaces.RealOutput y annotation (Placement(transformation(
             extent={{76,-30},{96,-10}}), iconTransformation(extent={{72,-30},{92,-10}})));
+
     Modelica.SIunits.Diameter dc "Current diameter";
+    Modelica.SIunits.Diameter rc "Current radius";
+
+    // Real d = noEvent( if v > 0 then sqrt(v/v0) else 0) "The distension ratio r/r0";
+    Real diameter = dc/d0;
+
+    parameter Modelica.SIunits.Diameter d0 = 5.45e-3 "Normal vessel diameter";
+
   equation
     volume + v0= Modelica.Constants.pi*((dc/2)^2) *l;
+      volume + v0= Modelica.Constants.pi*(rc^2) *l;
+
     connect(baroreceptor.fbr, y) annotation (Line(points={{10.2,-2},{56,-2},{56,-20},
             {86,-20}}, color={0,0,127}));
   end pv_type_baroreceptor;
@@ -2338,7 +2347,7 @@ model pv_jII_type_baroreceptor
   // Real d = noEvent( if v > 0 then sqrt(v/v0) else 0) "The distension ratio r/r0";
   Real diameter = dc/d0;
 
-  parameter Modelica.SIunits.Diameter d0 = 1e-3 "Normal vessel diameter";
+  parameter Modelica.SIunits.Diameter d0 = 32e-3 "Normal vessel diameter";
 
 equation
   volume + v0= Modelica.Constants.pi*((dc/2)^2) *l;
@@ -10877,7 +10886,7 @@ type"),         Text(
       Components.Pulmonary_circulation pulmonary_circulation
         annotation (Placement(transformation(extent={{-20,-80},{0,-60}})));
       Modelica.Blocks.Sources.Constant thoracic_pressure(k=0)
-        annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
+        annotation (Placement(transformation(extent={{-98,-60},{-78,-40}})));
       Modelica.Blocks.Sources.Constant heart_frequency(k=1)
         annotation (Placement(transformation(extent={{80,-40},{60,-20}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump(
@@ -10901,7 +10910,7 @@ type"),         Text(
             rotation=90,
             origin={-60,2})));
       Modelica.Blocks.Continuous.Integrator integrator
-        annotation (Placement(transformation(extent={{-112,-8},{-132,12}})));
+        annotation (Placement(transformation(extent={{-78,-8},{-98,12}})));
     equation
       connect(heart.pa, pulmonary_circulation.port_a) annotation (Line(
           points={{-20,-40},{-30,-40},{-30,-70},{-20,-70}},
@@ -10912,12 +10921,12 @@ type"),         Text(
           color={0,0,0},
           thickness=1));
       connect(thoracic_pressure.y, arteries_ADAN86_dv.thoracic_pressure)
-        annotation (Line(points={{-79,-50},{-40,-50},{-40,20}},color={0,140,72}));
+        annotation (Line(points={{-77,-50},{-40,-50},{-40,20}},color={0,140,72}));
       connect(thoracic_pressure.y, pulmonary_circulation.thoracic_pressure)
-        annotation (Line(points={{-79,-50},{-40,-50},{-40,-80},{-10,-80}}, color=
+        annotation (Line(points={{-77,-50},{-40,-50},{-40,-80},{-10,-80}}, color=
               {0,140,72}));
       connect(thoracic_pressure.y, heart.thoracic_pressure) annotation (Line(
-            points={{-79,-50},{-10,-50},{-10,-40}}, color={0,140,72}));
+            points={{-77,-50},{-10,-50},{-10,-40}}, color={0,140,72}));
       connect(heart_frequency.y, heart.frequency)
         annotation (Line(points={{59,-30},{0,-30}}, color={0,0,127}));
       connect(heart.sv, unlimitedPump.q_out) annotation (Line(
@@ -10956,8 +10965,8 @@ type"),         Text(
           points={{-60,12},{-60,30},{-40,30}},
           color={0,0,0},
           thickness=1));
-      connect(integrator.u, flowMeasure2.volumeFlow) annotation (Line(points={{
-              -110,2},{-90,2},{-90,2},{-72,2}}, color={0,0,127}));
+      connect(integrator.u, flowMeasure2.volumeFlow) annotation (Line(points={{-76,2},
+              {-72,2}},                         color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
@@ -11358,15 +11367,20 @@ type"),         Text(
           width=20,
           falling=1,
           period=100,
-          nperiod=1,
+          nperiod=0,
           offset=-530,
-          startTime=15),  arteries_ADAN86(
-          aortic_arch_C46(baroreceptor(epsilon_start=0.76, s_start=0.91)),
-          internal_carotid_R8_A(baroreceptor(epsilon_start=0.4, s_start=0.95)),
-          baroreflex(fiSN(start=0.4))),
+          startTime=30),  arteries_ADAN86(
+          aortic_arch_C46(baroreceptor(epsilon_start=1.004,s_start=0.9339)),
+          internal_carotid_R8_A(baroreceptor(epsilon_start=1.0013,
+                                                                s_start=0.9712)),
+          baroreflex(fiSN(start=0.25),
+            f1=0.015,
+            g=0.3,
+            resetAt=0.0)),
         useClosedLoopHR(y=true));
       venousVariableCompliance VenousVariableCompliance(useVariableCompliance=
-            true) annotation (Placement(transformation(
+            false)
+                  annotation (Placement(transformation(
             rotation=0,
             extent={{7,-6.00002},{-7,6.00001}},
             origin={-107,48})));
@@ -11423,6 +11437,49 @@ type"),         Text(
               fillPattern=FillPattern.None,
               textString="φ -> C")}));
     end venousVariableCompliance;
+
+    model ValsalvaTPData
+      extends HemodynamicsSmith_shallow(venaCava(
+          volume_start=1e-5,
+          useComplianceInput=true,                                  Elastance(
+              displayUnit="mmHg/ml") = 7999343.2449),
+          redeclare DataFit.ThoracicPressureFromData  IntraThoracicPressure,
+                          arteries_ADAN86(
+          aortic_arch_C46(baroreceptor(epsilon_start=1.004,s_start=0.9339)),
+          internal_carotid_R8_A(baroreceptor(epsilon_start=1.0013,
+                                                                s_start=0.9712)),
+          baroreflex(fiSN(start=0.25),
+            f1=0.015,
+            g=0.3,
+            resetAt=0.0)),
+        useClosedLoopHR(y=true));
+      venousVariableCompliance VenousVariableCompliance(useVariableCompliance=
+            false)
+                  annotation (Placement(transformation(
+            rotation=0,
+            extent={{7,-6.00002},{-7,6.00001}},
+            origin={-107,48})));
+    equation
+      connect(VenousVariableCompliance.compliance, venaCava.compliance)
+        annotation (Line(points={{-114,48},{-120,48},{-120,42}}, color={0,0,127}));
+      connect(arteries_ADAN86.phi, VenousVariableCompliance.phi) annotation (
+          Line(points={{-110.4,-10},{-100,-10},{-100,48}}, color={0,0,127}));
+      annotation (experiment(
+          StopTime=100,
+          Interval=0.005,
+          Tolerance=1e-06,
+          __Dymola_Algorithm="Cvode"));
+    end ValsalvaTPData;
+
+    model ValsalvaCL
+      extends ValsalvaTPData(
+        arteries_ADAN86(
+          aortic_arch_C46(baroreceptor(epsilon_start=0.9977, s_start=0.9312)),
+          baroreflex(fiSN(start=0.251996), fiSN_start=0.251996),
+          internal_carotid_R8_A(baroreceptor(epsilon_start=0.9989, s_start=0.97))),
+        VenousVariableCompliance(useVariableCompliance=true));
+
+    end ValsalvaCL;
   end SmithExtended;
 
   package DataFit
@@ -11532,6 +11589,23 @@ type"),         Text(
       connect(readData.arterial_pressure, BPc)
         annotation (Line(points={{-79.8,10},{-24,10}}, color={0,0,127}));
     end BaroreflexFit;
+
+    block ThoracicPressureFromData
+      extends Modelica.Blocks.Interfaces.SO;
+      ReadData readData
+        annotation (Placement(transformation(extent={{-44,6},{-24,26}})));
+    equation
+      connect(readData.thoracic_pressure, y) annotation (Line(points={{-23.8,20},
+              {38,20},{38,0},{110,0}}, color={0,0,127}));
+      annotation (Icon(graphics={
+            Line(points={{-78,48},{-70,-74},{-68,-70},{-36,-44},{-34,-42},{-18,
+                  -8},{-20,-6},{-30,24},{-32,24},{-54,42},{-56,42},{-76,48}},
+                color={28,108,200}),
+            Line(points={{-14,-68},{-14,-66},{-4,58},{36,-64},{18,-12},{-12,-24}},
+                color={28,108,200}),
+            Line(points={{48,-64},{50,-60},{16,68},{92,-52},{92,-50},{56,76}},
+                color={28,108,200})}));
+    end ThoracicPressureFromData;
   end DataFit;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
             "3.2.2")), experiment(

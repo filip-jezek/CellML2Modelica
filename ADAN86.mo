@@ -11560,16 +11560,16 @@ type"),         Text(
           aortic_arch_C46(baroreceptor(epsilon_start=0.9977, s_start=0.9312)),
           baroreflex(fiSN(start=0.251996), fiSN_start=0.251996),
           internal_carotid_R8_A(baroreceptor(epsilon_start=0.9989, s_start=0.97))),
-        VenousVariableCompliance(useVariableCompliance=true, alphaZPV=5.0),
+        VenousVariableCompliance(useVariableCompliance=true, alphaZPV=2.5),
         venaCava(
           volume_start=0.00101,
           useV0Input=true,
           ZeroPressureVolume=0.001),
         IntraThoracicPressure(readData(ExperimentNr=2)),
-        ventricularInteraction_flat(alphaE=20.0));
+        ventricularInteraction_flat(alphaE=0));
 
       Components.variable_arterial_resistance variable_arterial_resistance(
-          useVariableResistance=false)
+          useVariableResistance=true, alphaR=2.5)
         annotation (Placement(transformation(extent={{-104,-54},{-84,-34}})));
 
         Physiolibrary.Types.Pressure ps;

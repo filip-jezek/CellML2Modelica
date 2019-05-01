@@ -3196,7 +3196,8 @@ end pv_jII_type_baroreceptor;
           extent={{-10,-10},{10,10}},
           rotation=0,
           origin={-34,-40})));
-    Physiolibrary.Hydraulic.Components.Resistor resistor_RTA(Resistance=RTA*rtam)
+    Physiolibrary.Hydraulic.Components.Resistor resistor_RTA(useConductanceInput=true,
+          Resistance(displayUnit="(Pa.s)/m3") = 1)
       annotation (Placement(transformation(extent={{0,-10},{20,10}})));
     Physiolibrary.Hydraulic.Components.ElasticVessel elasticVessel_CT(
         volume_start=CT*Tissue_pressure,                              Compliance=
@@ -3214,11 +3215,13 @@ end pv_jII_type_baroreceptor;
       annotation (Placement(transformation(extent={{-40,2},{-20,22}})));
     Physiolibrary.Hydraulic.Sensors.PressureMeasure pressureMeasure_u1
       annotation (Placement(transformation(extent={{24,4},{44,24}})));
-    outer parameter Physiolibrary.Types.Fraction rtam = 1 "modifier for Resistance of arterioles RTA_%name";
     outer parameter Physiolibrary.Types.Fraction rtvm = 1 "modifier for Resistance of venules RTV_%name";
     outer parameter Physiolibrary.Types.Fraction ctm =  1 "modifier for Tissue compliance CT_%name";
 
     parameter Physiolibrary.Types.Pressure Tissue_pressure = 20*133;
+    AdjustableConductanceRtam adjustableConductanceRtam(RTA=RTA)
+                                                        annotation (Placement(
+          transformation(rotation=0, extent={{-14,54},{-6,62}})));
   equation
     volume = elasticVessel_C.volume + elasticVessel_CT.volume;
 
@@ -3283,6 +3286,8 @@ end pv_jII_type_baroreceptor;
           points={{30,-40},{30,0},{54,0}},
           color={0,0,0},
           thickness=1));
+    connect(adjustableConductanceRtam.y, resistor_RTA.cond)
+      annotation (Line(points={{-4.8,54},{10,54},{10,6}}, color={0,0,127}));
     annotation (Icon(graphics={
           Rectangle(
             extent={{80,20},{100,-20}},
@@ -3303,6 +3308,17 @@ end pv_jII_type_baroreceptor;
             lineColor={28,108,200},
             textString="tissues")}));
   end arterial_terminator;
+
+  model AdjustableConductanceRtam
+    outer Physiolibrary.Types.Fraction rtam = 1 "modifier for Resistance of arterioles RTA_%name";
+    parameter Physiolibrary.Types.HydraulicResistance RTA "Resistance of arterioles RTA_%name";
+
+
+    Physiolibrary.Types.RealIO.HydraulicConductanceOutput y = 1/(RTA*rtam)
+      annotation (Placement(transformation(extent={{16,-30},{36,-10}})));
+    annotation (Diagram(coordinateSystem(extent={{-20,-20},{20,20}})), Icon(
+          coordinateSystem(extent={{-20,-20},{20,20}})));
+  end AdjustableConductanceRtam;
 end Vessel_modules;
 
   package Components
@@ -3556,7 +3572,7 @@ type"),         Text(
                   {110,-88}})));
       parameter Modelica.SIunits.Time resetAt = 5;
       parameter Real fiSN_start = 0.25;
-        Physiolibrary.Types.RealIO.FractionOutput phi = fiSN / 0.25
+        Physiolibrary.Types.RealIO.FractionOutput phi = fiSN
                                                       annotation (Placement(
               transformation(extent={{96,70},{116,90}}),  iconTransformation(extent={{92,-10},
                   {112,10}})));
@@ -6451,7 +6467,7 @@ type"),         Text(
 
     model arteries_simplified_dv
       inner parameter Real periferyModifier = 1.3;
-      inner parameter Physiolibrary.Types.Fraction rtam = 1 "modifier for Resistance of arterioles RTA_%name";
+      inner Physiolibrary.Types.Fraction rtam = resistance_modifier "modifier for Resistance of arterioles RTA_%name";
       inner parameter Physiolibrary.Types.Fraction rtvm = 1 "modifier for Resistance of venules RTV_%name";
       inner parameter Physiolibrary.Types.Fraction ctm =  1 "modifier for Tissue compliance CT_%name";
 
@@ -7423,7 +7439,13 @@ type"),         Text(
             iconTransformation(extent={{90,-110},{110,-90}})));
       Parameters_cellml.TerminalsParameters terminalsParameters
         annotation (Placement(transformation(extent={{-100,-68},{-80,-48}})));
+      Physiolibrary.Types.RealIO.PressureInput resistance_modifier annotation (Placement(transformation(extent={{-86,-120},
+                {-46,-80}}), iconTransformation(extent={{-86,-120},{-46,-80}})));
     equation
+    //   if not resistance_modifier_on then
+    //     rtam = 1;
+    //   end if;
+
       v_posterior_intercostal_T1_R98 = posterior_intercostal_T1_R98.v_T;
       v_posterior_intercostal_T1_L102 = posterior_intercostal_T1_L102.v_T;
       v_posterior_intercostal_T2_R106 = posterior_intercostal_T2_R106.v_T;
@@ -7875,7 +7897,10 @@ type"),         Text(
       Pressure Psept, Pperi;
       parameter Pressure Pi0sept, Pi0rv, Pi0lv, Pi0peri
         "peak isovolumic pressure";
-      parameter HydraulicElastance Essept, Esrv, Eslv
+      parameter HydraulicElastance Essept0, Esrv0, Eslv0;
+      HydraulicElastance Essept = Essept0*(1 + alphaE*(phi - phi0));
+      HydraulicElastance Esrv = Esrv0*(1 + alphaE*(phi - phi0));
+      HydraulicElastance Eslv = Eslv0*(1 + alphaE*(phi - phi0))
         "elastance of systole";
       parameter Real A=1, B=80, CC=0.375;
         Time tm;
@@ -7900,6 +7925,13 @@ type"),         Text(
             extent={{-20,-20},{20,20}},
             rotation=180,
             origin={82,0})));
+      Physiolibrary.Types.RealIO.FractionInput
+                            phi
+                               annotation (Placement(transformation(extent={{-80,-100},
+                {-40,-60}}),          iconTransformation(extent={{-100,60},{-60,
+                100}})));
+      Physiolibrary.Types.Fraction phi0 = 0.25;
+      parameter Real alphaE = 2.5;
     equation
       //timing
       tm = time - pre(t0);
@@ -7939,8 +7971,99 @@ type"),         Text(
                       fillColor={0,0,255}),Text(
               extent={{-100,-60},{100,-80}},
               lineColor={0,0,255},
-              textString="%name")}));
+              textString="%name"),      Text(
+              extent={{-64,70},{-38,58}},
+              lineColor={0,0,255},
+              textString="phi")}));
     end Smith_VentricularInteraction_flat;
+
+    model variable_arterial_resistance
+      Physiolibrary.Types.RealIO.FractionInput phi = f if useVariableResistance annotation (Placement(
+            transformation(extent={{96,-10},{116,10}}), iconTransformation(extent={{-104,
+                -10},{-84,10}})));
+      Physiolibrary.Types.RealIO.PressureOutput resistance_modifier annotation (
+          Placement(transformation(extent={{80,-20},{120,20}}),
+            iconTransformation(extent={{80,-20},{120,20}})));
+
+        parameter Boolean  useVariableResistance = true;
+
+        parameter Physiolibrary.Types.Fraction alphaR = 1;
+    //    parameter Physiolibrary.Types.HydraulicCompliance baseCompliance = 1.25e-7;
+
+        parameter Physiolibrary.Types.Fraction nf = 0.25 "normal value of phi";
+    protected
+        Physiolibrary.Types.Fraction f;
+    equation
+
+        if not useVariableResistance then
+          f = nf;
+        end if;
+
+        resistance_modifier = (1 + alphaR*(f-nf));
+      annotation (Icon(graphics={                                       Polygon(
+              points={{-98,52},{100,38},{100,-46},{-98,-50},{-98,52}},
+              lineColor={216,102,103},
+              lineThickness=0.5,
+              fillColor={234,215,67},
+              fillPattern=FillPattern.Solid), Text(
+              extent={{-74,-38},{72,42}},
+              lineColor={216,102,103},
+              lineThickness=0.5,
+              fillColor={234,215,67},
+              fillPattern=FillPattern.None,
+              textString="φ -> R")}));
+    end variable_arterial_resistance;
+
+    model venousVariableCompliance
+        Physiolibrary.Types.RealIO.HydraulicComplianceOutput compliance
+          annotation (Placement(transformation(
+              extent={{-20,-20},{20,20}},
+              rotation=0,
+              origin={100,0}), iconTransformation(extent={{100,-20},{140,20}})));
+        Physiolibrary.Types.RealIO.FractionInput phi = f if useVariableCompliance annotation (Placement(
+              transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent=
+                 {{-120,-20},{-80,20}})));
+        parameter Boolean  useVariableCompliance = false;
+
+        parameter Physiolibrary.Types.Fraction alphaC = 2.5;
+        parameter Physiolibrary.Types.Fraction alphaZPV = 2.5;
+        parameter Physiolibrary.Types.HydraulicCompliance baseCompliance = 1.25e-7;
+
+        parameter Physiolibrary.Types.Fraction nf = 0.25 "normal value of phi";
+        Physiolibrary.Types.RealIO.VolumeOutput zpv
+          annotation (Placement(transformation(
+              extent={{-20,-20},{20,20}},
+              rotation=0,
+              origin={100,100}),
+                               iconTransformation(extent={{94,70},{134,110}})));
+      Physiolibrary.Types.Volume zpv0 = 1e-3;
+    protected
+        Physiolibrary.Types.Fraction f;
+    equation
+
+        if not useVariableCompliance then
+          f = nf;
+        end if;
+
+        compliance = baseCompliance / (1 + alphaC*(f-nf));
+        zpv = zpv0 / (1 + alphaZPV*(f-nf));
+
+        annotation (Diagram(coordinateSystem(extent={{-100,-100},{100,100}})), Icon(
+              coordinateSystem(extent={{-100,-100},{120,100}}), graphics={Polygon(
+                points={{-94,62},{-48,96},{38,98},{80,74},{110,0},{110,-52},{82,-94},{
+                    32,-102},{-58,-90},{-110,-20},{-94,62}},
+                lineColor={216,102,103},
+                smooth=Smooth.Bezier,
+                lineThickness=0.5,
+                fillColor={234,215,67},
+                fillPattern=FillPattern.Solid), Text(
+                extent={{-80,-40},{100,60}},
+                lineColor={216,102,103},
+                lineThickness=0.5,
+                fillColor={234,215,67},
+                fillPattern=FillPattern.None,
+                textString="φ -> C")}));
+    end venousVariableCompliance;
   end Components;
 
   package tests
@@ -11141,6 +11264,7 @@ type"),         Text(
   end ADAN_Safaei;
 
   package SmithExtended
+
     model HemodynamicsSmith_shallow
       import Physiolibrary.Hydraulic.Components.*;
       Physiolibrary.Types.Volume total_volume=arteries_ADAN86.total_volume +
@@ -11217,14 +11341,14 @@ type"),         Text(
         lambdaperi=30000,
         lambdas(displayUnit="1/m3") = 435000,
         lambdarv(displayUnit="1/m3") = 23000,
-        Essept(displayUnit="mmHg/ml") = 6499999676.0309,
+        Essept0(displayUnit="mmHg/ml") = 6499999676.0309,
         V0peri=0.0002,
         Pi0sept=148.00118226939,
         Pi0rv=28.757638965416,
         Pi0lv=16.038683206025,
         Pi0peri=66.701190423724,
-        Esrv=77993596.637775,
-        Eslv=383941811.27772)
+        Esrv0=77993596.637775,
+        Eslv0=383941811.27772)
         annotation (Placement(transformation(extent={{-18,-12},{20,28}})));
       Components.arteries_with_volumes arteries_ADAN86(redeclare
           Vessel_modules.pv_jII_type_baroreceptor aortic_arch_C46, redeclare
@@ -11344,6 +11468,9 @@ type"),         Text(
               {-110.2,-52},{-110.2,-30}}, color={0,0,127}));
       connect(useClosedLoopHR.y, switch1.u2) annotation (Line(points={{-65,-62},
               {-56,-62},{-56,-60},{-48,-60}}, color={255,0,255}));
+      connect(arteries_ADAN86.phi, ventricularInteraction_flat.phi) annotation
+        (Line(points={{-110.4,-10},{-110,-10},{-110,22},{-14.2,22},{-14.2,24}},
+            color={0,0,127}));
       annotation (
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-160,-100},
                 {160,100}})),
@@ -11378,9 +11505,8 @@ type"),         Text(
             g=0.3,
             resetAt=0.0)),
         useClosedLoopHR(y=true));
-      venousVariableCompliance VenousVariableCompliance(useVariableCompliance=
-            false)
-                  annotation (Placement(transformation(
+      Components.venousVariableCompliance VenousVariableCompliance(
+          useVariableCompliance=false) annotation (Placement(transformation(
             rotation=0,
             extent={{7,-6.00002},{-7,6.00001}},
             origin={-107,48})));
@@ -11395,48 +11521,6 @@ type"),         Text(
           Tolerance=1e-06,
           __Dymola_Algorithm="Cvode"));
     end Valsalva;
-
-    model venousVariableCompliance
-      Physiolibrary.Types.RealIO.HydraulicComplianceOutput compliance
-        annotation (Placement(transformation(
-            extent={{-20,-20},{20,20}},
-            rotation=0,
-            origin={100,0}), iconTransformation(extent={{100,-20},{140,20}})));
-      Physiolibrary.Types.RealIO.FractionInput phi = f if useVariableCompliance annotation (Placement(
-            transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent=
-               {{-120,-20},{-80,20}})));
-      parameter Boolean  useVariableCompliance = false;
-
-      parameter Physiolibrary.Types.Fraction alphaC = 2.5;
-      parameter Physiolibrary.Types.HydraulicCompliance baseCompliance = 1.25e-7;
-
-      parameter Physiolibrary.Types.Fraction nf = 0.25 "normal value of phi";
-    protected
-      Physiolibrary.Types.Fraction f;
-    equation
-
-      if not useVariableCompliance then
-        f = nf;
-      end if;
-
-      compliance = baseCompliance / (1 + alphaC*(f-nf));
-
-      annotation (Diagram(coordinateSystem(extent={{-100,-100},{100,100}})), Icon(
-            coordinateSystem(extent={{-100,-100},{120,100}}), graphics={Polygon(
-              points={{-94,62},{-48,96},{38,98},{80,74},{110,0},{110,-52},{82,-94},{
-                  32,-102},{-58,-90},{-110,-20},{-94,62}},
-              lineColor={216,102,103},
-              smooth=Smooth.Bezier,
-              lineThickness=0.5,
-              fillColor={234,215,67},
-              fillPattern=FillPattern.Solid), Text(
-              extent={{-80,-40},{100,60}},
-              lineColor={216,102,103},
-              lineThickness=0.5,
-              fillColor={234,215,67},
-              fillPattern=FillPattern.None,
-              textString="φ -> C")}));
-    end venousVariableCompliance;
 
     model ValsalvaTPData
       extends HemodynamicsSmith_shallow(venaCava(
@@ -11453,9 +11537,8 @@ type"),         Text(
             g=0.3,
             resetAt=0.0)),
         useClosedLoopHR(y=true));
-      venousVariableCompliance VenousVariableCompliance(useVariableCompliance=
-            false)
-                  annotation (Placement(transformation(
+      Components.venousVariableCompliance               VenousVariableCompliance(
+          useVariableCompliance=false) annotation (Placement(transformation(
             rotation=0,
             extent={{7,-6.00002},{-7,6.00001}},
             origin={-107,48})));
@@ -11477,8 +11560,54 @@ type"),         Text(
           aortic_arch_C46(baroreceptor(epsilon_start=0.9977, s_start=0.9312)),
           baroreflex(fiSN(start=0.251996), fiSN_start=0.251996),
           internal_carotid_R8_A(baroreceptor(epsilon_start=0.9989, s_start=0.97))),
-        VenousVariableCompliance(useVariableCompliance=true));
+        VenousVariableCompliance(useVariableCompliance=true, alphaZPV=5.0),
+        venaCava(
+          volume_start=0.00101,
+          useV0Input=true,
+          ZeroPressureVolume=0.001),
+        IntraThoracicPressure(readData(ExperimentNr=2)),
+        ventricularInteraction_flat(alphaE=20.0));
 
+      Components.variable_arterial_resistance variable_arterial_resistance(
+          useVariableResistance=false)
+        annotation (Placement(transformation(extent={{-104,-54},{-84,-34}})));
+
+        Physiolibrary.Types.Pressure ps;
+        Physiolibrary.Types.Pressure pd;
+        Physiolibrary.Types.Pressure pm = pd + 1/3*(ps-pd);
+        Physiolibrary.Types.Pressure pmax; //= max(pmax, arteries_ADAN86.aortic_arch_C46.u_in);
+        Physiolibrary.Types.Pressure pmin( start = 5e2);
+        Boolean B= sample(0, 0.01);
+        Integer z;
+    equation
+      when ventricularInteraction_flat.t0 > pre(ventricularInteraction_flat.t0) or B then
+        if B then
+          z = pre(z) +10;
+          ps = pre(ps);
+          pd = pre(pd);
+
+          pmax = if pre(pmax) > arteries_ADAN86.aortic_arch_C46.u_in then pre(pmax) else arteries_ADAN86.aortic_arch_C46.u_in;
+          pmin = min(pre(pmin), arteries_ADAN86.aortic_arch_C46.u_in);
+        else
+        z = pre(z) +1;
+              ps = pre(pmax);
+          pd = pre(pmin);
+
+          pmax = 0;
+          pmin = 5e2;
+        end if;
+      end when;
+
+
+      connect(arteries_ADAN86.phi, variable_arterial_resistance.phi) annotation (
+          Line(points={{-110.4,-10},{-108,-10},{-108,-44},{-103.4,-44}}, color={0,0,
+              127}));
+      connect(variable_arterial_resistance.resistance_modifier, arteries_ADAN86.resistance_modifier)
+        annotation (Line(points={{-84,-44},{-80,-44},{-80,-34},{-103.4,-34},{-103.4,
+              -30}}, color={0,0,127}));
+      connect(VenousVariableCompliance.zpv, venaCava.zeroPressureVolume)
+        annotation (Line(points={{-113.618,53.4},{-128,53.4},{-128,42}}, color=
+              {0,0,127}));
     end ValsalvaCL;
   end SmithExtended;
 

@@ -7443,8 +7443,9 @@ type"),         Text(
             iconTransformation(extent={{90,-110},{110,-90}})));
       Parameters_cellml.TerminalsParameters terminalsParameters
         annotation (Placement(transformation(extent={{-100,-68},{-80,-48}})));
-      Physiolibrary.Types.RealIO.PressureInput resistance_modifier annotation (Placement(transformation(extent={{-86,-120},
-                {-46,-80}}), iconTransformation(extent={{-86,-120},{-46,-80}})));
+      Physiolibrary.Types.RealIO.PressureInput resistance_modifier annotation (Placement(transformation(extent={{-68,
+                -120},{-28,-80}}),
+                             iconTransformation(extent={{-68,-120},{-28,-80}})));
     equation
     //   if not resistance_modifier_on then
     //     rtam = 1;
@@ -7944,10 +7945,15 @@ type"),         Text(
       Physiolibrary.Types.Pressure Prv = rvflow.pressure - Pperi;
       Physiolibrary.Types.Pressure Plv = lvflow.pressure - Pperi;
       Real driving = A*exp(-B*(tm - CC)^2);
+
+      Modelica.Blocks.Interfaces.BooleanOutput
+                            beat = tm >= pre(HP)
+                               annotation (Placement(transformation(extent={{-28,-120},
+                {12,-80}}),           iconTransformation(extent={{-60,-80},{-100,-40}})));
     equation
       //timing
       tm = time - pre(t0);
-      when {initial(),tm >= pre(HP)} then
+      when {initial(),beat} then
         HP = 1/HR;
         t0 = time;
         ts = 0.16 + 0.3*HP;
@@ -8076,6 +8082,48 @@ type"),         Text(
                 fillPattern=FillPattern.None,
                 textString="φ -> C")}));
     end venousVariableCompliance;
+
+    model pressure_envelope
+      Physiolibrary.Types.RealIO.PressureInput p annotation (Placement(
+            transformation(extent={{-60,-40},{-20,0}}), iconTransformation(extent={{
+                -60,-40},{-20,0}})));
+      Modelica.Blocks.Interfaces.BooleanInput beat annotation (Placement(
+            transformation(extent={{-60,0},{-20,40}}), iconTransformation(extent={{-60,
+                0},{-20,40}})));
+      Physiolibrary.Types.Time T=0.01 "sampling period";
+      Physiolibrary.Types.Pressure ps;
+      Physiolibrary.Types.Pressure pd;
+      Physiolibrary.Types.Pressure pm=pd + 1/3*(ps - pd);
+      Physiolibrary.Types.Pressure pmax;
+      //= max(pmax, arteries_ADAN86.aortic_arch_C46.u_in);
+      Physiolibrary.Types.Pressure pmin(start=min_max);
+      Boolean B=sample(0, T);
+      Integer z;
+      constant Physiolibrary.Types.Pressure min_max = 1e5 "Maximal value of the diastolic pressure";
+
+    equation
+      when {beat,B} then
+        if B and beat == pre(beat) then
+          z = pre(z) + 1;
+          ps = pre(ps);
+          pd = pre(pd);
+
+          pmax = if pre(pmax) > p then pre(pmax) else p;
+          pmin = if pre(pmin) < p then pre(pmin) else p;
+        else
+          z = pre(z) + 100;
+          ps = pre(pmax);
+          pd = pre(pmin);
+
+          pmax = 0;
+          pmin = min_max;
+        end if;
+      end when;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-40,-40},
+                {40,40}})), Diagram(coordinateSystem(preserveAspectRatio=false,
+              extent={{-40,-40},{40,40}})));
+    end pressure_envelope;
   end Components;
 
   package tests
@@ -8925,7 +8973,6 @@ type"),         Text(
           Cardiovascular.Model.Complex.Environment.Conditions.Rest_NoAdapt
           condition,
         redeclare Cardiovascular.Model.Complex.Environment.Supports.No supports,
-
         redeclare
           Cardiovascular.Model.Complex.Environment.Initialization.PhysiologicalAdapted
           initialization,
@@ -8933,6 +8980,7 @@ type"),         Text(
           Cardiovascular.Model.Complex.Environment.ModelConstants.Standard
           constants)
         annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
+
     equation
       connect(pulmonaryArteries.q_in,Rpul. q_in) annotation (Line(
           points={{70,34},{86,34},{86,28}},
@@ -9104,7 +9152,6 @@ type"),         Text(
           Cardiovascular.Model.Complex.Environment.Conditions.Rest_NoAdapt
           condition,
         redeclare Cardiovascular.Model.Complex.Environment.Supports.No supports,
-
         redeclare
           Cardiovascular.Model.Complex.Environment.Initialization.PhysiologicalAdapted
           initialization,
@@ -9112,9 +9159,10 @@ type"),         Text(
           Cardiovascular.Model.Complex.Environment.ModelConstants.Standard
           constants)
         annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
+
       Physiolibrary.Hydraulic.Components.IdealValveResistance
-                           aorticValve(Pknee=0, _Ron(displayUnit="(mmHg.s)/ml")
-           = 2399802.97347)
+                           aorticValve(Pknee=0, _Ron(displayUnit="(mmHg.s)/ml")=
+             2399802.97347)
         annotation (Placement(transformation(extent={{22,-28},{2,-8}})));
       Physiolibrary.Hydraulic.Components.IdealValveResistance
                            tricuspidValve(Pknee=0, _Ron(displayUnit=
@@ -9136,8 +9184,8 @@ type"),         Text(
               "(mmHg.s)/ml") = 733273.1307825)
         annotation (Placement(transformation(extent={{90,26},{110,46}})));
       Physiolibrary.Hydraulic.Components.IdealValveResistance
-                           mitralValve(Pknee=0, _Ron(displayUnit="(mmHg.s)/ml")
-           = 2106493.721157)
+                           mitralValve(Pknee=0, _Ron(displayUnit="(mmHg.s)/ml")=
+             2106493.721157)
         annotation (Placement(transformation(extent={{82,-28},{62,-8}})));
       Physiolibrary.Hydraulic.Components.Inertia
               Ltc(I(displayUnit="mmHg.s2/ml") = 10678.18997523,
@@ -11959,7 +12007,7 @@ type"),         Text(
 
     model HemodynamicsSmith_shallow
       import Physiolibrary.Hydraulic.Components.*;
-      Physiolibrary.Types.Volume total_volume=arteries_ADAN86.total_volume +
+      Physiolibrary.Types.Volume total_volume=arteries1.arteries_ADAN86.total_volume +
           venaCava.volume + ventricularInteraction_flat.Vlv +
           ventricularInteraction_flat.Vrv + pulmonaryArteries.volume +
           pulmonaryVeins.volume;
@@ -11972,11 +12020,6 @@ type"),         Text(
       IdealValveResistance aorticValve(Pknee=0, _Ron(displayUnit=
               "(mmHg.s)/ml") = 2399802.97347)
         annotation (Placement(transformation(extent={{-68,-30},{-88,-10}})));
-      Resistor Rsys(Resistance(displayUnit="(Pa.s)/m3") = 9e6)
-        annotation (Placement(transformation(
-            extent={{-10,-10},{10,10}},
-            rotation=90,
-            origin={-120,6})));
       IdealValveResistance tricuspidValve(Pknee=0, _Ron(displayUnit=
               "(mmHg.s)/ml") = 3159740.5817355)
         annotation (Placement(transformation(extent={{-62,24},{-42,44}})));
@@ -12026,7 +12069,7 @@ type"),         Text(
       replaceable
       Modelica.Blocks.Sources.Constant            IntraThoracicPressure(k=-533.28954966)
         constrainedby Modelica.Blocks.Interfaces.SO
-        annotation (Placement(transformation(extent={{38,12},{50,20}})),
+        annotation (Placement(transformation(extent={{38,8},{50,20}})),
           __Dymola_choicesAllMatching=true);
       Components.Smith_VentricularInteraction_flat ventricularInteraction_flat(
         lambdalv=33000,
@@ -12042,17 +12085,21 @@ type"),         Text(
         Esrv0=77993596.637775,
         Eslv0=383941811.27772)
         annotation (Placement(transformation(extent={{-18,-12},{20,28}})));
-      Components.arteries_with_volumes arteries_ADAN86(redeclare
-          Vessel_modules.pv_jII_type_baroreceptor aortic_arch_C46, redeclare
-          Vessel_modules.pv_type_baroreceptor internal_carotid_R8_A)
-        annotation (Placement(transformation(extent={{-100,-30},{-120,-10}})));
       Modelica.Blocks.Logical.Switch switch1
         annotation (Placement(transformation(extent={{-46,-70},{-26,-50}})));
       Modelica.Blocks.Sources.BooleanExpression useClosedLoopHR
         annotation (Placement(transformation(extent={{-86,-72},{-66,-52}})));
+      arteries arteries1 annotation (Placement(transformation(rotation=0, extent={{-106,
+                -30},{-126,-10}})));
+      Components.variable_arterial_resistance variable_arterial_resistance(
+          useVariableResistance=false, alphaR=2.5)
+        annotation (Placement(transformation(extent={{-90,-52},{-110,-32}})));
+      Components.pressure_envelope pressure_envelope
+        annotation (Placement(transformation(extent={{-150,-10},{-158,-2}})));
     equation
-      connect(Rsys.q_out, venaCava.q_in) annotation (Line(
-          points={{-120,16},{-120,34}},
+      connect(arteries1.q_out,
+                          venaCava.q_in) annotation (Line(
+          points={{-126,-20},{-134,-20},{-134,34},{-120,34}},
           color={0,0,0},
           thickness=1,
           smooth=Smooth.None));
@@ -12124,45 +12171,51 @@ type"),         Text(
           smooth=Smooth.None));
       connect(IntraThoracicPressure.y, ventricularInteraction_flat.Pth)
         annotation (Line(
-          points={{50.6,16},{58,16},{58,8},{16.58,8}},
+          points={{50.6,14},{58,14},{58,8},{16.58,8}},
           color={0,190,190},
           smooth=Smooth.None));
       connect(pulmonaryArteries.externalPressure, IntraThoracicPressure.y)
         annotation (Line(
-          points={{120,42},{120,46},{86,46},{86,16},{50.6,16}},
+          points={{120,42},{120,46},{86,46},{86,14},{50.6,14}},
           color={0,190,190},
           smooth=Smooth.None));
       connect(pulmonaryVeins.externalPressure, IntraThoracicPressure.y)
         annotation (Line(
-          points={{122,-12},{122,16},{50.6,16}},
+          points={{122,-12},{122,14},{50.6,14}},
           color={0,190,190},
           smooth=Smooth.None));
-      connect(aorticValve.q_out, arteries_ADAN86.port_a) annotation (Line(
-          points={{-88,-20},{-100,-20}},
+      connect(aorticValve.q_out,arteries1.port_a)        annotation (Line(
+          points={{-88,-20},{-106,-20}},
           color={0,0,0},
           thickness=1));
-      connect(arteries_ADAN86.port_b_superior, Rsys.q_in) annotation (Line(
-          points={{-120,-10},{-120,-4}},
-          color={0,0,0},
-          thickness=1));
-      connect(arteries_ADAN86.port_b_inferior, venaCava.q_in) annotation (Line(
-          points={{-120,-30},{-142,-30},{-142,34},{-120,34}},
-          color={0,0,0},
-          thickness=1));
-      connect(arteries_ADAN86.thoracic_pressure, ventricularInteraction_flat.Pth)
-        annotation (Line(points={{-100,-30},{30,-30},{30,8},{16.58,8}}, color={
+      connect(arteries1.thoracic_pressure,       ventricularInteraction_flat.Pth)
+        annotation (Line(points={{-106.333,-30},{30,-30},{30,8},{16.58,8}},
+                                                                        color={
               0,0,127}));
       connect(switch1.y, ventricularInteraction_flat.HR) annotation (Line(
             points={{-25,-60},{-18,-60},{-18,8},{-14.2,8}}, color={0,0,127}));
       connect(switch1.u3, HR.y) annotation (Line(points={{-48,-68},{-64,-68},{
               -64,-69},{-96,-69}}, color={0,0,127}));
-      connect(switch1.u1, arteries_ADAN86.HR) annotation (Line(points={{-48,-52},
-              {-110.2,-52},{-110.2,-30}}, color={0,0,127}));
+      connect(switch1.u1,arteries1.HR)        annotation (Line(points={{-48,-52},
+              {-126.667,-52},{-126.667,-30}},
+                                          color={0,0,127}));
       connect(useClosedLoopHR.y, switch1.u2) annotation (Line(points={{-65,-62},
               {-56,-62},{-56,-60},{-48,-60}}, color={255,0,255}));
-      connect(arteries_ADAN86.phi, ventricularInteraction_flat.phi) annotation
-        (Line(points={{-110.4,-10},{-110,-10},{-110,22},{-14.2,22},{-14.2,24}},
+      connect(arteries1.phi,       ventricularInteraction_flat.phi) annotation (
+         Line(points={{-117,-10},{-100,-10},{-100,24},{-14.2,24}},
             color={0,0,127}));
+      connect(arteries1.phi,variable_arterial_resistance. phi) annotation (
+          Line(points={{-117,-10},{-100,-10},{-100,-36},{-88,-36},{-88,-42},{-90.6,-42}},
+                                                                         color={0,0,
+              127}));
+      connect(variable_arterial_resistance.resistance_modifier, arteries1.resistance_modifier)
+        annotation (Line(points={{-110,-42},{-114,-42},{-114,-34},{-113.333,-34},
+              {-113.333,-30}},
+                     color={0,0,127}));
+      connect(ventricularInteraction_flat.beat, pressure_envelope.beat)
+        annotation (Line(points={{-14.2,-4},{-150,-4}}, color={255,0,255}));
+      connect(arteries1.p, pressure_envelope.p) annotation (Line(points={{-126,
+              -10},{-138,-10},{-138,-8},{-150,-8}}, color={0,0,127}));
       annotation (
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-160,-100},
                 {160,100}})),
@@ -12188,14 +12241,15 @@ type"),         Text(
           period=100,
           nperiod=0,
           offset=-530,
-          startTime=30),  arteries_ADAN86(
+          startTime=30),
+        arteries1(        arteries_ADAN86(
           aortic_arch_C46(baroreceptor(epsilon_start=1.004,s_start=0.9339)),
           internal_carotid_R8_A(baroreceptor(epsilon_start=1.0013,
                                                                 s_start=0.9712)),
           baroreflex(fiSN(start=0.25),
             f1=0.015,
             g=0.3,
-            resetAt=0.0)),
+            resetAt=0.0))),
         useClosedLoopHR(y=true));
       Components.venousVariableCompliance VenousVariableCompliance(
           useVariableCompliance=false) annotation (Placement(transformation(
@@ -12205,8 +12259,8 @@ type"),         Text(
     equation
       connect(VenousVariableCompliance.compliance, venaCava.compliance)
         annotation (Line(points={{-114,48},{-120,48},{-120,42}}, color={0,0,127}));
-      connect(arteries_ADAN86.phi, VenousVariableCompliance.phi) annotation (
-          Line(points={{-110.4,-10},{-100,-10},{-100,48}}, color={0,0,127}));
+      connect(arteries1.phi, VenousVariableCompliance.phi) annotation (
+          Line(points={{-117,-10},{-100,-10},{-100,48}},   color={0,0,127}));
       annotation (experiment(
           StopTime=100,
           Interval=0.005,
@@ -12220,38 +12274,45 @@ type"),         Text(
           useComplianceInput=true,                                  Elastance(
               displayUnit="mmHg/ml") = 7999343.2449),
           redeclare DataFit.ThoracicPressureFromData  IntraThoracicPressure,
-                          arteries_ADAN86(
+        arteries1(        arteries_ADAN86(
           aortic_arch_C46(baroreceptor(epsilon_start=1.004,s_start=0.9339)),
           internal_carotid_R8_A(baroreceptor(epsilon_start=1.0013,
                                                                 s_start=0.9712)),
           baroreflex(fiSN(start=0.25),
             f1=0.015,
             g=0.3,
-            resetAt=0.0)),
+            resetAt=0.0))),
         useClosedLoopHR(y=true));
       Components.venousVariableCompliance               VenousVariableCompliance(
           useVariableCompliance=false) annotation (Placement(transformation(
             rotation=0,
             extent={{7,-6.00002},{-7,6.00001}},
             origin={-107,48})));
+      Components.pressure_envelope pressure_envelope_data
+        annotation (Placement(transformation(extent={{64,10},{72,2}})));
     equation
       connect(VenousVariableCompliance.compliance, venaCava.compliance)
         annotation (Line(points={{-114,48},{-120,48},{-120,42}}, color={0,0,127}));
-      connect(arteries_ADAN86.phi, VenousVariableCompliance.phi) annotation (
-          Line(points={{-110.4,-10},{-100,-10},{-100,48}}, color={0,0,127}));
+      connect(arteries1.phi, VenousVariableCompliance.phi) annotation (
+          Line(points={{-117,-10},{-100,-10},{-100,48}},   color={0,0,127}));
+      connect(pressure_envelope_data.p, IntraThoracicPressure.aortic_pressure)
+        annotation (Line(points={{64,8},{54,8},{54,11.6},{50.6,11.6}}, color={0,0,127}));
+      connect(IntraThoracicPressure.beat, pressure_envelope_data.beat)
+        annotation (Line(points={{49.52,10.28},{49.52,3.14},{64,3.14},{64,4}},
+            color={255,0,255}));
       annotation (experiment(
-          StopTime=100,
-          Interval=0.005,
+          StopTime=80,
+          Interval=0.05,
           Tolerance=1e-06,
-          __Dymola_Algorithm="Cvode"));
+          __Dymola_Algorithm="Dassl"));
     end ValsalvaTPData;
 
     model ValsalvaCL
       extends ValsalvaTPData(
-        arteries_ADAN86(
+        arteries1(arteries_ADAN86(
           aortic_arch_C46(baroreceptor(epsilon_start=0.9977, s_start=0.9312)),
           baroreflex(fiSN(start=0.251996), fiSN_start=0.251996),
-          internal_carotid_R8_A(baroreceptor(epsilon_start=0.9989, s_start=0.97))),
+          internal_carotid_R8_A(baroreceptor(epsilon_start=0.9989, s_start=0.97)))),
         VenousVariableCompliance(useVariableCompliance=true, alphaZPV=2.5),
         venaCava(
           volume_start=0.00101,
@@ -12264,17 +12325,6 @@ type"),         Text(
           VS0rv=0.001,
           alphaE=0));
 
-      Components.variable_arterial_resistance variable_arterial_resistance(
-          useVariableResistance=false, alphaR=2.5)
-        annotation (Placement(transformation(extent={{-104,-54},{-84,-34}})));
-
-        Physiolibrary.Types.Pressure ps;
-        Physiolibrary.Types.Pressure pd;
-        Physiolibrary.Types.Pressure pm = pd + 1/3*(ps-pd);
-        Physiolibrary.Types.Pressure pmax; //= max(pmax, arteries_ADAN86.aortic_arch_C46.u_in);
-        Physiolibrary.Types.Pressure pmin( start = 5e2);
-        Boolean B= sample(0, 0.01);
-        Integer z;
       Physiolibrary.Hydraulic.Sensors.PressureMeasure pressureMeasure
         annotation (Placement(transformation(extent={{108,-60},{128,-40}})));
       Modelica.Blocks.Math.Add add(k1=-1)
@@ -12282,32 +12332,9 @@ type"),         Text(
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(
           usePressureInput=true)
         annotation (Placement(transformation(extent={{154,-64},{134,-44}})));
+
     equation
-      when ventricularInteraction_flat.t0 > pre(ventricularInteraction_flat.t0) or B then
-        if B then
-          z = pre(z) +10;
-          ps = pre(ps);
-          pd = pre(pd);
 
-          pmax = if pre(pmax) > arteries_ADAN86.aortic_arch_C46.u_in then pre(pmax) else arteries_ADAN86.aortic_arch_C46.u_in;
-          pmin = min(pre(pmin), arteries_ADAN86.aortic_arch_C46.u_in);
-        else
-        z = pre(z) +1;
-              ps = pre(pmax);
-          pd = pre(pmin);
-
-          pmax = 0;
-          pmin = 5e2;
-        end if;
-      end when;
-
-
-      connect(arteries_ADAN86.phi, variable_arterial_resistance.phi) annotation (
-          Line(points={{-110.4,-10},{-108,-10},{-108,-44},{-103.4,-44}}, color={0,0,
-              127}));
-      connect(variable_arterial_resistance.resistance_modifier, arteries_ADAN86.resistance_modifier)
-        annotation (Line(points={{-84,-44},{-80,-44},{-80,-34},{-103.4,-34},{-103.4,
-              -30}}, color={0,0,127}));
       connect(VenousVariableCompliance.zpv, venaCava.zeroPressureVolume)
         annotation (Line(points={{-113.618,53.4},{-128,53.4},{-128,42}}, color=
               {0,0,127}));
@@ -12325,12 +12352,67 @@ type"),         Text(
 
     model ValsalvaReparametrization
       extends ValsalvaCL(
-        pulmonaryVeins(volume_start=0.0002, Elastance(displayUnit="mmHg/ml") =
+        pulmonaryVeins(volume_start=0.0002, Elastance(displayUnit="mmHg/ml")=
             666611.937075),
         Rpul(Resistance=26664477.483),
-        pulmonaryArteries(volume_start=0.0001, Elastance(displayUnit="mmHg/ml")
-             = 23998029.7347));
+        pulmonaryArteries(volume_start=0.0001, Elastance(displayUnit="mmHg/ml")=
+               23998029.7347));
     end ValsalvaReparametrization;
+
+    model arteries
+      Components.arteries_with_volumes arteries_ADAN86(redeclare
+          Vessel_modules.pv_jII_type_baroreceptor aortic_arch_C46, redeclare
+          Vessel_modules.pv_type_baroreceptor internal_carotid_R8_A)
+        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+      Physiolibrary.Hydraulic.Components.Resistor Rsys(Resistance(displayUnit="(Pa.s)/m3")=
+             9e6) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=0,
+            origin={26,10})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b q_out annotation (
+          Placement(transformation(rotation=0, extent={{50,-10},{70,10}})));
+      Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
+            transformation(rotation=0, extent={{54,-70},{74,-50}}),
+            iconTransformation(extent={{54,-70},{74,-50}})));
+      Physiolibrary.Types.RealIO.FractionOutput phi annotation (Placement(
+            transformation(rotation=0, extent={{-4,50},{16,70}})));
+      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
+          Placement(transformation(rotation=0, extent={{-70,-10},{-50,10}})));
+      Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (
+          Placement(transformation(rotation=0, extent={{-68,-70},{-48,-50}}),
+            iconTransformation(extent={{-68,-70},{-48,-50}})));
+      Physiolibrary.Types.RealIO.PressureInput resistance_modifier annotation (Placement(transformation(extent={{-26,-70},
+                {-6,-50}}),  iconTransformation(extent={{-26,-70},{-6,-50}})));
+      Physiolibrary.Types.RealIO.PressureOutput p = arteries_ADAN86.aortic_arch_C46.u_in "aortic pressure" annotation (
+          Placement(transformation(rotation=0, extent={{50,50},{70,70}})));
+    equation
+      connect(arteries_ADAN86.port_b_superior, Rsys.q_in) annotation (Line(
+          points={{10,10},{16,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(q_out, Rsys.q_out) annotation (Line(
+          points={{60,0},{44,0},{44,10},{36,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(HR, arteries_ADAN86.HR) annotation (Line(points={{64,-60},{0,-60},{0,-10},
+              {0.2,-10}}, color={0,0,127}));
+      connect(phi, arteries_ADAN86.phi)
+        annotation (Line(points={{6,60},{0,60},{0,10},{0.4,10}}, color={0,0,127}));
+      connect(port_a, arteries_ADAN86.port_a) annotation (Line(
+          points={{-60,0},{-10,0}},
+          color={0,0,0},
+          thickness=1));
+      connect(q_out, arteries_ADAN86.port_b_inferior) annotation (Line(
+          points={{60,0},{44,0},{44,-10},{10,-10}},
+          color={0,0,0},
+          thickness=1));
+      connect(thoracic_pressure, arteries_ADAN86.thoracic_pressure) annotation (
+          Line(points={{-58,-60},{-54,-60},{-54,-10},{-10,-10}}, color={0,0,127}));
+      connect(arteries_ADAN86.resistance_modifier, resistance_modifier) annotation (
+         Line(points={{-4.8,-10},{-6,-10},{-6,-60},{-16,-60}}, color={0,0,127}));
+      annotation (Diagram(coordinateSystem(extent={{-60,-60},{60,60}})), Icon(
+            coordinateSystem(extent={{-60,-60},{60,60}})));
+    end arteries;
   end SmithExtended;
 
   package DataFit
@@ -12445,9 +12527,33 @@ type"),         Text(
       extends Modelica.Blocks.Interfaces.SO;
       ReadData readData
         annotation (Placement(transformation(extent={{-44,6},{-24,26}})));
+      Physiolibrary.Types.RealIO.PressureOutput aortic_pressure
+        "Connector of Real output signal" annotation (Placement(transformation(
+              extent={{100,-50},{120,-30}}), iconTransformation(extent={{100,-50},{120,
+                -30}})));
+      Modelica.Blocks.Interfaces.BooleanOutput beat = t0 <> pre(t0)               annotation (Placement(
+          transformation(extent={{72,-82},{112,-42}}),  iconTransformation(extent={{72,-82},
+                {112,-42}})));
+    //             Integer z;
+                Real t = time;
+                Real t0;
+                Real T =  1/readData.heart_rate + correction;
+                parameter Modelica.SIunits.Time correction = 0;
+
     equation
+      when pre(t0) + T < t then
+        t0 = t;
+      end when;
+
+    //   when beat then
+    //     z = pre(z) + 1;
+    //   end when;
+
+
       connect(readData.thoracic_pressure, y) annotation (Line(points={{-23.8,20},
               {38,20},{38,0},{110,0}}, color={0,0,127}));
+      connect(readData.arterial_pressure, aortic_pressure) annotation (Line(points={
+              {-23.8,16},{34,16},{34,-40},{110,-40}}, color={0,0,127}));
       annotation (Icon(graphics={
             Line(points={{-78,48},{-70,-74},{-68,-70},{-36,-44},{-34,-42},{-18,
                   -8},{-20,-6},{-30,24},{-32,24},{-54,42},{-56,42},{-76,48}},

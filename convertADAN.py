@@ -99,18 +99,26 @@ class ADANModel(ds.Object):
         if not self.UseConnectionMapping:
             return maps
         # types:
-        # vars v_out_1 and v; where v is always PUBOUT  and v_out.. is always pubIN
-        # vars u and u_in; where u is always pubOUT and u_in is always PUBIN
+        # vars v_out_1 and v; where v is always PUBOUT  and v_out.. is always pubIN - therefore v is always target
+        # vars u and u_in; where u is always pubOUT and u_in is always PUBIN - therefore owner is u_in
 
         # vars v_out_2 and v;
         # vars u and u_in;                
 
         # vars v_out and v;
         # vars u and u_in;
-        
+
+        # therefore:
+        # v_out*** - v
+        # u - u_in
+
+        # for veins:
+        # v_in*** and v, where v_in are pubIn and v is pubout 
+        # u and u_out, where u_out is pubIn and u is pubout
+
+
         # m = ds.Mapping()
         # v = ds.Variable()
-        # m.ownerVariable
 
         # vars u and u_in;
         u_map = next((m for m in maps \

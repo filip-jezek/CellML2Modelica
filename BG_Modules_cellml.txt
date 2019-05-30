@@ -342,7 +342,7 @@ def model Vessel_BG_Units as
         ode(v, t) = (u_in-u-R*v)/I;
         ode(u_C, t) = (v-v_T)/C;
         u = u_C+R_v*(v-v_T);
-        ode(v_T, t) = (u-u_out-1.0{dimensionless}*R_T*v_T)/I_e;
+        ode(v_T, t) = (u-u_out-3.0{dimensionless}*R_T*v_T)/I_e;
     enddef;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

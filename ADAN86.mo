@@ -1932,7 +1932,7 @@ end Parameters_cellml;
 
 package Vessel_modules
   package Interfaces
-    model bg_base
+    partial model bg_base
       Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
           Placement(transformation(extent={{-110,-10},{-90,10}}),
             iconTransformation(extent={{-110,-10},{-90,10}})));
@@ -2080,10 +2080,6 @@ package Vessel_modules
             points={{-100,0},{-60,0}},
             color={28,108,200},
             arrow={Arrow.None,Arrow.Filled}),
-          Text(
-            extent={{-100,-20},{100,0}},
-            lineColor={28,108,200},
-            textString="%name"),
           Line(
             points={{40,0},{80,0}},
             color={28,108,200},
@@ -3326,10 +3322,36 @@ end pv_jII_type_baroreceptor;
 
   model vp_type
       extends pv_type;
+      annotation (Diagram(graphics={
+          Line(
+            points={{-100,0},{-60,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Open}),
+          Line(
+            points={{40,0},{80,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Open})}), Icon(graphics={
+            Rectangle(
+              extent={{-100,20},{100,-20}},
+              lineColor={28,108,200},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-100,-20},{100,0}},
+            lineColor={28,108,200},
+            textString="%name"),
+          Line(
+            points={{-100,0},{-60,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Open}),
+          Line(
+            points={{40,0},{80,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Filled})}));
   end vp_type;
 
   model vp_jII_type
-      extends pv_type;
+    extends vp_type;
   end vp_jII_type;
 
   model pp_vBC_type
@@ -3370,10 +3392,6 @@ end pv_jII_type_baroreceptor;
   equation
 
 
-
-
-
-
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         I_e = I*1e-6;
@@ -3392,21 +3410,20 @@ end pv_jII_type_baroreceptor;
         u = u_C+R_v*(v_in-v_out);
         der(v_out) = (u-u_out-3.0*R_T*v_out)/I_e;
 
-
-
     volume = u_C*C;
 
 
-
     annotation (Icon(graphics={
+          Rectangle(
+            extent={{-20,20},{20,0}},
+            lineThickness=0.5,
+            fillColor={244,125,35},
+            fillPattern=FillPattern.Solid,
+            pattern=LinePattern.None),
           Line(
             points={{-100,0},{-60,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Filled}),
-          Text(
-            extent={{-100,-20},{100,0}},
-            lineColor={28,108,200},
-            textString="%name"),
+            arrow={Arrow.None,Arrow.Open}),
           Line(
             points={{40,0},{80,0}},
             color={28,108,200},

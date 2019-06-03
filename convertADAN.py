@@ -6,6 +6,7 @@ class ADANModel(ds.Object):
 
     UseConnectionMapping = True
     UseIntrathoracicPressure = True
+    RemoveTimeMappings = True
 
 
     @classmethod
@@ -43,7 +44,7 @@ class ADANModel(ds.Object):
         if self.UseConnectionMapping:
             # move all BG modules into the main file
             if self.instance_name == 'Systemic' and '_module' in c.instance_name:
-                c.package_name = 'ADAN_main.BG_Modules_extended'
+                c.package_name = 'ADAN_main.Vessel_modules'
         
         if self.UseIntrathoracicPressure:
             # change those in thoracic cavity
@@ -96,8 +97,21 @@ class ADANModel(ds.Object):
 
     def processMapping(self, varmaps, XX, YY):
         maps = super().processMapping(varmaps, XX, YY)
+        if self.RemoveTimeMappings:
+            # e.g.
+            # def map between Systemic and internal_carotid_R8_C_module for
+            # vars t and t;
+            # enddef;
+            t_map = next((m for m in maps \
+            if (m.ownerVariable.name == 't' and m.targetVariable.name == 't') \
+                    ), None)
+            if t_map is not None:
+                t_map.ownerInstance.mappings.remove(t_map)
+        
         if not self.UseConnectionMapping:
             return maps
+
+        # replaces in-out mappings with CONNECT equations
         # types:
         # vars v_out_1 and v; where v is always PUBOUT  and v_out.. is always pubIN - therefore v is always target
         # vars u and u_in; where u is always pubOUT and u_in is always PUBIN - therefore owner is u_in
@@ -113,22 +127,27 @@ class ADANModel(ds.Object):
         # u - u_in
 
         # for veins:
-        # v_in*** and v, where v_in are pubIn and v is pubout 
+        # v_in*** and v, where v_in** are pubIn and v is pubout 
         # u and u_out, where u_out is pubIn and u is pubout
 
+        # for vBC_type
+        # v_in and v_T, where v_T is PubOut
+        # vars u and u_out, where u_out is PubIn
+        
 
         # m = ds.Mapping()
         # v = ds.Variable()
 
         # vars u and u_in;
         u_map = next((m for m in maps \
-            if (m.ownerVariable.name == 'u_in') \
-                and (m.targetVariable.name == 'u') \
+            if (m.ownerVariable.name == 'u_in' and m.targetVariable.name == 'u') \
+                or (m.ownerVariable.name == 'u_out' and m.targetVariable.name == 'u') \
                     ), None)
         
         v_map = next((m for m in maps \
-            if (m.targetVariable.name == 'v') \
-                and ('v_out' in m.ownerVariable.name) \
+            if ('v_out' in m.ownerVariable.name and m.targetVariable.name == 'v') \
+                or ('v_in' in m.ownerVariable.name and m.targetVariable.name == 'v') \
+                or ('v_in' in m.ownerVariable.name and m.targetVariable.name == 'v_T') \
                     ), None)
         
         
@@ -138,14 +157,18 @@ class ADANModel(ds.Object):
             u_map.ownerInstance.mappings.remove(u_map)
             v_map.ownerInstance.mappings.remove(v_map)
 
-            port_a = ds.Variable('port_a')
-            port_b = None
-            if v_map.ownerVariable.name == 'v_out':
-                port_b = ds.Variable('port_b')
-            elif v_map.ownerVariable.name == 'v_out_1':
-                port_b = ds.Variable('port_b')
-            elif v_map.ownerVariable.name == 'v_out_2':
-                port_b = ds.Variable('port_b')            
+            ownerPort = None
+            targetPort = None
+            
+            if u_map.ownerVariable.name == 'u_in':
+                ownerPort = ds.Variable('port_a')
+                targetPort = ds.Variable('port_b')
+            elif u_map.ownerVariable.name == 'u_out':
+                ownerPort = ds.Variable('port_b')
+                targetPort = ds.Variable('port_a')
+
+            # elif v_map.ownerVariable.name == 'v_out_2':
+            #     port_b = ds.Variable('port_b')            
             # create list of one or two variables
             # if len(v_maps) == 1:
             #     port_bs = [ds.Variable(name) for name in  ['q_out']]
@@ -154,13 +177,14 @@ class ADANModel(ds.Object):
             #     port_bs = [ds.Variable(name) for name in ['q_out1, q_out2']]
             # else:
             #     raise NotImplementedError("We are not prepared for more than two bifurcations!")
-            con_map = ds.Mapping(u_map.ownerInstance, port_a, u_map.targetInstance, port_b)
+            con_map = ds.Mapping(u_map.ownerInstance, ownerPort, u_map.targetInstance, targetPort)
             con_map.mappingType = ds.MappingType.CONNECTION
 
             # find the parent
             parent = self.findInstanceParent(u_map.ownerInstance)
 
             parent.mappings.append(con_map)
+            print(">> " + str(con_map)[0:80])
 
     def findInstanceParent(self : ds.Object, instance: ds.Object):
         for c in self.instances:

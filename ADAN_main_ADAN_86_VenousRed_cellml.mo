@@ -3942,8 +3942,9 @@ end main_ADAN_86_VenousRed_cellml;
       annotation (Placement(transformation(extent={{-74,-82},{-54,-62}})));
   equation
 
-    connect(Systemic1.thoracic_pressure, const.y) annotation (Line(points={{-70,
-            90},{-50,90},{-50,-72},{-53,-72}}, color={0,0,127}));
+    connect(Systemic1.thoracic_pressure, const.y) annotation (Line(points={{-62.6,
+            81.6},{-50,81.6},{-50,-72},{-53,-72}},
+                                               color={0,0,127}));
     annotation (experiment(
         StopTime=10,
         Interval=0.01,
@@ -3972,14 +3973,16 @@ end main_ADAN_86_VenousRed_cellml;
     Modelica.Blocks.Sources.Pulse pulse(amplitude=16e-5, period=1)
       annotation (Placement(transformation(extent={{-100,60},{-80,80}})));
   equation
-    connect(Systemic1.thoracic_pressure, const.y) annotation (Line(points={{-70,90},
-            {-50,90},{-50,-72},{-53,-72}}, color={0,0,127}));
+    connect(Systemic1.thoracic_pressure, const.y) annotation (Line(points={{-62.6,
+            81.6},{-50,81.6},{-50,-72},{-53,-72}},
+                                           color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)),
       experiment(
         StopTime=10,
         Interval=0.01,
-        Tolerance=1e-07));
+        Tolerance=1e-07,
+        __Dymola_Algorithm="Cvode"));
   end testSystemic;
 
   model CardiovascularSystem2

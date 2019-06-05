@@ -2052,7 +2052,7 @@ package Vessel_modules
     parameter Real c(unit = "1") = 0.1324;
     parameter Real d(unit = "m-1") = -11.14;
   //   Real v(unit = "m3.s-1", start = 0.0);
-    Real u_C(unit = "Pa", start = 12000.0);
+    Real u_C(unit = "Pa", start = 0.0);
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
         Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
             extent={{90,-10},{110,10}})));
@@ -2171,7 +2171,7 @@ package Vessel_modules
     parameter Real c(unit = "1") = 0.1324;
     parameter Real d(unit = "m-1") = -11.14;
   //   Real v(unit = "m3.s-1", start = 0.0);
-    Real u_C(unit = "Pa", start = 12000.0);
+    Real u_C(unit = "Pa", start = 0.0);
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
         Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
             extent={{90,-10},{110,10}})));
@@ -3321,7 +3321,48 @@ end pv_jII_type_baroreceptor;
   end AdjustableConductanceRtam;
 
   model vp_type
-      extends pv_type;
+    extends ADAN_main.Vessel_modules.Interfaces.bg_base;
+    parameter Real mu(unit = "J.s.m-3") = 0.004;
+    parameter Real rho(unit = "J.s2.m-5") = 1050;
+    input Real E(unit = "Pa");
+    Real E_m(unit = "Pa");
+    input Real l(unit = "m");
+    Real length(unit = "m");
+    Real h(unit = "m");
+    Real thickness(unit = "m");
+    input Real r(unit = "m");
+    Real radius(unit = "m");
+    Real I(unit = "J.s2.m-6");
+    Real C(unit = "m6.J-1");
+    Real R(unit = "J.s.m-6");
+    Real R_v(unit = "J.s.m-6");
+    parameter Real a(unit = "1") = 0.2802;
+    parameter Real b(unit = "m-1") = -505.3;
+    parameter Real c(unit = "1") = 0.1324;
+    parameter Real d(unit = "m-1") = -11.14;
+  //   Real v(unit = "m3.s-1", start = 0.0);
+    Real u_C(unit = "Pa", start = 0.0);
+    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
+        Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
+            extent={{90,-10},{110,10}})));
+    Real u_out(unit = "Pa") = port_b.pressure;
+    Real v_out(unit = "m3.s-1") = -port_b.q;
+  equation
+    volume = u_C*C;
+
+        h = r*(a*exp(b*r)+c*exp(d*r));
+        I = rho*l/(Modelica.Constants.pi*(r)^2);
+        C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
+        R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+        R_v = 0.01/C;
+        length = l;
+        E_m = E;
+        radius = r;
+        thickness = h;
+
+        der(v_out) = (u_in-u_out-R*v_out)/I;
+        der(u_C) = (v_in-v_out)/C;
+        u_in = u_C+R_v*(v_in-v_out);
       annotation (Diagram(graphics={
           Line(
             points={{-100,0},{-60,0}},
@@ -3377,7 +3418,7 @@ end pv_jII_type_baroreceptor;
   //   Real v(unit = "m3.s-1", start = 0.0);
     Real I_e(unit = "J.s2.m-6");
 
-    Real u_C(unit = "Pa", start = 12000.0);
+    Real u_C(unit = "Pa", start = 0.0);
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
         Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
             extent={{90,-10},{110,10}})));

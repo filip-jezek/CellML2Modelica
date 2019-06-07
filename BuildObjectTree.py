@@ -13,7 +13,7 @@ import json
 # ds.Object.convertCellML('Noble_1962.cellml')
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 
-ds.Variable.EvaluateParameters = False
+ds.Variable.EvaluateParameters = True
 ds.Variable.UseUnits = True
 # ds.Object.convertCellML('main_ADAN-86.cellml')
 dsa.ADANModel.UseConnectionMapping = True

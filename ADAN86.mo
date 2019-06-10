@@ -2397,6 +2397,7 @@ end pv_jII_type_baroreceptor;
     parameter Interfaces.simplificationLevel simplification = Interfaces.simplificationLevel.original;
   equation
     volume = u_C/C + u_C_T/C_T;
+
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
@@ -3329,7 +3330,7 @@ end pv_jII_type_baroreceptor;
     Modelica.SIunits.Thickness h;
     input Modelica.SIunits.Radius r;
     Real I(unit = "J.s2.m-6");
-    Real C(unit = "m6.J-1");
+    Physiolibrary.Types.HydraulicCompliance C;
     Real R(unit = "J.s.m-6");
     Real R_v(unit = "J.s.m-6");
     parameter Real a(unit = "1") = 0.2802;
@@ -3350,6 +3351,7 @@ end pv_jII_type_baroreceptor;
     parameter Physiolibrary.Types.Fraction fc = 2.5 "compliance factor";
     Physiolibrary.Types.Volume zpv = (1 + (phi_norm-1)*fzpv) * l*Modelica.Constants.pi*(r^2) "Zero-pressure volume scaled by the phi input";
     Physiolibrary.Types.HydraulicCompliance compliance = (1 + (phi_norm-1)*fc)*C "Compliance scaled by the phi input";
+    outer Physiolibrary.Types.Fraction cfactor;
   initial equation
     volume = zpv;
   equation
@@ -3358,7 +3360,7 @@ end pv_jII_type_baroreceptor;
 
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
-        C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
+        C = 2*Modelica.Constants.pi*(r^3) *l/(E*h)*cfactor;
         R = 8*mu*l/(Modelica.Constants.pi*(r^4));
         R_v = 0.01/C;
 
@@ -3432,7 +3434,9 @@ end pv_jII_type_baroreceptor;
     input Real C_T(unit = "m6.J-1");
 
     Real u(unit = "Pa");
-
+    Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume scaled by the phi input";
+  initial equation
+    volume = zpv;
   equation
 
 
@@ -3450,11 +3454,11 @@ end pv_jII_type_baroreceptor;
 
 
         der(v_in) = (u_in-u-R*v_in)/I;
-        der(u_C) = (v_in-v_out)/C;
+        der(volume) = (v_in-v_out);
         u = u_C+R_v*(v_in-v_out);
         der(v_out) = (u-u_out-3.0*R_T*v_out)/I_e;
 
-    volume = u_C*C;
+    volume = u_C*C + zpv;
 
 
     annotation (Icon(graphics={
@@ -6727,9 +6731,9 @@ type"),         Text(
               {150,50},{154,50}},
                                color={0,0,127}));
       connect(baroreflex.carotid_BR, internal_carotid_R8_A.y) annotation (Line(
-            points={{134,82},{22,82},{22,133},{20.2,133}},     color={0,0,127}));
-      connect(aortic_arch_C46.y, baroreflex.aortic_BR) annotation (Line(points={{-86.8,
-              47},{-85.3,47},{-85.3,62},{134,62}},             color={0,0,127}));
+            points={{134,82},{22,82},{22,135.5},{22.2,135.5}}, color={0,0,127}));
+      connect(aortic_arch_C46.y, baroreflex.aortic_BR) annotation (Line(points=
+              {{-84.6,49.5},{-85.3,49.5},{-85.3,62},{134,62}}, color={0,0,127}));
     end arteries_ADAN86_baroreflex;
 
     model HeartSmith

@@ -2496,6 +2496,7 @@ package main_ADAN_86_VenousRed_cellml
 
   partial model Systemic_base
     extends Physiolibrary.Icons.PerfusionOD;
+    inner parameter Physiolibrary.Types.Fraction cfactor = 1;
     Physiolibrary.Types.RealIO.PressureInput thoracic_pressure annotation (Placement(
         transformation(extent={{-100,-100},{-60,-60}}),
                                                       iconTransformation(extent={{-100,
@@ -3947,12 +3948,8 @@ package main_ADAN_86_VenousRed_cellml
         points={{-168,67.5},{-163,67.5}},
         color={0,0,0},
         thickness=1));
-    annotation (Diagram(graphics={Rectangle(
-            extent={{92,62},{128,-80}},
-            pattern=LinePattern.None,
-            lineThickness=1,
-            fillColor={0,140,72},
-            fillPattern=FillPattern.Solid)}));
+      annotation (Diagram(coordinateSystem(extent={{-320,-100},{440,200}})),
+          Icon(coordinateSystem(extent={{-320,-100},{440,200}})));
   end Systemic_base;
 
   model Systemic_eq
@@ -3989,7 +3986,6 @@ package main_ADAN_86_VenousRed_cellml
 
   model Systemic_con
     extends Systemic_base;
-    inner parameter Physiolibrary.Types.Fraction cfactor = 1;
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
         Placement(transformation(extent={{-290,76},{-270,96}}),
           iconTransformation(extent={{-110,-10},{-90,10}})));
@@ -4078,8 +4074,9 @@ end main_ADAN_86_VenousRed_cellml;
       annotation (Placement(transformation(extent={{-100,20},{-80,40}})));
   equation
 
-    connect(Systemic1.thoracic_pressure, const.y) annotation (Line(points={{-68,82},
-            {-50,82},{-50,-72},{-53,-72}},     color={0,0,127}));
+    connect(Systemic1.thoracic_pressure, const.y) annotation (Line(points={{
+            -63.6842,81.3333},{-50,81.3333},{-50,-72},{-53,-72}},
+                                               color={0,0,127}));
     annotation (experiment(
         StopTime=10,
         Interval=0.01,
@@ -5287,7 +5284,7 @@ end main_ADAN_86_VenousRed_cellml;
   end SystemsComparisson;
 
   model systemic_testbed
-    main_ADAN_86_VenousRed_cellml.Systemic_con systemic_con
+    main_ADAN_86_VenousRed_cellml.Systemic_con systemic_con(cfactor=5)
       annotation (Placement(transformation(extent={{-18,-4},{2,16}})));
     Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(
         usePressureInput=true)
@@ -5304,22 +5301,24 @@ end main_ADAN_86_VenousRed_cellml;
       annotation (Placement(transformation(extent={{-128,26},{-108,46}})));
   equation
     connect(unlimitedVolume1.y, systemic_con.port_b) annotation (Line(
-        points={{-44,38},{16,38},{16,5.8},{2,5.8}},
+        points={{-44,38},{16,38},{16,2.53333},{-6.94737,2.53333}},
         color={0,0,0},
         thickness=1));
     connect(unlimitedVolume1.y, systemic_con.port_a) annotation (Line(
-        points={{-44,38},{-38,38},{-38,6},{-18,6}},
+        points={{-44,38},{-38,38},{-38,2.66667},{-12.2105,2.66667}},
         color={0,0,0},
         thickness=1));
-    connect(const.y, systemic_con.thoracic_pressure) annotation (Line(points={{
-            -75,-28},{-46,-28},{-46,-2},{-16,-2}}, color={0,0,127}));
+    connect(const.y, systemic_con.thoracic_pressure) annotation (Line(points={{-75,-28},
+            {-46,-28},{-46,-2.66667},{-11.6842,-2.66667}},
+                                                   color={0,0,127}));
     connect(const1.y, systemic_con.phi_in) annotation (Line(points={{-77,0},{
-            -46,0},{-46,14},{-16,14}}, color={0,0,127}));
+            -46,0},{-46,8},{-11.6842,8}},
+                                       color={0,0,127}));
     connect(ramp.y, unlimitedVolume1.pressure) annotation (Line(points={{-107,
             36},{-86,36},{-86,38},{-64,38}}, color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)));
   end systemic_testbed;
-  annotation (uses(                           Physiolibrary(version=
-            "2.3.2-beta"), Modelica(version="3.2.2")));
+  annotation (uses(Modelica(version="3.2.3"), Physiolibrary(version=
+            "2.3.2-beta")));
 end main_ADAN_86_VenousRed_cellml_converted;

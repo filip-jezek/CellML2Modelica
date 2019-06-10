@@ -2396,7 +2396,7 @@ end pv_jII_type_baroreceptor;
 
     parameter Interfaces.simplificationLevel simplification = Interfaces.simplificationLevel.original;
   equation
-
+    volume = u_C/C + u_C_T/C_T;
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
         C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
@@ -5288,7 +5288,124 @@ type"),         Text(
               lineThickness=0.5,
               fillColor={244,125,35},
               fillPattern=FillPattern.None,
-              textString="ADAN86")}));
+              textString="ADAN86")}), Diagram(graphics={
+            Rectangle(
+              extent={{-64,6},{-58,-8}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{32,-16},{38,-30}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{6,-58},{12,-72}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{106,-24},{112,-38}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{156,-24},{162,-38}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{206,-24},{212,-38}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{256,-34},{262,-48}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{256,-48},{262,-62}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{106,-56},{112,-70}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{156,-56},{162,-70}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{206,-56},{212,-70}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{32,118},{38,104}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{58,118},{64,104}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{82,72},{88,58}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{56,72},{62,58}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{60,142},{66,128}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{10,154},{16,140}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{84,102},{90,88}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{34,94},{40,80}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{-42,120},{-36,106}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{-20,72},{-14,58}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{-58,-80},{142,-108}},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              lineColor={238,46,47},
+              lineThickness=0.5),
+            Rectangle(
+              extent={{-6,44},{104,32}},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              lineColor={238,46,47},
+              lineThickness=0.5)}));
     end arteries_ADAN86;
 
     model arteries_ADAN86_dv
@@ -6386,7 +6503,124 @@ type"),         Text(
               lineThickness=0.5,
               fillColor={244,125,35},
               fillPattern=FillPattern.None,
-              textString="Arterial tree")}));
+              textString="Arterial tree")}), Diagram(graphics={
+            Rectangle(
+              extent={{-64,6},{-58,-8}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{32,-16},{38,-30}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{6,-58},{12,-72}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{106,-24},{112,-38}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{156,-24},{162,-38}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{206,-24},{212,-38}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{256,-34},{262,-48}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{256,-48},{262,-62}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{106,-56},{112,-70}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{156,-56},{162,-70}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{206,-56},{212,-70}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{32,118},{38,104}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{58,118},{64,104}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{82,72},{88,58}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{56,72},{62,58}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{60,142},{66,128}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{10,154},{16,140}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{84,102},{90,88}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{34,94},{40,80}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{-42,120},{-36,106}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{-20,72},{-14,58}},
+              fillColor={244,125,35},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Rectangle(
+              extent={{-58,-80},{142,-108}},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              lineColor={238,46,47},
+              lineThickness=0.5),
+            Rectangle(
+              extent={{-6,44},{104,32}},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              lineColor={238,46,47},
+              lineThickness=0.5)}));
     end arteries_ADAN86_dv;
 
     model Pulmonary_circulation
@@ -6493,9 +6727,9 @@ type"),         Text(
               {150,50},{154,50}},
                                color={0,0,127}));
       connect(baroreflex.carotid_BR, internal_carotid_R8_A.y) annotation (Line(
-            points={{134,82},{22,82},{22,135.5},{22.2,135.5}}, color={0,0,127}));
-      connect(aortic_arch_C46.y, baroreflex.aortic_BR) annotation (Line(points=
-              {{-84.6,49.5},{-85.3,49.5},{-85.3,62},{134,62}}, color={0,0,127}));
+            points={{134,82},{22,82},{22,133},{20.2,133}},     color={0,0,127}));
+      connect(aortic_arch_C46.y, baroreflex.aortic_BR) annotation (Line(points={{-86.8,
+              47},{-85.3,47},{-85.3,62},{134,62}},             color={0,0,127}));
     end arteries_ADAN86_baroreflex;
 
     model HeartSmith
@@ -12488,7 +12722,7 @@ type"),         Text(
   package ADAN_Safaei
     model ADAN
       import ADAN_main;
-      ADAN_main.Components.arteries_simplified_dv
+      ADAN_main.Components.arteries_ADAN86_dv
                                     arteries_ADAN86_dv(redeclare
           Vessel_modules.pv_jII_type_baroreceptor aortic_arch_C46, redeclare
           Vessel_modules.pv_type_baroreceptor internal_carotid_R8_A)
@@ -13792,8 +14026,8 @@ type"),         Text(
       connect(systemic_baroreflex.phi_baroreflex, conditionalConnection2.u1)
         annotation (Line(points={{-116.4,-10},{-116,-10},{-116,2},{-113,2}},
             color={0,0,127}));
-      connect(systemic_baroreflex.phi_in, conditionalConnection2.y) annotation
-        (Line(points={{-108,-12},{-102,-12},{-102,2}}, color={0,0,127}));
+      connect(systemic_baroreflex.phi_in, conditionalConnection2.y) annotation (
+         Line(points={{-108,-12},{-102,-12},{-102,2}}, color={0,0,127}));
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false)),
         Diagram(coordinateSystem(preserveAspectRatio=false)),

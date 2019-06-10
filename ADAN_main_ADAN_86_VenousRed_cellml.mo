@@ -3989,6 +3989,7 @@ package main_ADAN_86_VenousRed_cellml
 
   model Systemic_con
     extends Systemic_base;
+    inner parameter Physiolibrary.Types.Fraction cfactor = 1;
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
         Placement(transformation(extent={{-290,76},{-270,96}}),
           iconTransformation(extent={{-110,-10},{-90,10}})));
@@ -5284,6 +5285,41 @@ end main_ADAN_86_VenousRed_cellml;
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
           coordinateSystem(preserveAspectRatio=false)));
   end SystemsComparisson;
-  annotation (uses(Modelica(version="3.2.3"), Physiolibrary(version=
-            "2.3.2-beta")));
+
+  model systemic_testbed
+    main_ADAN_86_VenousRed_cellml.Systemic_con systemic_con
+      annotation (Placement(transformation(extent={{-18,-4},{2,16}})));
+    Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(
+        usePressureInput=true)
+      annotation (Placement(transformation(extent={{-64,28},{-44,48}})));
+    Modelica.Blocks.Sources.Constant const(k=0)
+      annotation (Placement(transformation(extent={{-96,-38},{-76,-18}})));
+    Modelica.Blocks.Sources.Constant const1(k=0.25)
+      annotation (Placement(transformation(extent={{-98,-10},{-78,10}})));
+    Modelica.Blocks.Sources.Ramp ramp(
+      height=13332,
+      duration=20,
+      offset=1333.2,
+      startTime=20)
+      annotation (Placement(transformation(extent={{-128,26},{-108,46}})));
+  equation
+    connect(unlimitedVolume1.y, systemic_con.port_b) annotation (Line(
+        points={{-44,38},{16,38},{16,5.8},{2,5.8}},
+        color={0,0,0},
+        thickness=1));
+    connect(unlimitedVolume1.y, systemic_con.port_a) annotation (Line(
+        points={{-44,38},{-38,38},{-38,6},{-18,6}},
+        color={0,0,0},
+        thickness=1));
+    connect(const.y, systemic_con.thoracic_pressure) annotation (Line(points={{
+            -75,-28},{-46,-28},{-46,-2},{-16,-2}}, color={0,0,127}));
+    connect(const1.y, systemic_con.phi_in) annotation (Line(points={{-77,0},{
+            -46,0},{-46,14},{-16,14}}, color={0,0,127}));
+    connect(ramp.y, unlimitedVolume1.pressure) annotation (Line(points={{-107,
+            36},{-86,36},{-86,38},{-64,38}}, color={0,0,127}));
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+          coordinateSystem(preserveAspectRatio=false)));
+  end systemic_testbed;
+  annotation (uses(                           Physiolibrary(version=
+            "2.3.2-beta"), Modelica(version="3.2.2")));
 end main_ADAN_86_VenousRed_cellml_converted;

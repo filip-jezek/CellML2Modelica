@@ -78,7 +78,8 @@ def createTerminatorsDS(lines):
         terminators.append(to)
     return terminators
 
-filename = 'CardiovascularSystem_ADANExport'
+# filename = 'CardiovascularSystem_ADANExport'
+filename = 'CardiovascularSystem'
 steadyStateAt = 30
 # mat = skipy.loadmat(filename)
 d = DyMat.DyMatFile(filename)

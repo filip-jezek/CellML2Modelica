@@ -3477,6 +3477,58 @@ end pv_jII_type_baroreceptor;
             color={28,108,200},
             arrow={Arrow.None,Arrow.Open})}));
   end pp_vBC_type;
+
+  model systemic_tissue
+    extends ADAN_main.Vessel_modules.Interfaces.bg_base;
+    parameter Real I(unit = "J.s2.m-6");
+    parameter Real C(unit = "m6.J-1");
+    parameter Real Ra(unit="J.s.m-6") "Arteriole resistance";
+    Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
+    Real I_e(unit = "J.s2.m-6");
+    parameter Real Rv(unit="J.s.m-6") "venule resistance";
+    parameter Physiolibrary.Types.Volume zpv  "Zero-pressure volume scaled by the phi input";
+
+    Real u_C(unit = "Pa", start = 0.0);
+    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
+        Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
+            extent={{90,-10},{110,10}})));
+    Real u_out(unit = "Pa") = port_b.pressure;
+
+    Real v_out(unit = "m3.s-1") = -port_b.q "same as v_T";
+
+
+    Real u(unit = "Pa");
+
+  initial equation
+    volume = zpv;
+  equation
+
+        I_e = I*1e-6;
+    Rvis = 0.01/C;
+
+        der(v_in) =(u_in - u - Ra*v_in)/I;
+        der(volume) = (v_in-v_out);
+        u =u_C + Rvis*(v_in - v_out);
+        der(v_out) =(u - u_out - Rv*v_out)/I_e;
+
+    volume = u_C*C + zpv;
+
+    annotation (Icon(graphics={
+          Rectangle(
+            extent={{-20,20},{20,0}},
+            lineThickness=0.5,
+            fillColor={244,125,35},
+            fillPattern=FillPattern.Solid,
+            pattern=LinePattern.None),
+          Line(
+            points={{-100,0},{-60,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Open}),
+          Line(
+            points={{40,0},{80,0}},
+            color={28,108,200},
+            arrow={Arrow.None,Arrow.Open})}));
+  end systemic_tissue;
 end Vessel_modules;
 
   package Components
@@ -14043,7 +14095,7 @@ type"),         Text(
     end SmithValsalvaTree;
   end SystemicVesselTree;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
-            "3.2.3")), experiment(
+            "3.2.2")), experiment(
       StopTime=80,
       __Dymola_NumberOfIntervals=1500,
       Tolerance=0.0005,

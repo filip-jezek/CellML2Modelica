@@ -2684,30 +2684,32 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_ascending_aorta_D,
         r = Parameters_Systemic1.r_ascending_aorta_D)
     annotation (Placement(transformation(extent={{-188,85},{-168,90}})));
-    ADAN_main.Vessel_modules.pv_jII_type_thoracic aortic_arch_C2(
-        thoracic_pressure = thoracic_pressure,
-        l = Parameters_Systemic1.l_aortic_arch_C2,
-        E = Parameters_Systemic1.E_aortic_arch_C2,
-        r = Parameters_Systemic1.r_aortic_arch_C2)
-    annotation (Placement(transformation(extent={{-163,85},{-143,90}})));
-    ADAN_main.Vessel_modules.pv_jII_type_thoracic brachiocephalic_trunk_C4(
-        thoracic_pressure = thoracic_pressure,
-        l = Parameters_Systemic1.l_brachiocephalic_trunk_C4,
-        E = Parameters_Systemic1.E_brachiocephalic_trunk_C4,
-        r = Parameters_Systemic1.r_brachiocephalic_trunk_C4)
-    annotation (Placement(transformation(extent={{-132,163},{-112,168}})));
-    replaceable ADAN_main.Vessel_modules.pv_jII_type_thoracic aortic_arch_C46(
-        thoracic_pressure = thoracic_pressure,
-        l = Parameters_Systemic1.l_aortic_arch_C46,
-        E = Parameters_Systemic1.E_aortic_arch_C46,
-        r = Parameters_Systemic1.r_aortic_arch_C46)
-    annotation (Placement(transformation(extent={{-137,85},{-117,90}})));
-    ADAN_main.Vessel_modules.pv_jII_type_thoracic aortic_arch_C64(
-        thoracic_pressure = thoracic_pressure,
-        l = Parameters_Systemic1.l_aortic_arch_C64,
-        E = Parameters_Systemic1.E_aortic_arch_C64,
-        r = Parameters_Systemic1.r_aortic_arch_C64)
-    annotation (Placement(transformation(extent={{-112,85},{-92,90}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic aortic_arch_C2(
+        thoracic_pressure=thoracic_pressure,
+        l=Parameters_Systemic1.l_aortic_arch_C2,
+        E=Parameters_Systemic1.E_aortic_arch_C2,
+        r=Parameters_Systemic1.r_aortic_arch_C2)
+        annotation (Placement(transformation(extent={{-163,85},{-143,90}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic
+        brachiocephalic_trunk_C4(
+        thoracic_pressure=thoracic_pressure,
+        l=Parameters_Systemic1.l_brachiocephalic_trunk_C4,
+        E=Parameters_Systemic1.E_brachiocephalic_trunk_C4,
+        r=Parameters_Systemic1.r_brachiocephalic_trunk_C4)
+        annotation (Placement(transformation(extent={{-132,163},{-112,168}})));
+      replaceable ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic
+        aortic_arch_C46(
+        thoracic_pressure=thoracic_pressure,
+        l=Parameters_Systemic1.l_aortic_arch_C46,
+        E=Parameters_Systemic1.E_aortic_arch_C46,
+        r=Parameters_Systemic1.r_aortic_arch_C46)
+        annotation (Placement(transformation(extent={{-137,85},{-117,90}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic aortic_arch_C64(
+        thoracic_pressure=thoracic_pressure,
+        l=Parameters_Systemic1.l_aortic_arch_C64,
+        E=Parameters_Systemic1.E_aortic_arch_C64,
+        r=Parameters_Systemic1.r_aortic_arch_C64)
+        annotation (Placement(transformation(extent={{-112,85},{-92,90}})));
     ADAN_main.Vessel_modules.pv_type_thoracic aortic_arch_C94(
         thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_aortic_arch_C94,
@@ -2744,36 +2746,36 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_thoracic_aorta_C112,
         r = Parameters_Systemic1.r_thoracic_aorta_C112)
     annotation (Placement(transformation(extent={{-218,65},{-238,70}})));
-    ADAN_main.Vessel_modules.pv_jII_type abdominal_aorta_C114(
-        l = Parameters_Systemic1.l_abdominal_aorta_C114,
-        E = Parameters_Systemic1.E_abdominal_aorta_C114,
-        r = Parameters_Systemic1.r_abdominal_aorta_C114)
-    annotation (Placement(transformation(extent={{-307,-5},{-287,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type abdominal_aorta_C114(
+        l=Parameters_Systemic1.l_abdominal_aorta_C114,
+        E=Parameters_Systemic1.E_abdominal_aorta_C114,
+        r=Parameters_Systemic1.r_abdominal_aorta_C114)
+        annotation (Placement(transformation(extent={{-307,-5},{-287,0}})));
     ADAN_main.Vessel_modules.pv_type abdominal_aorta_C136(
         l = Parameters_Systemic1.l_abdominal_aorta_C136,
         E = Parameters_Systemic1.E_abdominal_aorta_C136,
         r = Parameters_Systemic1.r_abdominal_aorta_C136)
     annotation (Placement(transformation(extent={{-280,-5},{-260,0}})));
-    ADAN_main.Vessel_modules.pv_jII_type abdominal_aorta_C164(
-        l = Parameters_Systemic1.l_abdominal_aorta_C164,
-        E = Parameters_Systemic1.E_abdominal_aorta_C164,
-        r = Parameters_Systemic1.r_abdominal_aorta_C164)
-    annotation (Placement(transformation(extent={{-255,-5},{-235,0}})));
-    ADAN_main.Vessel_modules.pv_jII_type abdominal_aorta_C176(
-        l = Parameters_Systemic1.l_abdominal_aorta_C176,
-        E = Parameters_Systemic1.E_abdominal_aorta_C176,
-        r = Parameters_Systemic1.r_abdominal_aorta_C176)
-    annotation (Placement(transformation(extent={{-230,-5},{-210,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type abdominal_aorta_C164(
+        l=Parameters_Systemic1.l_abdominal_aorta_C164,
+        E=Parameters_Systemic1.E_abdominal_aorta_C164,
+        r=Parameters_Systemic1.r_abdominal_aorta_C164)
+        annotation (Placement(transformation(extent={{-255,-5},{-235,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type abdominal_aorta_C176(
+        l=Parameters_Systemic1.l_abdominal_aorta_C176,
+        E=Parameters_Systemic1.E_abdominal_aorta_C176,
+        r=Parameters_Systemic1.r_abdominal_aorta_C176)
+        annotation (Placement(transformation(extent={{-230,-5},{-210,0}})));
     ADAN_main.Vessel_modules.pv_type abdominal_aorta_C188(
         l = Parameters_Systemic1.l_abdominal_aorta_C188,
         E = Parameters_Systemic1.E_abdominal_aorta_C188,
         r = Parameters_Systemic1.r_abdominal_aorta_C188)
     annotation (Placement(transformation(extent={{-203,-5},{-183,0}})));
-    ADAN_main.Vessel_modules.pv_jII_type abdominal_aorta_C192(
-        l = Parameters_Systemic1.l_abdominal_aorta_C192,
-        E = Parameters_Systemic1.E_abdominal_aorta_C192,
-        r = Parameters_Systemic1.r_abdominal_aorta_C192)
-    annotation (Placement(transformation(extent={{-178,-5},{-158,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type abdominal_aorta_C192(
+        l=Parameters_Systemic1.l_abdominal_aorta_C192,
+        E=Parameters_Systemic1.E_abdominal_aorta_C192,
+        r=Parameters_Systemic1.r_abdominal_aorta_C192)
+        annotation (Placement(transformation(extent={{-178,-5},{-158,0}})));
     ADAN_main.Vessel_modules.pp_vBC_type celiac_trunk_C116(
         l = Parameters_Systemic1.l_celiac_trunk_C116,
         E = Parameters_Systemic1.E_celiac_trunk_C116,
@@ -2795,11 +2797,11 @@ package main_ADAN_86_VenousRed_cellml
         R_T = Parameters_Systemic1.R_T_renal_R178,
         C_T = Parameters_Systemic1.C_T_renal_R178)
     annotation (Placement(transformation(extent={{35,37},{55,42}})));
-    ADAN_main.Vessel_modules.pv_jII_type common_iliac_R216(
-        l = Parameters_Systemic1.l_common_iliac_R216,
-        E = Parameters_Systemic1.E_common_iliac_R216,
-        r = Parameters_Systemic1.r_common_iliac_R216)
-    annotation (Placement(transformation(extent={{-148,-5},{-128,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type common_iliac_R216(
+        l=Parameters_Systemic1.l_common_iliac_R216,
+        E=Parameters_Systemic1.E_common_iliac_R216,
+        r=Parameters_Systemic1.r_common_iliac_R216)
+        annotation (Placement(transformation(extent={{-148,-5},{-128,0}})));
     ADAN_main.Vessel_modules.pp_vBC_type internal_iliac_T1_R218(
         l = Parameters_Systemic1.l_internal_iliac_T1_R218,
         E = Parameters_Systemic1.E_internal_iliac_T1_R218,
@@ -2812,11 +2814,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_external_iliac_R220,
         r = Parameters_Systemic1.r_external_iliac_R220)
     annotation (Placement(transformation(extent={{-120,-5},{-100,0}})));
-    ADAN_main.Vessel_modules.pv_jII_type femoral_R222(
-        l = Parameters_Systemic1.l_femoral_R222,
-        E = Parameters_Systemic1.E_femoral_R222,
-        r = Parameters_Systemic1.r_femoral_R222)
-    annotation (Placement(transformation(extent={{-95,-5},{-75,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type femoral_R222(
+        l=Parameters_Systemic1.l_femoral_R222,
+        E=Parameters_Systemic1.E_femoral_R222,
+        r=Parameters_Systemic1.r_femoral_R222)
+        annotation (Placement(transformation(extent={{-95,-5},{-75,0}})));
     ADAN_main.Vessel_modules.pp_vBC_type profundus_T2_R224(
         l = Parameters_Systemic1.l_profundus_T2_R224,
         E = Parameters_Systemic1.E_profundus_T2_R224,
@@ -2829,11 +2831,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_femoral_R226,
         r = Parameters_Systemic1.r_femoral_R226)
     annotation (Placement(transformation(extent={{-67,-5},{-47,0}})));
-    ADAN_main.Vessel_modules.pv_jII_type popliteal_R228(
-        l = Parameters_Systemic1.l_popliteal_R228,
-        E = Parameters_Systemic1.E_popliteal_R228,
-        r = Parameters_Systemic1.r_popliteal_R228)
-    annotation (Placement(transformation(extent={{-42,-5},{-22,0}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type popliteal_R228(
+        l=Parameters_Systemic1.l_popliteal_R228,
+        E=Parameters_Systemic1.E_popliteal_R228,
+        r=Parameters_Systemic1.r_popliteal_R228)
+        annotation (Placement(transformation(extent={{-42,-5},{-22,0}})));
     ADAN_main.Vessel_modules.pp_vBC_type anterior_tibial_T3_R230(
         l = Parameters_Systemic1.l_anterior_tibial_T3_R230,
         E = Parameters_Systemic1.E_anterior_tibial_T3_R230,
@@ -2858,11 +2860,11 @@ package main_ADAN_86_VenousRed_cellml
         R_T = Parameters_Systemic1.R_T_posterior_tibial_T4_R236,
         C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_R236)
     annotation (Placement(transformation(extent={{35,-5},{55,0}})));
-    ADAN_main.Vessel_modules.pv_jII_type common_iliac_L194(
-        l = Parameters_Systemic1.l_common_iliac_L194,
-        E = Parameters_Systemic1.E_common_iliac_L194,
-        r = Parameters_Systemic1.r_common_iliac_L194)
-    annotation (Placement(transformation(extent={{-147,-23},{-127,-18}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type common_iliac_L194(
+        l=Parameters_Systemic1.l_common_iliac_L194,
+        E=Parameters_Systemic1.E_common_iliac_L194,
+        r=Parameters_Systemic1.r_common_iliac_L194)
+        annotation (Placement(transformation(extent={{-147,-23},{-127,-18}})));
     ADAN_main.Vessel_modules.pp_vBC_type internal_iliac_T1_L196(
         l = Parameters_Systemic1.l_internal_iliac_T1_L196,
         E = Parameters_Systemic1.E_internal_iliac_T1_L196,
@@ -2875,11 +2877,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_external_iliac_L198,
         r = Parameters_Systemic1.r_external_iliac_L198)
     annotation (Placement(transformation(extent={{-121,-23},{-101,-18}})));
-    ADAN_main.Vessel_modules.pv_jII_type femoral_L200(
-        l = Parameters_Systemic1.l_femoral_L200,
-        E = Parameters_Systemic1.E_femoral_L200,
-        r = Parameters_Systemic1.r_femoral_L200)
-    annotation (Placement(transformation(extent={{-94,-23},{-74,-18}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type femoral_L200(
+        l=Parameters_Systemic1.l_femoral_L200,
+        E=Parameters_Systemic1.E_femoral_L200,
+        r=Parameters_Systemic1.r_femoral_L200)
+        annotation (Placement(transformation(extent={{-94,-23},{-74,-18}})));
     ADAN_main.Vessel_modules.pp_vBC_type profundus_T2_L202(
         l = Parameters_Systemic1.l_profundus_T2_L202,
         E = Parameters_Systemic1.E_profundus_T2_L202,
@@ -2892,11 +2894,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_femoral_L204,
         r = Parameters_Systemic1.r_femoral_L204)
     annotation (Placement(transformation(extent={{-68,-23},{-48,-18}})));
-    ADAN_main.Vessel_modules.pv_jII_type popliteal_L206(
-        l = Parameters_Systemic1.l_popliteal_L206,
-        E = Parameters_Systemic1.E_popliteal_L206,
-        r = Parameters_Systemic1.r_popliteal_L206)
-    annotation (Placement(transformation(extent={{-41,-23},{-21,-18}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type popliteal_L206(
+        l=Parameters_Systemic1.l_popliteal_L206,
+        E=Parameters_Systemic1.E_popliteal_L206,
+        r=Parameters_Systemic1.r_popliteal_L206)
+        annotation (Placement(transformation(extent={{-41,-23},{-21,-18}})));
     ADAN_main.Vessel_modules.pp_vBC_type anterior_tibial_T3_L208(
         l = Parameters_Systemic1.l_anterior_tibial_T3_L208,
         E = Parameters_Systemic1.E_anterior_tibial_T3_L208,
@@ -2921,11 +2923,11 @@ package main_ADAN_86_VenousRed_cellml
         R_T = Parameters_Systemic1.R_T_posterior_tibial_T4_L214,
         C_T = Parameters_Systemic1.C_T_posterior_tibial_T4_L214)
     annotation (Placement(transformation(extent={{35,-23},{55,-18}})));
-    ADAN_main.Vessel_modules.pv_jII_type subclavian_R28(
-        l = Parameters_Systemic1.l_subclavian_R28,
-        E = Parameters_Systemic1.E_subclavian_R28,
-        r = Parameters_Systemic1.r_subclavian_R28)
-    annotation (Placement(transformation(extent={{-108,163},{-88,168}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type subclavian_R28(
+        l=Parameters_Systemic1.l_subclavian_R28,
+        E=Parameters_Systemic1.E_subclavian_R28,
+        r=Parameters_Systemic1.r_subclavian_R28)
+        annotation (Placement(transformation(extent={{-108,163},{-88,168}})));
     ADAN_main.Vessel_modules.pv_type subclavian_R30(
         l = Parameters_Systemic1.l_subclavian_R30,
         E = Parameters_Systemic1.E_subclavian_R30,
@@ -2936,11 +2938,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_axillary_R32,
         r = Parameters_Systemic1.r_axillary_R32)
     annotation (Placement(transformation(extent={{-60,163},{-40,168}})));
-    ADAN_main.Vessel_modules.pv_jII_type brachial_R34(
-        l = Parameters_Systemic1.l_brachial_R34,
-        E = Parameters_Systemic1.E_brachial_R34,
-        r = Parameters_Systemic1.r_brachial_R34)
-    annotation (Placement(transformation(extent={{-23,163},{-3,168}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type brachial_R34(
+        l=Parameters_Systemic1.l_brachial_R34,
+        E=Parameters_Systemic1.E_brachial_R34,
+        r=Parameters_Systemic1.r_brachial_R34)
+        annotation (Placement(transformation(extent={{-23,163},{-3,168}})));
     ADAN_main.Vessel_modules.pv_type ulnar_T2_R36(
         l = Parameters_Systemic1.l_ulnar_T2_R36,
         E = Parameters_Systemic1.E_ulnar_T2_R36,
@@ -2960,11 +2962,11 @@ package main_ADAN_86_VenousRed_cellml
         R_T = Parameters_Systemic1.R_T_radial_T1_R44,
         C_T = Parameters_Systemic1.C_T_radial_T1_R44)
     annotation (Placement(transformation(extent={{35,153},{55,158}})));
-    ADAN_main.Vessel_modules.pv_jII_type subclavian_L66(
-        l = Parameters_Systemic1.l_subclavian_L66,
-        E = Parameters_Systemic1.E_subclavian_L66,
-        r = Parameters_Systemic1.r_subclavian_L66)
-    annotation (Placement(transformation(extent={{-87,109},{-67,114}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type subclavian_L66(
+        l=Parameters_Systemic1.l_subclavian_L66,
+        E=Parameters_Systemic1.E_subclavian_L66,
+        r=Parameters_Systemic1.r_subclavian_L66)
+        annotation (Placement(transformation(extent={{-87,109},{-67,114}})));
     ADAN_main.Vessel_modules.pv_type subclavian_L78(
         l = Parameters_Systemic1.l_subclavian_L78,
         E = Parameters_Systemic1.E_subclavian_L78,
@@ -2975,11 +2977,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_axillary_L80,
         r = Parameters_Systemic1.r_axillary_L80)
     annotation (Placement(transformation(extent={{-39,109},{-19,114}})));
-    ADAN_main.Vessel_modules.pv_jII_type brachial_L82(
-        l = Parameters_Systemic1.l_brachial_L82,
-        E = Parameters_Systemic1.E_brachial_L82,
-        r = Parameters_Systemic1.r_brachial_L82)
-    annotation (Placement(transformation(extent={{-16,109},{4,114}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type brachial_L82(
+        l=Parameters_Systemic1.l_brachial_L82,
+        E=Parameters_Systemic1.E_brachial_L82,
+        r=Parameters_Systemic1.r_brachial_L82)
+        annotation (Placement(transformation(extent={{-16,109},{4,114}})));
     ADAN_main.Vessel_modules.pv_type ulnar_T2_L84(
         l = Parameters_Systemic1.l_ulnar_T2_L84,
         E = Parameters_Systemic1.E_ulnar_T2_L84,
@@ -3009,11 +3011,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_common_carotid_R6_B,
         r = Parameters_Systemic1.r_common_carotid_R6_B)
     annotation (Placement(transformation(extent={{-83,187},{-63,192}})));
-    ADAN_main.Vessel_modules.pv_jII_type common_carotid_R6_C(
-        l = Parameters_Systemic1.l_common_carotid_R6_C,
-        E = Parameters_Systemic1.E_common_carotid_R6_C,
-        r = Parameters_Systemic1.r_common_carotid_R6_C)
-    annotation (Placement(transformation(extent={{-60,187},{-40,192}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type common_carotid_R6_C(
+        l=Parameters_Systemic1.l_common_carotid_R6_C,
+        E=Parameters_Systemic1.E_common_carotid_R6_C,
+        r=Parameters_Systemic1.r_common_carotid_R6_C)
+        annotation (Placement(transformation(extent={{-60,187},{-40,192}})));
     replaceable ADAN_main.Vessel_modules.pv_type internal_carotid_R8_A(
         l = Parameters_Systemic1.l_internal_carotid_R8_A,
         E = Parameters_Systemic1.E_internal_carotid_R8_A,
@@ -3053,11 +3055,11 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Systemic1.E_common_carotid_L48_C,
         r = Parameters_Systemic1.r_common_carotid_L48_C)
     annotation (Placement(transformation(extent={{-63,119},{-43,124}})));
-    ADAN_main.Vessel_modules.pv_jII_type common_carotid_L48_D(
-        l = Parameters_Systemic1.l_common_carotid_L48_D,
-        E = Parameters_Systemic1.E_common_carotid_L48_D,
-        r = Parameters_Systemic1.r_common_carotid_L48_D)
-    annotation (Placement(transformation(extent={{-38,119},{-18,124}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type common_carotid_L48_D(
+        l=Parameters_Systemic1.l_common_carotid_L48_D,
+        E=Parameters_Systemic1.E_common_carotid_L48_D,
+        r=Parameters_Systemic1.r_common_carotid_L48_D)
+        annotation (Placement(transformation(extent={{-38,119},{-18,124}})));
     ADAN_main.Vessel_modules.pv_type internal_carotid_L50_A(
         l = Parameters_Systemic1.l_internal_carotid_L50_A,
         E = Parameters_Systemic1.E_internal_carotid_L50_A,
@@ -3102,18 +3104,18 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_superior_vena_cava_C2,
         r = Parameters_Venous1.r_superior_vena_cava_C2)
     annotation (Placement(transformation(extent={{297,163},{317,168}})));
-    ADAN_main.Vessel_modules.vp_jII_type superior_vena_cava_C88(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_superior_vena_cava_C88,
-        E = Parameters_Venous1.E_superior_vena_cava_C88,
-        r = Parameters_Venous1.r_superior_vena_cava_C88)
-    annotation (Placement(transformation(extent={{272,163},{292,168}})));
-    ADAN_main.Vessel_modules.vp_jII_type inferior_vena_cava_C8(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_inferior_vena_cava_C8,
-        E = Parameters_Venous1.E_inferior_vena_cava_C8,
-        r = Parameters_Venous1.r_inferior_vena_cava_C8)
-    annotation (Placement(transformation(extent={{409,-5},{429,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type superior_vena_cava_C88(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_superior_vena_cava_C88,
+        E=Parameters_Venous1.E_superior_vena_cava_C88,
+        r=Parameters_Venous1.r_superior_vena_cava_C88)
+        annotation (Placement(transformation(extent={{272,163},{292,168}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type inferior_vena_cava_C8(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_inferior_vena_cava_C8,
+        E=Parameters_Venous1.E_inferior_vena_cava_C8,
+        r=Parameters_Venous1.r_inferior_vena_cava_C8)
+        annotation (Placement(transformation(extent={{409,-5},{429,0}})));
     ADAN_main.Vessel_modules.vp_type hepatic_vein_T1_C10(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_hepatic_vein_T1_C10,
@@ -3126,36 +3128,36 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_inferior_vena_cava_C12,
         r = Parameters_Venous1.r_inferior_vena_cava_C12)
     annotation (Placement(transformation(extent={{383,-5},{403,0}})));
-    ADAN_main.Vessel_modules.vp_jII_type inferior_vena_cava_C16(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_inferior_vena_cava_C16,
-        E = Parameters_Venous1.E_inferior_vena_cava_C16,
-        r = Parameters_Venous1.r_inferior_vena_cava_C16)
-    annotation (Placement(transformation(extent={{360,-5},{380,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type inferior_vena_cava_C16(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_inferior_vena_cava_C16,
+        E=Parameters_Venous1.E_inferior_vena_cava_C16,
+        r=Parameters_Venous1.r_inferior_vena_cava_C16)
+        annotation (Placement(transformation(extent={{360,-5},{380,0}})));
     ADAN_main.Vessel_modules.vp_type renal_vein_T1_R18(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_renal_vein_T1_R18,
         E = Parameters_Venous1.E_renal_vein_T1_R18,
         r = Parameters_Venous1.r_renal_vein_T1_R18)
     annotation (Placement(transformation(extent={{60,37},{80,42}})));
-    ADAN_main.Vessel_modules.vp_jII_type inferior_vena_cava_C20(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_inferior_vena_cava_C20,
-        E = Parameters_Venous1.E_inferior_vena_cava_C20,
-        r = Parameters_Venous1.r_inferior_vena_cava_C20)
-    annotation (Placement(transformation(extent={{336,-5},{356,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type inferior_vena_cava_C20(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_inferior_vena_cava_C20,
+        E=Parameters_Venous1.E_inferior_vena_cava_C20,
+        r=Parameters_Venous1.r_inferior_vena_cava_C20)
+        annotation (Placement(transformation(extent={{336,-5},{356,0}})));
     ADAN_main.Vessel_modules.vp_type renal_vein_T1_L22(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_renal_vein_T1_L22,
         E = Parameters_Venous1.E_renal_vein_T1_L22,
         r = Parameters_Venous1.r_renal_vein_T1_L22)
     annotation (Placement(transformation(extent={{60,-67},{80,-62}})));
-    ADAN_main.Vessel_modules.vp_jII_type inferior_vena_cava_C24(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_inferior_vena_cava_C24,
-        E = Parameters_Venous1.E_inferior_vena_cava_C24,
-        r = Parameters_Venous1.r_inferior_vena_cava_C24)
-    annotation (Placement(transformation(extent={{312,-5},{332,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type inferior_vena_cava_C24(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_inferior_vena_cava_C24,
+        E=Parameters_Venous1.E_inferior_vena_cava_C24,
+        r=Parameters_Venous1.r_inferior_vena_cava_C24)
+        annotation (Placement(transformation(extent={{312,-5},{332,0}})));
     ADAN_main.Vessel_modules.vp_type common_iliac_vein_L56(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_common_iliac_vein_L56,
@@ -3168,12 +3170,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_common_iliac_vein_R26,
         r = Parameters_Venous1.r_common_iliac_vein_R26)
     annotation (Placement(transformation(extent={{288,-5},{308,0}})));
-    ADAN_main.Vessel_modules.vp_jII_type external_iliac_vein_R28(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_external_iliac_vein_R28,
-        E = Parameters_Venous1.E_external_iliac_vein_R28,
-        r = Parameters_Venous1.r_external_iliac_vein_R28)
-    annotation (Placement(transformation(extent={{263,-5},{283,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type external_iliac_vein_R28(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_external_iliac_vein_R28,
+        E=Parameters_Venous1.E_external_iliac_vein_R28,
+        r=Parameters_Venous1.r_external_iliac_vein_R28)
+        annotation (Placement(transformation(extent={{263,-5},{283,0}})));
     ADAN_main.Vessel_modules.vp_type internal_iliac_vein_T1_R30(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_internal_iliac_vein_T1_R30,
@@ -3192,12 +3194,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_femoral_vein_R34,
         r = Parameters_Venous1.r_femoral_vein_R34)
     annotation (Placement(transformation(extent={{212,-5},{232,0}})));
-    ADAN_main.Vessel_modules.vp_jII_type femoral_vein_R38(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_femoral_vein_R38,
-        E = Parameters_Venous1.E_femoral_vein_R38,
-        r = Parameters_Venous1.r_femoral_vein_R38)
-    annotation (Placement(transformation(extent={{189,-5},{209,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type femoral_vein_R38(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_femoral_vein_R38,
+        E=Parameters_Venous1.E_femoral_vein_R38,
+        r=Parameters_Venous1.r_femoral_vein_R38)
+        annotation (Placement(transformation(extent={{189,-5},{209,0}})));
     ADAN_main.Vessel_modules.vp_type profunda_femoris_vein_T2_R40(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_profunda_femoris_vein_T2_R40,
@@ -3216,12 +3218,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_femoral_vein_R46,
         r = Parameters_Venous1.r_femoral_vein_R46)
     annotation (Placement(transformation(extent={{138,-5},{158,0}})));
-    ADAN_main.Vessel_modules.vp_jII_type popliteal_vein_R48(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_popliteal_vein_R48,
-        E = Parameters_Venous1.E_popliteal_vein_R48,
-        r = Parameters_Venous1.r_popliteal_vein_R48)
-    annotation (Placement(transformation(extent={{113,-5},{133,0}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type popliteal_vein_R48(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_popliteal_vein_R48,
+        E=Parameters_Venous1.E_popliteal_vein_R48,
+        r=Parameters_Venous1.r_popliteal_vein_R48)
+        annotation (Placement(transformation(extent={{113,-5},{133,0}})));
     ADAN_main.Vessel_modules.vp_type anterior_tibial_vein_T4_R50(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_anterior_tibial_vein_T4_R50,
@@ -3240,12 +3242,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_posterior_tibial_vein_T6_R54,
         r = Parameters_Venous1.r_posterior_tibial_vein_T6_R54)
     annotation (Placement(transformation(extent={{60,-5},{80,0}})));
-    ADAN_main.Vessel_modules.vp_jII_type external_iliac_vein_L58(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_external_iliac_vein_L58,
-        E = Parameters_Venous1.E_external_iliac_vein_L58,
-        r = Parameters_Venous1.r_external_iliac_vein_L58)
-    annotation (Placement(transformation(extent={{263,-23},{283,-18}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type external_iliac_vein_L58(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_external_iliac_vein_L58,
+        E=Parameters_Venous1.E_external_iliac_vein_L58,
+        r=Parameters_Venous1.r_external_iliac_vein_L58)
+        annotation (Placement(transformation(extent={{263,-23},{283,-18}})));
     ADAN_main.Vessel_modules.vp_type internal_iliac_vein_T1_L60(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_internal_iliac_vein_T1_L60,
@@ -3264,12 +3266,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_femoral_vein_L64,
         r = Parameters_Venous1.r_femoral_vein_L64)
     annotation (Placement(transformation(extent={{212,-23},{232,-18}})));
-    ADAN_main.Vessel_modules.vp_jII_type femoral_vein_L68(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_femoral_vein_L68,
-        E = Parameters_Venous1.E_femoral_vein_L68,
-        r = Parameters_Venous1.r_femoral_vein_L68)
-    annotation (Placement(transformation(extent={{189,-23},{209,-18}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type femoral_vein_L68(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_femoral_vein_L68,
+        E=Parameters_Venous1.E_femoral_vein_L68,
+        r=Parameters_Venous1.r_femoral_vein_L68)
+        annotation (Placement(transformation(extent={{189,-23},{209,-18}})));
     ADAN_main.Vessel_modules.vp_type profunda_femoris_vein_T2_L70(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_profunda_femoris_vein_T2_L70,
@@ -3288,12 +3290,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_femoral_vein_L76,
         r = Parameters_Venous1.r_femoral_vein_L76)
     annotation (Placement(transformation(extent={{138,-23},{158,-18}})));
-    ADAN_main.Vessel_modules.vp_jII_type popliteal_vein_L78(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_popliteal_vein_L78,
-        E = Parameters_Venous1.E_popliteal_vein_L78,
-        r = Parameters_Venous1.r_popliteal_vein_L78)
-    annotation (Placement(transformation(extent={{113,-23},{133,-18}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type popliteal_vein_L78(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_popliteal_vein_L78,
+        E=Parameters_Venous1.E_popliteal_vein_L78,
+        r=Parameters_Venous1.r_popliteal_vein_L78)
+        annotation (Placement(transformation(extent={{113,-23},{133,-18}})));
     ADAN_main.Vessel_modules.vp_type anterior_tibial_vein_T4_L80(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_anterior_tibial_vein_T4_L80,
@@ -3312,36 +3314,36 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_posterior_tibial_vein_T6_L84,
         r = Parameters_Venous1.r_posterior_tibial_vein_T6_L84)
     annotation (Placement(transformation(extent={{60,-23},{80,-18}})));
-    ADAN_main.Vessel_modules.vp_jII_type brachiocephalic_vein_R90(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_brachiocephalic_vein_R90,
-        E = Parameters_Venous1.E_brachiocephalic_vein_R90,
-        r = Parameters_Venous1.r_brachiocephalic_vein_R90)
-    annotation (Placement(transformation(extent={{247,163},{267,168}})));
-    ADAN_main.Vessel_modules.vp_jII_type brachiocephalic_vein_L124(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_brachiocephalic_vein_L124,
-        E = Parameters_Venous1.E_brachiocephalic_vein_L124,
-        r = Parameters_Venous1.r_brachiocephalic_vein_L124)
-    annotation (Placement(transformation(extent={{248,109},{268,114}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type brachiocephalic_vein_R90(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_brachiocephalic_vein_R90,
+        E=Parameters_Venous1.E_brachiocephalic_vein_R90,
+        r=Parameters_Venous1.r_brachiocephalic_vein_R90)
+        annotation (Placement(transformation(extent={{247,163},{267,168}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type brachiocephalic_vein_L124(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_brachiocephalic_vein_L124,
+        E=Parameters_Venous1.E_brachiocephalic_vein_L124,
+        r=Parameters_Venous1.r_brachiocephalic_vein_L124)
+        annotation (Placement(transformation(extent={{248,109},{268,114}})));
     ADAN_main.Vessel_modules.vp_type vertebral_vein_R92(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_vertebral_vein_R92,
         E = Parameters_Venous1.E_vertebral_vein_R92,
         r = Parameters_Venous1.r_vertebral_vein_R92)
     annotation (Placement(transformation(extent={{61,143},{81,148}})));
-    ADAN_main.Vessel_modules.vp_jII_type brachiocephalic_vein_R94(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_brachiocephalic_vein_R94,
-        E = Parameters_Venous1.E_brachiocephalic_vein_R94,
-        r = Parameters_Venous1.r_brachiocephalic_vein_R94)
-    annotation (Placement(transformation(extent={{222,163},{242,168}})));
-    ADAN_main.Vessel_modules.vp_jII_type subclavian_vein_R96(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_subclavian_vein_R96,
-        E = Parameters_Venous1.E_subclavian_vein_R96,
-        r = Parameters_Venous1.r_subclavian_vein_R96)
-    annotation (Placement(transformation(extent={{197,163},{217,168}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type brachiocephalic_vein_R94(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_brachiocephalic_vein_R94,
+        E=Parameters_Venous1.E_brachiocephalic_vein_R94,
+        r=Parameters_Venous1.r_brachiocephalic_vein_R94)
+        annotation (Placement(transformation(extent={{222,163},{242,168}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type subclavian_vein_R96(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_subclavian_vein_R96,
+        E=Parameters_Venous1.E_subclavian_vein_R96,
+        r=Parameters_Venous1.r_subclavian_vein_R96)
+        annotation (Placement(transformation(extent={{197,163},{217,168}})));
     ADAN_main.Vessel_modules.vp_type internal_jugular_vein_R122(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_internal_jugular_vein_R122,
@@ -3360,12 +3362,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_subclavian_vein_R100,
         r = Parameters_Venous1.r_subclavian_vein_R100)
     annotation (Placement(transformation(extent={{168,163},{188,168}})));
-    ADAN_main.Vessel_modules.vp_jII_type axillary_vein_R102(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_axillary_vein_R102,
-        E = Parameters_Venous1.E_axillary_vein_R102,
-        r = Parameters_Venous1.r_axillary_vein_R102)
-    annotation (Placement(transformation(extent={{141,163},{161,168}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type axillary_vein_R102(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_axillary_vein_R102,
+        E=Parameters_Venous1.E_axillary_vein_R102,
+        r=Parameters_Venous1.r_axillary_vein_R102)
+        annotation (Placement(transformation(extent={{141,163},{161,168}})));
     ADAN_main.Vessel_modules.vp_type brachial_vein_R104(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_brachial_vein_R104,
@@ -3408,18 +3410,18 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_vertebral_vein_L126,
         r = Parameters_Venous1.r_vertebral_vein_L126)
     annotation (Placement(transformation(extent={{60,87},{80,92}})));
-    ADAN_main.Vessel_modules.vp_jII_type brachiocephalic_vein_L128(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_brachiocephalic_vein_L128,
-        E = Parameters_Venous1.E_brachiocephalic_vein_L128,
-        r = Parameters_Venous1.r_brachiocephalic_vein_L128)
-    annotation (Placement(transformation(extent={{219,109},{239,114}})));
-    ADAN_main.Vessel_modules.vp_jII_type subclavian_vein_L130(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_subclavian_vein_L130,
-        E = Parameters_Venous1.E_subclavian_vein_L130,
-        r = Parameters_Venous1.r_subclavian_vein_L130)
-    annotation (Placement(transformation(extent={{192,109},{212,114}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type brachiocephalic_vein_L128(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_brachiocephalic_vein_L128,
+        E=Parameters_Venous1.E_brachiocephalic_vein_L128,
+        r=Parameters_Venous1.r_brachiocephalic_vein_L128)
+        annotation (Placement(transformation(extent={{219,109},{239,114}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type subclavian_vein_L130(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_subclavian_vein_L130,
+        E=Parameters_Venous1.E_subclavian_vein_L130,
+        r=Parameters_Venous1.r_subclavian_vein_L130)
+        annotation (Placement(transformation(extent={{192,109},{212,114}})));
     ADAN_main.Vessel_modules.vp_type internal_jugular_vein_L156(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_internal_jugular_vein_L156,
@@ -3438,12 +3440,12 @@ package main_ADAN_86_VenousRed_cellml
         E = Parameters_Venous1.E_subclavian_vein_L134,
         r = Parameters_Venous1.r_subclavian_vein_L134)
     annotation (Placement(transformation(extent={{167,109},{187,114}})));
-    ADAN_main.Vessel_modules.vp_jII_type axillary_vein_L136(
-        phi_norm = phi_norm,
-        l = Parameters_Venous1.l_axillary_vein_L136,
-        E = Parameters_Venous1.E_axillary_vein_L136,
-        r = Parameters_Venous1.r_axillary_vein_L136)
-    annotation (Placement(transformation(extent={{142,109},{162,114}})));
+      ADAN_main.Vessel_modules.Obsolete.vp_jII_type axillary_vein_L136(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_axillary_vein_L136,
+        E=Parameters_Venous1.E_axillary_vein_L136,
+        r=Parameters_Venous1.r_axillary_vein_L136)
+        annotation (Placement(transformation(extent={{142,109},{162,114}})));
     ADAN_main.Vessel_modules.vp_type brachial_vein_L138(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_brachial_vein_L138,
@@ -4027,10 +4029,11 @@ package main_ADAN_86_VenousRed_cellml
   end Systemic_con;
 
   model Systemic_baroreflex
-    extends Systemic_con(
-        redeclare ADAN_main.Vessel_modules.pv_jII_type_baroreceptor aortic_arch_C46,
-        redeclare ADAN_main.Vessel_modules.pv_type_baroreceptor
-        internal_carotid_R8_A);
+      extends Systemic_con(redeclare
+          ADAN_main.Vessel_modules.Obsolete.pv_jII_type_baroreceptor
+          aortic_arch_C46, redeclare
+          ADAN_main.Vessel_modules.Obsolete.pv_type_baroreceptor
+          internal_carotid_R8_A);
     ADAN_main.Components.Auxiliary.Baroreflex
                baroreflex
       annotation (Placement(transformation(extent={{-20,74},{0,54}})));

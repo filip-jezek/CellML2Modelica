@@ -2300,6 +2300,13 @@ package main_ADAN_86_VenousRed_cellml
     Real v_psh(unit = "m3.s-1", start = 0.0);
     Real v_pvn(unit = "m3.s-1", start = 0.0);
     input Real v_puv(unit = "m3.s-1");
+    Physiolibrary.Types.Volume V_pas = u_pas*C_pas "Pulmonary artery volume";
+    Physiolibrary.Types.Volume V_pat = u_pat*C_pat "Pulmonary arteries volume";
+    Physiolibrary.Types.Volume V_par = u_par*C_par "Pulmonary arterioles volume";
+    Physiolibrary.Types.Volume V_pcp = u_pcp*C_pcp "Pulmonary capillaries volume";
+    Physiolibrary.Types.Volume V_pvn = u_pvn*C_pvn "Pulmonary veins volume";
+    Physiolibrary.Types.Volume total_stressed_volume = V_pas + V_pat + V_par + V_pcp + V_pvn;
+  //  Physiolibrary.Types.Volume V_pvc = u_pvc*C_pvc;
   equation
     C_pas = Parameters_Pulmonary1.C_pas;
     C_pat = Parameters_Pulmonary1.C_pat;
@@ -4045,12 +4052,277 @@ package main_ADAN_86_VenousRed_cellml
               12,64},{12,62},{20,62}},
                                 color={0,0,127}));
   end Systemic_baroreflex;
+
+  model zpv
+    extends Systemic_eq;
+  Physiolibrary.Types.Volume zpv_arterial = ascending_aorta_A.zpv +
+      ascending_aorta_B.zpv +
+      ascending_aorta_C.zpv +
+      ascending_aorta_D.zpv +
+      aortic_arch_C2.zpv +
+      brachiocephalic_trunk_C4.zpv +
+      aortic_arch_C46.zpv +
+      aortic_arch_C64.zpv +
+      aortic_arch_C94.zpv +
+      thoracic_aorta_C96.zpv +
+      thoracic_aorta_C100.zpv +
+      thoracic_aorta_C104.zpv +
+      thoracic_aorta_C108.zpv +
+      thoracic_aorta_C112.zpv +
+      abdominal_aorta_C114.zpv +
+      abdominal_aorta_C136.zpv +
+      abdominal_aorta_C164.zpv +
+      abdominal_aorta_C176.zpv +
+      abdominal_aorta_C188.zpv +
+      abdominal_aorta_C192.zpv +
+      common_iliac_R216.zpv +
+      external_iliac_R220.zpv +
+      femoral_R222.zpv +
+      femoral_R226.zpv +
+      popliteal_R228.zpv +
+      popliteal_R232.zpv +
+      tibiofibular_trunk_R234.zpv +
+      common_iliac_L194.zpv +
+      external_iliac_L198.zpv +
+      femoral_L200.zpv +
+      femoral_L204.zpv +
+      popliteal_L206.zpv +
+      popliteal_L210.zpv +
+      tibiofibular_trunk_L212.zpv +
+      subclavian_R28.zpv +
+      subclavian_R30.zpv +
+      axillary_R32.zpv +
+      brachial_R34.zpv +
+      ulnar_T2_R36.zpv +
+      subclavian_L66.zpv +
+      subclavian_L78.zpv +
+      axillary_L80.zpv +
+      brachial_L82.zpv +
+      ulnar_T2_L84.zpv +
+      common_carotid_R6_A.zpv +
+      common_carotid_R6_B.zpv +
+      common_carotid_R6_C.zpv +
+      internal_carotid_R8_A.zpv +
+      internal_carotid_R8_B.zpv +
+      common_carotid_L48_A.zpv +
+      common_carotid_L48_B.zpv +
+      common_carotid_L48_C.zpv +
+      common_carotid_L48_D.zpv +
+      internal_carotid_L50_A.zpv +
+      internal_carotid_L50_B.zpv;
+    Physiolibrary.Types.Volume zpv_peripheral = celiac_trunk_C116.zpv +
+      renal_L166.zpv +
+      renal_R178.zpv +
+      internal_iliac_T1_R218.zpv +
+      profundus_T2_R224.zpv +
+      anterior_tibial_T3_R230.zpv +
+      posterior_tibial_T4_R236.zpv +
+      internal_iliac_T1_L196.zpv +
+      profundus_T2_L202.zpv +
+      anterior_tibial_T3_L208.zpv +
+      posterior_tibial_T4_L214.zpv +
+      ulnar_T2_R42.zpv +
+      radial_T1_R44.zpv +
+      ulnar_T2_L90.zpv +
+      radial_T1_L92.zpv +
+      internal_carotid_R8_C.zpv +
+      external_carotid_T2_R26.zpv +
+      internal_carotid_L50_C.zpv +
+      external_carotid_T2_L62.zpv +
+      vertebral_L2.zpv +
+      vertebral_R272.zpv;
+    Physiolibrary.Types.Volume zpv_venous = superior_vena_cava_C2.zpv +
+      superior_vena_cava_C88.zpv +
+      inferior_vena_cava_C8.zpv +
+      hepatic_vein_T1_C10.zpv +
+      inferior_vena_cava_C12.zpv +
+      inferior_vena_cava_C16.zpv +
+      renal_vein_T1_R18.zpv +
+      inferior_vena_cava_C20.zpv +
+      renal_vein_T1_L22.zpv +
+      inferior_vena_cava_C24.zpv +
+      common_iliac_vein_L56.zpv +
+      common_iliac_vein_R26.zpv +
+      external_iliac_vein_R28.zpv +
+      internal_iliac_vein_T1_R30.zpv +
+      external_iliac_vein_R32.zpv +
+      femoral_vein_R34.zpv +
+      femoral_vein_R38.zpv +
+      profunda_femoris_vein_T2_R40.zpv +
+      femoral_vein_R42.zpv +
+      femoral_vein_R46.zpv +
+      popliteal_vein_R48.zpv +
+      anterior_tibial_vein_T4_R50.zpv +
+      popliteal_vein_R52.zpv +
+      posterior_tibial_vein_T6_R54.zpv +
+      external_iliac_vein_L58.zpv +
+      internal_iliac_vein_T1_L60.zpv +
+      external_iliac_vein_L62.zpv +
+      femoral_vein_L64.zpv +
+      femoral_vein_L68.zpv +
+      profunda_femoris_vein_T2_L70.zpv +
+      femoral_vein_L72.zpv +
+      femoral_vein_L76.zpv +
+      popliteal_vein_L78.zpv +
+      anterior_tibial_vein_T4_L80.zpv +
+      popliteal_vein_L82.zpv +
+      posterior_tibial_vein_T6_L84.zpv +
+      brachiocephalic_vein_R90.zpv +
+      brachiocephalic_vein_L124.zpv +
+      vertebral_vein_R92.zpv +
+      brachiocephalic_vein_R94.zpv +
+      subclavian_vein_R96.zpv +
+      internal_jugular_vein_R122.zpv +
+      external_jugular_vein_R98.zpv +
+      subclavian_vein_R100.zpv +
+      axillary_vein_R102.zpv +
+      brachial_vein_R104.zpv +
+      brachial_vein_R114.zpv +
+      brachial_vein_R108.zpv +
+      ulnar_vein_T7_R110.zpv +
+      brachial_vein_R118.zpv +
+      radial_vein_T3_R120.zpv +
+      vertebral_vein_L126.zpv +
+      brachiocephalic_vein_L128.zpv +
+      subclavian_vein_L130.zpv +
+      internal_jugular_vein_L156.zpv +
+      external_jugular_vein_L132.zpv +
+      subclavian_vein_L134.zpv +
+      axillary_vein_L136.zpv +
+      brachial_vein_L138.zpv +
+      brachial_vein_L148.zpv +
+      brachial_vein_L142.zpv +
+      ulnar_vein_T7_L144.zpv +
+      brachial_vein_L152.zpv +
+      radial_vein_T3_L154.zpv;
+
+  Modelica.SIunits.Length l_arterial = ascending_aorta_A.l +
+      ascending_aorta_B.l +
+      ascending_aorta_C.l +
+      ascending_aorta_D.l +
+      aortic_arch_C2.l +
+      brachiocephalic_trunk_C4.l +
+      aortic_arch_C46.l +
+      aortic_arch_C64.l +
+      aortic_arch_C94.l +
+      thoracic_aorta_C96.l +
+      thoracic_aorta_C100.l +
+      thoracic_aorta_C104.l +
+      thoracic_aorta_C108.l +
+      thoracic_aorta_C112.l +
+      abdominal_aorta_C114.l +
+      abdominal_aorta_C136.l +
+      abdominal_aorta_C164.l +
+      abdominal_aorta_C176.l +
+      abdominal_aorta_C188.l +
+      abdominal_aorta_C192.l +
+      common_iliac_R216.l +
+      external_iliac_R220.l +
+      femoral_R222.l +
+      femoral_R226.l +
+      popliteal_R228.l +
+      popliteal_R232.l +
+      tibiofibular_trunk_R234.l +
+      common_iliac_L194.l +
+      external_iliac_L198.l +
+      femoral_L200.l +
+      femoral_L204.l +
+      popliteal_L206.l +
+      popliteal_L210.l +
+      tibiofibular_trunk_L212.l +
+      subclavian_R28.l +
+      subclavian_R30.l +
+      axillary_R32.l +
+      brachial_R34.l +
+      ulnar_T2_R36.l +
+      subclavian_L66.l +
+      subclavian_L78.l +
+      axillary_L80.l +
+      brachial_L82.l +
+      ulnar_T2_L84.l +
+      common_carotid_R6_A.l +
+      common_carotid_R6_B.l +
+      common_carotid_R6_C.l +
+      internal_carotid_R8_A.l +
+      internal_carotid_R8_B.l +
+      common_carotid_L48_A.l +
+      common_carotid_L48_B.l +
+      common_carotid_L48_C.l +
+      common_carotid_L48_D.l +
+      internal_carotid_L50_A.l +
+      internal_carotid_L50_B.l;
+
+  Modelica.SIunits.Length l_venous = superior_vena_cava_C2.l +
+      superior_vena_cava_C88.l +
+      inferior_vena_cava_C8.l +
+      hepatic_vein_T1_C10.l +
+      inferior_vena_cava_C12.l +
+      inferior_vena_cava_C16.l +
+      renal_vein_T1_R18.l +
+      inferior_vena_cava_C20.l +
+      renal_vein_T1_L22.l +
+      inferior_vena_cava_C24.l +
+      common_iliac_vein_L56.l +
+      common_iliac_vein_R26.l +
+      external_iliac_vein_R28.l +
+      internal_iliac_vein_T1_R30.l +
+      external_iliac_vein_R32.l +
+      femoral_vein_R34.l +
+      femoral_vein_R38.l +
+      profunda_femoris_vein_T2_R40.l +
+      femoral_vein_R42.l +
+      femoral_vein_R46.l +
+      popliteal_vein_R48.l +
+      anterior_tibial_vein_T4_R50.l +
+      popliteal_vein_R52.l +
+      posterior_tibial_vein_T6_R54.l +
+      external_iliac_vein_L58.l +
+      internal_iliac_vein_T1_L60.l +
+      external_iliac_vein_L62.l +
+      femoral_vein_L64.l +
+      femoral_vein_L68.l +
+      profunda_femoris_vein_T2_L70.l +
+      femoral_vein_L72.l +
+      femoral_vein_L76.l +
+      popliteal_vein_L78.l +
+      anterior_tibial_vein_T4_L80.l +
+      popliteal_vein_L82.l +
+      posterior_tibial_vein_T6_L84.l +
+      brachiocephalic_vein_R90.l +
+      brachiocephalic_vein_L124.l +
+      vertebral_vein_R92.l +
+      brachiocephalic_vein_R94.l +
+      subclavian_vein_R96.l +
+      internal_jugular_vein_R122.l +
+      external_jugular_vein_R98.l +
+      subclavian_vein_R100.l +
+      axillary_vein_R102.l +
+      brachial_vein_R104.l +
+      brachial_vein_R114.l +
+      brachial_vein_R108.l +
+      ulnar_vein_T7_R110.l +
+      brachial_vein_R118.l +
+      radial_vein_T3_R120.l +
+      vertebral_vein_L126.l +
+      brachiocephalic_vein_L128.l +
+      subclavian_vein_L130.l +
+      internal_jugular_vein_L156.l +
+      external_jugular_vein_L132.l +
+      subclavian_vein_L134.l +
+      axillary_vein_L136.l +
+      brachial_vein_L138.l +
+      brachial_vein_L148.l +
+      brachial_vein_L142.l +
+      ulnar_vein_T7_L144.l +
+      brachial_vein_L152.l +
+      radial_vein_T3_L154.l;
+  end zpv;
 end main_ADAN_86_VenousRed_cellml;
 
   model CardiovascularSystem
     main_ADAN_86_VenousRed_cellml.environment environment1
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
-    replaceable main_ADAN_86_VenousRed_cellml.Systemic_eq Systemic1(u_ra=Heart1.u_ra,
+    replaceable main_ADAN_86_VenousRed_cellml.zpv         Systemic1(u_ra=Heart1.u_ra,
         v_aov=Heart1.v_aov) constrainedby
       main_ADAN_86_VenousRed_cellml.Systemic_base(u_ra=Heart1.u_ra, v_aov=
           Heart1.v_aov)

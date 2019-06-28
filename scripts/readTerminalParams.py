@@ -30,7 +30,7 @@ name_patt = ["Systemic1.", '']
 for t in terminators_venous:
     t.C = d.data("".join([name_patt[0], t.name,'.', 'C']))[-1]
     t.RA = d.data("".join([name_patt[0], t.name,'.', 'R']))[-1]
-    t.RV = d.data("".join([name_patt[0], t.name,'.', 'R_T']))[-1]
+    t.RV = 3.0*d.data("".join([name_patt[0], t.name,'.', 'R_T']))[-1]
     t.I = d.data( "".join([name_patt[0], t.name,'.', 'I']))[-1]
     t.zpv = d.data("".join([name_patt[0], t.name,'.', 'zpv']))[-1]
     t.pa_avg = TerminalDS.average(d.data("".join([name_patt[0], t.name,'.', 'u_in'])), steadyStateInd)
@@ -47,40 +47,28 @@ for t in terminators_venous:
 
 # write the record
 with open('TerminalsVenousParameters.csv', 'w') as file:
-    file.write('name, C, R, R_v, I, zpv, PA, PV, Q , \n')
+    u_ra = TerminalDS.average(d.data("".join([name_patt[0], 'u_ra'])), steadyStateInd)
+    u_ao = TerminalDS.average(d.data("".join([name_patt[0], 'u_root'])), steadyStateInd)
+    header_extra  = 'u_ra =, ' + str(u_ra) + ' , ' + 'u_ao =, ' + str(u_ao) + ' ,'
+    
+    file.write('name, Ra, Rv, I, C, zpv, PA, PV, Q ,' + header_extra + ' \n')
     for t in terminators_venous :
         file.write (\
             t.name + ', ' + \
-            str(t.C) + ', ' + \
             str(t.RA) + ', ' + \
             str(t.RV) + ', ' + \
             str(t.I) + ', ' + \
+            str(t.C) + ', ' + \
             str(t.zpv) + ', ' + \
             str(t.pa_avg) + ', ' + \
             str(t.pv_avg) + ', ' + \
             str(t.q_avg) + ', ' + \
             '' + '\n' )
-    u_ra = TerminalDS.average(d.data("".join([name_patt[0], 'u_ra'])), steadyStateInd)
-    u_ao = TerminalDS.average(d.data("".join([name_patt[0], 'u_root'])), steadyStateInd)
-    file.write('u_ra, ' + str(u_ra) + ' , \n')
-    file.write('u_ao, ' + str(u_ao) + ' , \n')
+    
             
-print("Iam so DONE with this") 
-
-
 ## (re)build parameters file
 modelname = "SystemicTissueParameters"
 
-with open(modelname + '.mo', 'w') as file:
-    file.write('package SystemicTissueParametersPckg \n')
-    file.write('model SystemicTissueParameters \n')
+TerminalDS.buildParameterFile(modelname, terminators_venous)
 
-    for t in terminators_venous:
-        file.write("  parameter Real Ra_" + t.name + ' = ' + str(t.RA) + ';\n')
-        file.write("  parameter Real Rv_" + t.name + ' = ' + str(t.RV) + ';\n')
-        file.write("  parameter Real I_"  + t.name + ' = ' + str(t.I) +  ';\n')
-        file.write("  parameter Real C_"  + t.name + ' = ' + str(t.C) +  ';\n')
-
-    file.write('end SystemicTissueParameters;\n')
-    file.write('end SystemicTissueParametersPckg;\n')
-
+print("Iam so DONE with this") 

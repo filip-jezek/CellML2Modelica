@@ -1999,8 +1999,9 @@ package Vessel_modules
             extent={{90,-10},{110,10}})));
     Real u_out(unit = "Pa") = port_b.pressure;
     Real v_out(unit = "m3.s-1") = - port_b.q;
+    Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2);
   equation
-      volume = u_C*C/2 + u_C_d*C/2;
+      volume = u_C*C/2 + u_C_d*C/2 + zpv;
     u_in = u_C;
     u = u_out;
 
@@ -2058,8 +2059,9 @@ package Vessel_modules
             extent={{90,-10},{110,10}})));
     Real u_out(unit = "Pa") = port_b.pressure;
     Real v_out(unit = "m3.s-1") = -port_b.q;
+    Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2);
   equation
-    volume = u_C*C;
+    volume = u_C*C + zpv;
 
         h = r*(a*exp(b*r)+c*exp(d*r));
         I = rho*l/(Modelica.Constants.pi*(r)^2);
@@ -2083,7 +2085,13 @@ package Vessel_modules
           Line(
             points={{40,0},{80,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Open})}));
+            arrow={Arrow.None,Arrow.Open}),
+          Text(
+            extent={{-100,0},{100,20}},
+            lineColor={28,108,200},
+            textString=DynamicSelect("Length, diameter",
+            "L = " + String(l*100, significantDigits=2) + "cm, " +
+            "D = " + String(r*2*100, significantDigits=2) + "cm"))}));
   end pv_type;
 
   model Baroreceptor
@@ -2177,8 +2185,9 @@ package Vessel_modules
             extent={{90,-10},{110,10}})));
     Real u_out(unit = "Pa") = port_b.pressure;
     Real v_out(unit = "m3.s-1") = -port_b.q;
+  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2);
   equation
-        volume = u_C*C;
+        volume = u_C*C + zpv;
 
         h = r*(a*exp(b*r)+c*exp(d*r));
         // I = rho*l/(Modelica.Constants.pi*(r)^2);
@@ -2204,7 +2213,13 @@ package Vessel_modules
           Line(
             points={{-100,0},{-60,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Filled})}));
+            arrow={Arrow.None,Arrow.Filled}),
+          Text(
+            extent={{-100,0},{100,20}},
+            lineColor={28,108,200},
+            textString=DynamicSelect("Length, diameter",
+            "L = " + String(l*100, significantDigits=2) + "cm, " +
+            "D = " + String(r*2*100, significantDigits=2) + "cm"))}));
   end pv_type_thoracic;
 
   model pv_jII_type
@@ -3393,7 +3408,13 @@ end pv_jII_type_baroreceptor;
           Line(
             points={{40,0},{80,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Filled})}));
+            arrow={Arrow.None,Arrow.Filled}),
+          Text(
+            extent={{-100,0},{100,20}},
+            lineColor={28,108,200},
+            textString=DynamicSelect("Length, diameter",
+            "L = " + String(l*100, significantDigits=2) + "cm, " +
+            "D = " + String(r*2*100, significantDigits=2) + "cm"))}));
   end vp_type;
 
   model vp_jII_type
@@ -3486,7 +3507,7 @@ end pv_jII_type_baroreceptor;
     Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
     Real I_e(unit = "J.s2.m-6");
     parameter Real Rv(unit="J.s.m-6") "venule resistance";
-    parameter Physiolibrary.Types.Volume zpv  "Zero-pressure volume scaled by the phi input";
+    parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
 
     Real u_C(unit = "Pa", start = 0.0);
     Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
@@ -3504,7 +3525,7 @@ end pv_jII_type_baroreceptor;
   equation
 
         I_e = I*1e-6;
-    Rvis = 0.01/C;
+        Rvis = 0.01/C;
 
         der(v_in) =(u_in - u - Ra*v_in)/I;
         der(volume) = (v_in-v_out);

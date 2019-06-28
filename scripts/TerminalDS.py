@@ -82,3 +82,22 @@ def createTerminatorsDS(lines):
         to.name = term
         terminators.append(to)
     return terminators
+
+def buildParameterFile(modelname, TerminalDSs):
+    with open(modelname + '.mo', 'w') as file:
+        file.write('package SystemicTissueParametersPckg \n')
+        file.write('model SystemicTissueParameters \n')
+        file.write('  import Physiolibrary.Types.*;\n')
+        file.write('  annotation(defaultComponentName = "tissueParameters");\n')
+            
+
+
+        for t in TerminalDSs:
+            file.write("  parameter HydraulicResistance Ra_" + t.name + ' = ' + str(t.RA) + ';\n')
+            file.write("  parameter HydraulicResistance Rv_" + t.name + ' = ' + str(t.RV) + ';\n')
+            file.write("  parameter HydraulicInertance I_"  + t.name + ' = ' + str(t.I) +  ';\n')
+            file.write("  parameter HydraulicCompliance C_"  + t.name + ' = ' + str(t.C) +  ';\n')
+            file.write("  parameter Volume Zpv_"  + t.name + ' = ' + str(t.zpv) +  ';\n')
+
+        file.write('end SystemicTissueParameters;\n')
+        file.write('end SystemicTissueParametersPckg;\n')

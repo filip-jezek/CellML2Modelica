@@ -1938,10 +1938,10 @@ package Vessel_modules
           simplified,
           noL3);
     partial model bg_base
-      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
+      replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
           Placement(transformation(extent={{-110,-10},{-90,10}}),
             iconTransformation(extent={{-110,-10},{-90,10}})));
-      Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
+      replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
           Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
               extent={{90,-10},{110,10}})));
 
@@ -1973,6 +1973,9 @@ package Vessel_modules
 
       parameter Real mu(unit = "J.s.m-3") = 0.004;
       parameter Real rho(unit = "J.s2.m-5") = 1050;
+      parameter Real sinAlpha = 0 "sin of vessel orientation angle, 0 being supine, 1 being up, -1 aiming down.";
+      Modelica.SIunits.Height height = sinAlpha*l;
+
       input Real E(unit = "Pa")  "Elasticity";
       input Modelica.SIunits.Length l "Segmant length";
       input Modelica.SIunits.Radius r "Vessel radius";
@@ -1988,8 +1991,8 @@ package Vessel_modules
       Physiolibrary.Types.RealIO.FractionOutput distentionFraction = sqrt(volume)/sqrt(zpv) if
         UseDistentionOutput annotation (Placement(transformation(extent={{76,10},{96,
                 30}}), iconTransformation(extent={{-20,-20},{20,20}},
-              rotation=90,
-              origin={0,40})));
+            rotation=90,
+            origin={0,40})));
 
     equation
       h = r*(a*exp(b*r)+c*exp(d*r));
@@ -1997,7 +2000,7 @@ package Vessel_modules
       C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
       R = 8*mu*l/(Modelica.Constants.pi*(r^4));
       R_v = 0.01/C;
-        annotation (Icon(graphics={
+      annotation (Icon(graphics={
             Text(
               extent={{-100,0},{100,20}},
               lineColor={28,108,200},
@@ -2013,6 +2016,16 @@ package Vessel_modules
               lineColor={0,140,72},
               lineThickness=0.5)}));
     end bg_vessel_thoracic;
+
+    connector HydraulicPort_a_leveled
+      extends Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a;
+      Modelica.SIunits.Height position;
+    end HydraulicPort_a_leveled;
+
+    connector HydraulicPort_b_leveled
+      extends Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b;
+      Modelica.SIunits.Height position;
+    end HydraulicPort_b_leveled;
   end Interfaces;
 
   model vv_type_thoracic
@@ -2236,7 +2249,6 @@ package Vessel_modules
 
 
     Real u(unit = "Pa");
-
   initial equation
     volume = zpv;
   equation
@@ -3406,6 +3418,19 @@ package Vessel_modules
               textString="tissues")}));
     end arterial_terminator;
   end arterialTree;
+
+  model pv_type_leveled
+    extends pv_type(redeclare Interfaces.HydraulicPort_a_leveled port_a,
+        redeclare Interfaces.HydraulicPort_b_leveled port_b);
+  equation
+    port_a.position + height = port_b.position;
+  end pv_type_leveled;
+
+  model vp_type_leveled
+    extends vp_type;
+  equation
+    port_a.position + height = port_b.position;
+  end vp_type_leveled;
 end Vessel_modules;
 
   package Components
@@ -3414,7 +3439,7 @@ end Vessel_modules;
       package AcausalConnector
         model Pq_terminator_p
           "creates a P type according to Soroushs definition, therefore requires pressure (u) as an input"
-          Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
+          replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
             annotation (Placement(transformation(extent={{90,-10},{110,10}}),
                 iconTransformation(extent={{90,-10},{110,10}})));
           input Physiolibrary.Types.Pressure u;
@@ -3453,7 +3478,7 @@ type"),         Text(
 
         model Pq_terminator_v
           "creates a V type according to Soroushs definition, therefore requires flow (v) as an input"
-          Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
+          replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a
             annotation (Placement(transformation(extent={{90,-10},{110,10}}),
                 iconTransformation(extent={{90,-10},{110,10}})));
           Physiolibrary.Types.Pressure u = port_a.pressure;
@@ -3635,6 +3660,19 @@ type"),         Text(
           annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
                 coordinateSystem(preserveAspectRatio=false)));
         end HeartWrap;
+
+        model Pq_terminator_p_leveled
+          extends Pq_terminator_p(redeclare
+              Vessel_modules.Interfaces.HydraulicPort_a_leveled port_a);
+          parameter Modelica.SIunits.Height level = 0;
+        equation
+          port_a.position = level;
+
+        end Pq_terminator_p_leveled;
+
+        model Pq_terminator_q_leveled
+          extends Pq_terminator_v;
+        end Pq_terminator_q_leveled;
       end AcausalConnector;
 
       model Baroreflex

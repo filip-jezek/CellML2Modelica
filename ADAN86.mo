@@ -1976,6 +1976,10 @@ package Vessel_modules
       parameter Real sinAlpha = 0 "sin of vessel orientation angle, 0 being supine, 1 being up, -1 aiming down.";
       Modelica.SIunits.Height height = sinAlpha*l;
 
+      parameter Physiolibrary.Types.Pressure thoracic_pressure = 0;
+      outer Physiolibrary.Types.Pressure thoracic_pressure2;
+
+
       input Real E(unit = "Pa")  "Elasticity";
       input Modelica.SIunits.Length l "Segmant length";
       input Modelica.SIunits.Radius r "Vessel radius";
@@ -2004,9 +2008,15 @@ package Vessel_modules
             Text(
               extent={{-100,0},{100,20}},
               lineColor={28,108,200},
-              textString=DynamicSelect("Length, diameter",
+              textString=DynamicSelect("L, d",
               "L = " + String(l*100, significantDigits=2) + "cm, " +
-              "D = " + String(r*2*100, significantDigits=2) + "cm"))}));
+              "D = " + String(r*2*100, significantDigits=2) + "cm")),
+              Line(
+              points=DynamicSelect({{-60,20},{-20,40}}, {{-60,20},{-60 + cos(asin(sinAlpha))*40, 20 + sinAlpha*40}}),
+              color={0,140,72},
+              thickness=1,
+              visible = DynamicSelect(false, sinAlpha > 0 or sinAlpha < 0),
+              arrow={Arrow.None,Arrow.Filled})}));
     end bg_vessel;
 
     model bg_vessel_thoracic
@@ -2019,18 +2029,18 @@ package Vessel_modules
 
     connector HydraulicPort_a_leveled
       extends Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a;
-      Modelica.SIunits.Height position;
+      input Modelica.SIunits.Height position;
     end HydraulicPort_a_leveled;
 
     connector HydraulicPort_b_leveled
       extends Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b;
-      Modelica.SIunits.Height position;
+      output Modelica.SIunits.Height position;
     end HydraulicPort_b_leveled;
   end Interfaces;
 
   model vv_type_thoracic
     extends Interfaces.bg_vessel_thoracic;
-    input Physiolibrary.Types.Pressure thoracic_pressure;
+  //  input Physiolibrary.Types.Pressure thoracic_pressure;
 
   //  Real u(unit = "Pa");
   //  Real u_C(unit = "Pa", start = 0.0);
@@ -2069,11 +2079,16 @@ package Vessel_modules
     der(u_C) = (v_in-v_out)/C;
     u_out = u_C+R_v*(v_in-v_out);
 
+      annotation (Icon(graphics={Line(
+              points={{-80,0},{80,0}},
+              color={238,46,47},
+              arrow={Arrow.None,Arrow.Filled},
+              thickness=0.5)}));
   end pv_type;
 
   model pv_type_thoracic
     extends ADAN_main.Vessel_modules.Interfaces.bg_vessel_thoracic;
-    input Physiolibrary.Types.Pressure thoracic_pressure;
+   // input Physiolibrary.Types.Pressure thoracic_pressure;
     Real u_C(unit = "Pa", start = 0.0);
   equation
     volume = u_C*C + zpv;
@@ -2081,6 +2096,11 @@ package Vessel_modules
     der(u_C) = (v_in-v_out)/C;
     u_out = u_C+R_v*(v_in-v_out) + thoracic_pressure;
 
+    annotation (Icon(graphics={Line(
+            points={{-80,0},{80,0}},
+            color={238,46,47},
+            arrow={Arrow.None,Arrow.Filled},
+            thickness=0.5)}));
   end pv_type_thoracic;
 
   model AdjustableConductanceRtam
@@ -2103,7 +2123,7 @@ package Vessel_modules
     input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
   //   parameter Physiolibrary.Types.Fraction fzpv = 2.5 "Zero-pressure volume factor";
   //   parameter Physiolibrary.Types.Fraction fc = 2.5 "compliance factor";
-    Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume";
+  //   Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume";
   //   Physiolibrary.Types.Volume zpv = (1 + (phi_norm-1)*fzpv) * l*Modelica.Constants.pi*(r^2) "Zero-pressure volume scaled by the phi input";
   //   Physiolibrary.Types.HydraulicCompliance compliance = (1 + (phi_norm-1)*fc)*C "Compliance scaled by the phi input";
   //  outer Physiolibrary.Types.Fraction cfactor;
@@ -2125,30 +2145,11 @@ package Vessel_modules
           Line(
             points={{40,0},{80,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Open})}), Icon(graphics={
-            Rectangle(
-              extent={{-100,20},{100,-20}},
-              lineColor={28,108,200},
-              fillColor={255,255,255},
-              fillPattern=FillPattern.Solid),
-          Text(
-            extent={{-100,-20},{100,0}},
-            lineColor={28,108,200},
-            textString="%name"),
-          Line(
-            points={{-100,0},{-60,0}},
+            arrow={Arrow.None,Arrow.Open})}), Icon(graphics={Line(
+            points={{-80,0},{80,0}},
             color={28,108,200},
-            arrow={Arrow.None,Arrow.Open}),
-          Line(
-            points={{40,0},{80,0}},
-            color={28,108,200},
-            arrow={Arrow.None,Arrow.Filled}),
-          Text(
-            extent={{-100,0},{100,20}},
-            lineColor={28,108,200},
-            textString=DynamicSelect("Length, diameter",
-            "L = " + String(l*100, significantDigits=2) + "cm, " +
-            "D = " + String(r*2*100, significantDigits=2) + "cm"))}));
+            arrow={Arrow.None,Arrow.Filled},
+            thickness=0.5)}));
   end vp_type;
 
   model pp_vBC_type
@@ -2240,13 +2241,6 @@ package Vessel_modules
     parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
 
     Real u_C(unit = "Pa", start = 0.0);
-    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
-        Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
-            extent={{90,-10},{110,10}})));
-    Real u_out(unit = "Pa") = port_b.pressure;
-
-    Real v_out(unit = "m3.s-1") = -port_b.q "same as v_T";
-
 
     Real u(unit = "Pa");
   initial equation
@@ -2269,15 +2263,7 @@ package Vessel_modules
             lineThickness=0.5,
             fillColor={244,125,35},
             fillPattern=FillPattern.Solid,
-            pattern=LinePattern.None),
-          Line(
-            points={{-100,0},{-60,0}},
-            color={28,108,200},
-            arrow={Arrow.None,Arrow.Open}),
-          Line(
-            points={{40,0},{80,0}},
-            color={28,108,200},
-            arrow={Arrow.None,Arrow.Open})}));
+            pattern=LinePattern.None)}));
   end systemic_tissue;
 
   package Obsolete
@@ -3427,10 +3413,43 @@ package Vessel_modules
   end pv_type_leveled;
 
   model vp_type_leveled
-    extends vp_type;
+    extends vp_type(redeclare Interfaces.HydraulicPort_a_leveled port_b,
+        redeclare Interfaces.HydraulicPort_b_leveled port_a);
   equation
     port_a.position + height = port_b.position;
+
   end vp_type_leveled;
+
+  model systemic_tissue_leveled
+      extends systemic_tissue(redeclare Interfaces.HydraulicPort_a_leveled
+          port_a, redeclare Interfaces.HydraulicPort_a_leveled port_b);
+
+    annotation (Icon(graphics={Text(
+            extent={{-100,20},{-20,40}},
+            lineColor={0,140,72},
+            lineThickness=1,
+            textString=DynamicSelect("level A", String(port_a.position*100, significantDigits=2)+ " cm"),
+            horizontalAlignment=TextAlignment.Left), Text(
+            extent={{20,20},{100,40}},
+            lineColor={0,140,72},
+            lineThickness=1,
+            horizontalAlignment=TextAlignment.Right,
+            textString=DynamicSelect("level B", String(port_b.position*100, significantDigits=2) + " cm"))}));
+  end systemic_tissue_leveled;
+
+  model pv_type_thoracic_leveled
+      extends pv_type_thoracic(redeclare Interfaces.HydraulicPort_a_leveled
+        port_a, redeclare Interfaces.HydraulicPort_b_leveled port_b);
+  equation
+    port_a.position + height = port_b.position;
+  end pv_type_thoracic_leveled;
+
+  model vv_type_thoracic_leveled
+    extends vv_type_thoracic(redeclare Interfaces.HydraulicPort_a_leveled port_a,
+        redeclare Interfaces.HydraulicPort_b_leveled port_b);
+  equation
+    port_a.position + height = port_b.position;
+  end vv_type_thoracic_leveled;
 end Vessel_modules;
 
   package Components
@@ -3663,7 +3682,7 @@ type"),         Text(
 
         model Pq_terminator_p_leveled
           extends Pq_terminator_p(redeclare
-              Vessel_modules.Interfaces.HydraulicPort_a_leveled port_a);
+              Vessel_modules.Interfaces.HydraulicPort_b_leveled port_a);
           parameter Modelica.SIunits.Height level = 0;
         equation
           port_a.position = level;
@@ -3671,7 +3690,12 @@ type"),         Text(
         end Pq_terminator_p_leveled;
 
         model Pq_terminator_q_leveled
-          extends Pq_terminator_v;
+          extends Pq_terminator_v(redeclare
+              Vessel_modules.Interfaces.HydraulicPort_b_leveled port_a);
+          parameter Modelica.SIunits.Height level = 0;
+        equation
+          port_a.position = level;
+
         end Pq_terminator_q_leveled;
       end AcausalConnector;
 
@@ -4216,8 +4240,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_aortic_arch_C94,
         r=Parameters_Systemic1.r_aortic_arch_C94)
         annotation (Placement(transformation(extent={{-49,47},{-29,52}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic thoracic_aorta_C96
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic thoracic_aorta_C96(
         thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_thoracic_aorta_C96,
         E=Parameters_Systemic1.E_thoracic_aorta_C96,
@@ -4384,8 +4407,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_hepatic_artery_proper_right_branch_C134,
         r=Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
         annotation (Placement(transformation(extent={{56,5},{76,10}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C138,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C138,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C138)
@@ -4398,8 +4420,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_middle_colic_T8_C140,
         r=Parameters_Systemic1.r_middle_colic_T8_C140)
         annotation (Placement(transformation(extent={{-18,-99},{2,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C142
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C142(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C142,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C142,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C142)
@@ -4412,8 +4433,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_jejunal_3_T10_C144,
         r=Parameters_Systemic1.r_jejunal_3_T10_C144)
         annotation (Placement(transformation(extent={{6,-99},{26,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C146
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C146(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C146,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C146,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C146)
@@ -4426,8 +4446,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_jejunal_6_T11_C148,
         r=Parameters_Systemic1.r_jejunal_6_T11_C148)
         annotation (Placement(transformation(extent={{32,-99},{52,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C150
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C150(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C150,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C150,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C150)
@@ -4440,8 +4459,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_ileocolic_T9_C152,
         r=Parameters_Systemic1.r_ileocolic_T9_C152)
         annotation (Placement(transformation(extent={{58,-99},{78,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C154
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C154(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C154,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C154,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C154)
@@ -4454,8 +4472,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_ileal_4_T12_C156,
         r=Parameters_Systemic1.r_ileal_4_T12_C156)
         annotation (Placement(transformation(extent={{84,-99},{104,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C158
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C158(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C158,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C158,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C158)
@@ -4619,8 +4636,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_tibiofibular_trunk_R234,
         r=Parameters_Systemic1.r_tibiofibular_trunk_R234)
         annotation (Placement(transformation(extent={{224,-43},{244,-38}})));
-      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_R236
-        (
+      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_R236(
         u_out=u_ivl,
         l=Parameters_Systemic1.l_posterior_tibial_T4_R236,
         E=Parameters_Systemic1.E_posterior_tibial_T4_R236,
@@ -4687,8 +4703,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_tibiofibular_trunk_L212,
         r=Parameters_Systemic1.r_tibiofibular_trunk_L212)
         annotation (Placement(transformation(extent={{225,-57},{245,-52}})));
-      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_L214
-        (
+      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_L214(
         u_out=u_ivl,
         l=Parameters_Systemic1.l_posterior_tibial_T4_L214,
         E=Parameters_Systemic1.E_posterior_tibial_T4_L214,
@@ -5473,8 +5488,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_aortic_arch_C94,
         r=Parameters_Systemic1.r_aortic_arch_C94)
         annotation (Placement(transformation(extent={{-49,47},{-29,52}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic thoracic_aorta_C96
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic thoracic_aorta_C96(
         thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_thoracic_aorta_C96,
         E=Parameters_Systemic1.E_thoracic_aorta_C96,
@@ -5641,8 +5655,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_hepatic_artery_proper_right_branch_C134,
         r=Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
         annotation (Placement(transformation(extent={{56,5},{76,10}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C138,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C138,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C138)
@@ -5655,8 +5668,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_middle_colic_T8_C140,
         r=Parameters_Systemic1.r_middle_colic_T8_C140)
         annotation (Placement(transformation(extent={{-18,-99},{2,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C142
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C142(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C142,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C142,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C142)
@@ -5669,8 +5681,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_jejunal_3_T10_C144,
         r=Parameters_Systemic1.r_jejunal_3_T10_C144)
         annotation (Placement(transformation(extent={{6,-99},{26,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C146
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C146(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C146,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C146,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C146)
@@ -5683,8 +5694,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_jejunal_6_T11_C148,
         r=Parameters_Systemic1.r_jejunal_6_T11_C148)
         annotation (Placement(transformation(extent={{32,-99},{52,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C150
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C150(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C150,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C150,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C150)
@@ -5697,8 +5707,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_ileocolic_T9_C152,
         r=Parameters_Systemic1.r_ileocolic_T9_C152)
         annotation (Placement(transformation(extent={{58,-99},{78,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C154
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C154(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C154,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C154,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C154)
@@ -5711,8 +5720,7 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_ileal_4_T12_C156,
         r=Parameters_Systemic1.r_ileal_4_T12_C156)
         annotation (Placement(transformation(extent={{84,-99},{104,-94}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C158
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C158(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C158,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C158,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C158)
@@ -5876,8 +5884,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_tibiofibular_trunk_R234,
         r=Parameters_Systemic1.r_tibiofibular_trunk_R234)
         annotation (Placement(transformation(extent={{224,-43},{244,-38}})));
-      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_R236
-        (
+      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_R236(
         u_out=u_ivl,
         l=Parameters_Systemic1.l_posterior_tibial_T4_R236,
         E=Parameters_Systemic1.E_posterior_tibial_T4_R236,
@@ -5944,8 +5951,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_tibiofibular_trunk_L212,
         r=Parameters_Systemic1.r_tibiofibular_trunk_L212)
         annotation (Placement(transformation(extent={{225,-57},{245,-52}})));
-      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_L214
-        (
+      ADAN_main.Vessel_modules.arterialTree.pp_BC_type posterior_tibial_T4_L214(
         u_out=u_ivl,
         l=Parameters_Systemic1.l_posterior_tibial_T4_L214,
         E=Parameters_Systemic1.E_posterior_tibial_T4_L214,
@@ -6953,8 +6959,7 @@ type"),         Text(
         E=Parameters_Systemic1.E_aortic_arch_C94,
         r=Parameters_Systemic1.r_aortic_arch_C94)
         annotation (Placement(transformation(extent={{-49,47},{-29,52}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic thoracic_aorta_C96
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type_thoracic thoracic_aorta_C96(
         thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_thoracic_aorta_C96,
         E=Parameters_Systemic1.E_thoracic_aorta_C96,
@@ -7110,8 +7115,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_dorsal_pancreatic_T1_C124)
         annotation (Placement(transformation(extent={{-17,5},{3,10}})));
 
-      ADAN_main.Vessel_modules.arterialTree.arterial_terminator splenic_T2_C126
-        (
+      ADAN_main.Vessel_modules.arterialTree.arterial_terminator splenic_T2_C126(
         RTA=terminalsParameters.RTA_splenic_T2_C126,
         RTV=terminalsParameters.RTV_splenic_T2_C126,
         CT=terminalsParameters.CT_splenic_T2_C126,
@@ -7159,8 +7163,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
         annotation (Placement(transformation(extent={{56,5},{76,10}})));
 
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C138,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C138,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C138)
@@ -7178,8 +7181,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_middle_colic_T8_C140)
         annotation (Placement(transformation(extent={{-18,-99},{2,-94}})));
 
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C142
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C142(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C142,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C142,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C142)
@@ -7197,8 +7199,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_jejunal_3_T10_C144)
         annotation (Placement(transformation(extent={{6,-99},{26,-94}})));
 
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C146
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C146(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C146,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C146,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C146)
@@ -7216,8 +7217,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_jejunal_6_T11_C148)
         annotation (Placement(transformation(extent={{32,-99},{52,-94}})));
 
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C150
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C150(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C150,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C150,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C150)
@@ -7235,8 +7235,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_ileocolic_T9_C152)
         annotation (Placement(transformation(extent={{58,-99},{78,-94}})));
 
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C154
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C154(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C154,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C154,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C154)
@@ -7254,8 +7253,7 @@ type"),         Text(
         r=Parameters_Systemic1.r_ileal_4_T12_C156)
         annotation (Placement(transformation(extent={{84,-99},{104,-94}})));
 
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C158
-        (
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C158(
         l=Parameters_Systemic1.l_superior_mesenteric_T4_C158,
         E=Parameters_Systemic1.E_superior_mesenteric_T4_C158,
         r=Parameters_Systemic1.r_superior_mesenteric_T4_C158)

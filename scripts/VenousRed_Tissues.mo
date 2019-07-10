@@ -2530,9 +2530,9 @@ package main_ADAN_86_VenousRed_cellml
           "Position calculation"));
 
 
-    inner Physiolibrary.Types.Pressure thoracic_pressure2 = thoracic_pressure_input;
+    inner Physiolibrary.Types.Pressure thoracic_pressure = thoracic_pressure_input;
 
-    parameter Real thoracic_pressure = 0;
+  //  parameter Real thoracic_pressure = 0;
 
     inner parameter Physiolibrary.Types.Fraction cfactor = 1;
     Physiolibrary.Types.RealIO.PressureInput thoracic_pressure_input annotation (Placement(
@@ -2694,92 +2694,92 @@ package main_ADAN_86_VenousRed_cellml
     replaceable
     ADAN_main.Vessel_modules.vv_type_thoracic ascending_aorta_A constrainedby
         ADAN_main.Vessel_modules.Interfaces.bg_vessel(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_ascending_aorta_A,
         E = Parameters_Systemic1.E_ascending_aorta_A,
         r = Parameters_Systemic1.r_ascending_aorta_A)
     annotation (Placement(transformation(extent={{-263,85},{-243,90}})),
         __Dymola_choicesAllMatching=true);
+
     Systemic_artery_thoracic ascending_aorta_B(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_ascending_aorta_B,
         E = Parameters_Systemic1.E_ascending_aorta_B,
         r = Parameters_Systemic1.r_ascending_aorta_B)
     annotation (Placement(transformation(extent={{-238,85},{-218,90}})));
+
     Systemic_artery_thoracic ascending_aorta_C(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_ascending_aorta_C,
         E = Parameters_Systemic1.E_ascending_aorta_C,
         r = Parameters_Systemic1.r_ascending_aorta_C)
     annotation (Placement(transformation(extent={{-213,85},{-193,90}})));
+
     Systemic_artery_thoracic ascending_aorta_D(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_ascending_aorta_D,
         E = Parameters_Systemic1.E_ascending_aorta_D,
         r = Parameters_Systemic1.r_ascending_aorta_D)
     annotation (Placement(transformation(extent={{-188,85},{-168,90}})));
+
       Systemic_artery_thoracic aortic_arch_C2(
-        thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_aortic_arch_C2,
         E=Parameters_Systemic1.E_aortic_arch_C2,
         r=Parameters_Systemic1.r_aortic_arch_C2)
         annotation (Placement(transformation(extent={{-163,85},{-143,90}})));
+
       Systemic_artery_thoracic
         brachiocephalic_trunk_C4(
-        thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_brachiocephalic_trunk_C4,
         E=Parameters_Systemic1.E_brachiocephalic_trunk_C4,
         r=Parameters_Systemic1.r_brachiocephalic_trunk_C4)
         annotation (Placement(transformation(extent={{-132,163},{-112,168}})));
+
       replaceable Systemic_artery_thoracic
         aortic_arch_C46(
-        thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_aortic_arch_C46,
         E=Parameters_Systemic1.E_aortic_arch_C46,
         r=Parameters_Systemic1.r_aortic_arch_C46)
         annotation (Placement(transformation(extent={{-137,85},{-117,90}})));
+
       Systemic_artery_thoracic aortic_arch_C64(
-        thoracic_pressure=thoracic_pressure,
         l=Parameters_Systemic1.l_aortic_arch_C64,
         E=Parameters_Systemic1.E_aortic_arch_C64,
         r=Parameters_Systemic1.r_aortic_arch_C64)
         annotation (Placement(transformation(extent={{-112,85},{-92,90}})));
+
     Systemic_artery_thoracic aortic_arch_C94(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_aortic_arch_C94,
         E = Parameters_Systemic1.E_aortic_arch_C94,
         r = Parameters_Systemic1.r_aortic_arch_C94)
     annotation (Placement(transformation(extent={{-91,65},{-111,70}})));
+
     Systemic_artery_thoracic thoracic_aorta_C96(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_thoracic_aorta_C96,
         E = Parameters_Systemic1.E_thoracic_aorta_C96,
         r = Parameters_Systemic1.r_thoracic_aorta_C96)
     annotation (Placement(transformation(extent={{-118,65},{-138,70}})));
+
     Systemic_artery_thoracic thoracic_aorta_C100(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_thoracic_aorta_C100,
         E = Parameters_Systemic1.E_thoracic_aorta_C100,
         r = Parameters_Systemic1.r_thoracic_aorta_C100)
     annotation (Placement(transformation(extent={{-143,65},{-163,70}})));
+
     Systemic_artery_thoracic thoracic_aorta_C104(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_thoracic_aorta_C104,
         E = Parameters_Systemic1.E_thoracic_aorta_C104,
         r = Parameters_Systemic1.r_thoracic_aorta_C104)
     annotation (Placement(transformation(extent={{-168,65},{-188,70}})));
+
     Systemic_artery_thoracic thoracic_aorta_C108(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_thoracic_aorta_C108,
         E = Parameters_Systemic1.E_thoracic_aorta_C108,
         r = Parameters_Systemic1.r_thoracic_aorta_C108)
     annotation (Placement(transformation(extent={{-193,65},{-213,70}})));
+
     Systemic_artery_thoracic thoracic_aorta_C112(
-        thoracic_pressure = thoracic_pressure,
         l = Parameters_Systemic1.l_thoracic_aorta_C112,
         E = Parameters_Systemic1.E_thoracic_aorta_C112,
         r = Parameters_Systemic1.r_thoracic_aorta_C112)
     annotation (Placement(transformation(extent={{-218,65},{-238,70}})));
+
       Systemic_artery abdominal_aorta_C114(
         l=Parameters_Systemic1.l_abdominal_aorta_C114,
         E=Parameters_Systemic1.E_abdominal_aorta_C114,
@@ -2961,27 +2961,27 @@ package main_ADAN_86_VenousRed_cellml
         l=Parameters_Systemic1.l_subclavian_R28,
         E=Parameters_Systemic1.E_subclavian_R28,
         r=Parameters_Systemic1.r_subclavian_R28)
-        annotation (Placement(transformation(extent={{-108,163},{-88,168}})));
+        annotation (Placement(transformation(extent={{-88,163},{-68,168}})));
     Systemic_artery subclavian_R30(
         l = Parameters_Systemic1.l_subclavian_R30,
         E = Parameters_Systemic1.E_subclavian_R30,
         r = Parameters_Systemic1.r_subclavian_R30)
-    annotation (Placement(transformation(extent={{-83,163},{-63,168}})));
+    annotation (Placement(transformation(extent={{-63,163},{-43,168}})));
     Systemic_artery axillary_R32(
         l = Parameters_Systemic1.l_axillary_R32,
         E = Parameters_Systemic1.E_axillary_R32,
         r = Parameters_Systemic1.r_axillary_R32)
-    annotation (Placement(transformation(extent={{-60,163},{-40,168}})));
+    annotation (Placement(transformation(extent={{-40,163},{-20,168}})));
       Systemic_artery brachial_R34(
         l=Parameters_Systemic1.l_brachial_R34,
         E=Parameters_Systemic1.E_brachial_R34,
         r=Parameters_Systemic1.r_brachial_R34)
-        annotation (Placement(transformation(extent={{-23,163},{-3,168}})));
+        annotation (Placement(transformation(extent={{-17,163},{3,168}})));
     Systemic_artery ulnar_T2_R36(
         l = Parameters_Systemic1.l_ulnar_T2_R36,
         E = Parameters_Systemic1.E_ulnar_T2_R36,
         r = Parameters_Systemic1.r_ulnar_T2_R36)
-    annotation (Placement(transformation(extent={{4,163},{24,168}})));
+    annotation (Placement(transformation(extent={{10,163},{30,168}})));
     Systemic_tissue ulnar_T2_R42(
         Ra = tissueParameters.Ra_ulnar_T2_R42,
         Rv = tissueParameters.Rv_ulnar_T2_R42,
@@ -3020,7 +3020,7 @@ package main_ADAN_86_VenousRed_cellml
         l = Parameters_Systemic1.l_ulnar_T2_L84,
         E = Parameters_Systemic1.E_ulnar_T2_L84,
         r = Parameters_Systemic1.r_ulnar_T2_L84)
-    annotation (Placement(transformation(extent={{7,109},{27,114}})));
+    annotation (Placement(transformation(extent={{9,109},{29,114}})));
     Systemic_tissue ulnar_T2_L90(
         Ra = tissueParameters.Ra_ulnar_T2_L90,
         Rv = tissueParameters.Rv_ulnar_T2_L90,
@@ -3039,27 +3039,27 @@ package main_ADAN_86_VenousRed_cellml
         l = Parameters_Systemic1.l_common_carotid_R6_A,
         E = Parameters_Systemic1.E_common_carotid_R6_A,
         r = Parameters_Systemic1.r_common_carotid_R6_A)
-    annotation (Placement(transformation(extent={{-108,187},{-88,192}})));
+    annotation (Placement(transformation(extent={{-88,187},{-68,192}})));
     Systemic_artery common_carotid_R6_B(
         l = Parameters_Systemic1.l_common_carotid_R6_B,
         E = Parameters_Systemic1.E_common_carotid_R6_B,
         r = Parameters_Systemic1.r_common_carotid_R6_B)
-    annotation (Placement(transformation(extent={{-83,187},{-63,192}})));
+    annotation (Placement(transformation(extent={{-63,187},{-43,192}})));
       Systemic_artery common_carotid_R6_C(
         l=Parameters_Systemic1.l_common_carotid_R6_C,
         E=Parameters_Systemic1.E_common_carotid_R6_C,
         r=Parameters_Systemic1.r_common_carotid_R6_C)
-        annotation (Placement(transformation(extent={{-60,187},{-40,192}})));
+        annotation (Placement(transformation(extent={{-40,187},{-20,192}})));
     replaceable Systemic_artery internal_carotid_R8_A(
         l = Parameters_Systemic1.l_internal_carotid_R8_A,
         E = Parameters_Systemic1.E_internal_carotid_R8_A,
         r = Parameters_Systemic1.r_internal_carotid_R8_A)
-    annotation (Placement(transformation(extent={{-23,187},{-3,192}})));
+    annotation (Placement(transformation(extent={{-17,187},{3,192}})));
     Systemic_artery internal_carotid_R8_B(
         l = Parameters_Systemic1.l_internal_carotid_R8_B,
         E = Parameters_Systemic1.E_internal_carotid_R8_B,
         r = Parameters_Systemic1.r_internal_carotid_R8_B)
-    annotation (Placement(transformation(extent={{4,187},{24,192}})));
+    annotation (Placement(transformation(extent={{10,187},{30,192}})));
     Systemic_tissue internal_carotid_R8_C(
         Ra = tissueParameters.Ra_internal_carotid_R8_C,
         Rv = tissueParameters.Rv_internal_carotid_R8_C,
@@ -3485,13 +3485,13 @@ package main_ADAN_86_VenousRed_cellml
         l = Parameters_Venous1.l_brachial_vein_L138,
         E = Parameters_Venous1.E_brachial_vein_L138,
         r = Parameters_Venous1.r_brachial_vein_L138)
-    annotation (Placement(transformation(extent={{113,109},{133,114}})));
+    annotation (Placement(transformation(extent={{115,109},{135,114}})));
     Systemic_vein brachial_vein_L148(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_brachial_vein_L148,
         E = Parameters_Venous1.E_brachial_vein_L148,
         r = Parameters_Venous1.r_brachial_vein_L148)
-    annotation (Placement(transformation(extent={{106,97},{126,102}})));
+    annotation (Placement(transformation(extent={{114,97},{134,102}})));
     Systemic_vein brachial_vein_L142(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_brachial_vein_L142,
@@ -3594,11 +3594,11 @@ package main_ADAN_86_VenousRed_cellml
         color={238,46,47}));
     connect(aortic_arch_C46.port_a,aortic_arch_C2.port_b) annotation (Line(points={{-137,
             87.5},{-143,87.5}},                                                                                   thickness=1));
-    connect(common_carotid_R6_A.port_a,brachiocephalic_trunk_C4.port_b) annotation (Line(points={{-108,
-            189.5},{-112,189.5},{-112,165.5}},                                                                                  thickness=1,
+    connect(common_carotid_R6_A.port_a,brachiocephalic_trunk_C4.port_b) annotation (Line(points={{-88,
+              189.5},{-112,189.5},{-112,165.5}},                                                                                thickness=1,
         color={238,46,47}));
-    connect(subclavian_R28.port_a,brachiocephalic_trunk_C4.port_b) annotation (Line(points={{-108,
-            165.5},{-112,165.5}},                                                                                          thickness=1,
+    connect(subclavian_R28.port_a,brachiocephalic_trunk_C4.port_b) annotation (Line(points={{-88,
+              165.5},{-112,165.5}},                                                                                        thickness=1,
         color={238,46,47}));
     connect(aortic_arch_C64.port_a,aortic_arch_C46.port_b) annotation (Line(points={{-112,
             87.5},{-117,87.5}},                                                                                    thickness=1));
@@ -3680,20 +3680,20 @@ package main_ADAN_86_VenousRed_cellml
     connect(popliteal_L210.port_a,popliteal_L206.port_b) annotation (Line(points={{-16,
             -20.5},{-21,-20.5}},                                                                                 thickness=1,
         color={238,46,47}));
-    connect(subclavian_R30.port_a,subclavian_R28.port_b) annotation (Line(points={{-83,
-            165.5},{-88,165.5}},                                                                                 thickness=1,
+    connect(subclavian_R30.port_a,subclavian_R28.port_b) annotation (Line(points={{-63,
+              165.5},{-68,165.5}},                                                                               thickness=1,
         color={238,46,47}));
     connect(vertebral_R272.port_a,subclavian_R28.port_b) annotation (Line(points={{35,
-            145.5},{-88,145.5},{-88,165.5}},                                                                     thickness=1,
+              145.5},{-68,145.5},{-68,165.5}},                                                                   thickness=1,
         color={238,46,47}));
-    connect(ulnar_T2_R36.port_a,brachial_R34.port_b) annotation (Line(points={{4,165.5},
-            {-3,165.5}},                                                                                     thickness=1,
+    connect(ulnar_T2_R36.port_a,brachial_R34.port_b) annotation (Line(points={{10,
+              165.5},{3,165.5}},                                                                             thickness=1,
         color={238,46,47}));
     connect(radial_T1_R44.port_a,brachial_R34.port_b) annotation (Line(points={{35,
-            155.5},{0,155.5},{0,165.5},{-3,165.5}},                                                           thickness=1,
+              155.5},{6,155.5},{6,165.5},{3,165.5}},                                                          thickness=1,
         color={238,46,47}));
     connect(ulnar_T2_R42.port_a,ulnar_T2_R36.port_b) annotation (Line(points={{35,
-            165.5},{24,165.5}},                                                                              thickness=1,
+              165.5},{30,165.5}},                                                                            thickness=1,
         color={238,46,47}));
     connect(subclavian_L78.port_a,subclavian_L66.port_b) annotation (Line(points={{-62,
             111.5},{-67,111.5}},                                                                                 thickness=1,
@@ -3701,20 +3701,20 @@ package main_ADAN_86_VenousRed_cellml
     connect(vertebral_L2.port_a,subclavian_L66.port_b) annotation (Line(points={{35,89.5},
             {-64,89.5},{-64,111.5},{-67,111.5}},                                                               thickness=1,
         color={238,46,47}));
-    connect(ulnar_T2_L84.port_a,brachial_L82.port_b) annotation (Line(points={{7,111.5},
-            {4,111.5}},                                                                                      thickness=1,
+    connect(ulnar_T2_L84.port_a,brachial_L82.port_b) annotation (Line(points={{9,111.5},
+              {4,111.5}},                                                                                    thickness=1,
         color={238,46,47}));
     connect(radial_T1_L92.port_a,brachial_L82.port_b) annotation (Line(points={{35,99.5},
             {4,99.5},{4,111.5}},                                                                              thickness=1,
         color={238,46,47}));
     connect(ulnar_T2_L90.port_a,ulnar_T2_L84.port_b) annotation (Line(points={{35,
-            111.5},{35,112},{28,112},{28,111.5},{27,111.5}},                                                 thickness=1,
+              111.5},{35,112},{28,112},{28,111.5},{29,111.5}},                                               thickness=1,
         color={238,46,47}));
-    connect(internal_carotid_R8_A.port_a,common_carotid_R6_C.port_b) annotation (Line(points={{-23,
-            189.5},{-40,189.5}},                                                                                             thickness=1,
+    connect(internal_carotid_R8_A.port_a,common_carotid_R6_C.port_b) annotation (Line(points={{-17,
+              189.5},{-20,189.5}},                                                                                           thickness=1,
         color={238,46,47}));
     connect(external_carotid_T2_R26.port_a,common_carotid_R6_C.port_b) annotation (Line(points={{35,
-            177.5},{-40,177.5},{-40,189.5}},                                                                                   thickness=1,
+              177.5},{-20,177.5},{-20,189.5}},                                                                                 thickness=1,
         color={238,46,47}));
     connect(internal_carotid_L50_A.port_a,common_carotid_L48_D.port_b) annotation (Line(points={{-15,
             129.5},{-18,129.5},{-18,121.5}},                                                                                   thickness=1,
@@ -3760,11 +3760,11 @@ package main_ADAN_86_VenousRed_cellml
     connect(posterior_tibial_T4_L214.port_a,tibiofibular_trunk_L212.port_b) annotation (Line(points={{35,
             -20.5},{29,-20.5}},                                                                                                     thickness=1,
         color={238,46,47}));
-    connect(axillary_R32.port_a,subclavian_R30.port_b) annotation (Line(points={{-60,
-            165.5},{-63,165.5}},                                                                               thickness=1,
+    connect(axillary_R32.port_a,subclavian_R30.port_b) annotation (Line(points={{-40,
+              165.5},{-43,165.5}},                                                                             thickness=1,
         color={238,46,47}));
-    connect(brachial_R34.port_a,axillary_R32.port_b) annotation (Line(points={{-23,
-            165.5},{-40,165.5}},                                                                             thickness=1,
+    connect(brachial_R34.port_a,axillary_R32.port_b) annotation (Line(points={{-17,
+              165.5},{-20,165.5}},                                                                           thickness=1,
         color={238,46,47}));
     connect(axillary_L80.port_a,subclavian_L78.port_b) annotation (Line(points={{-39,
             111.5},{-42,111.5}},                                                                               thickness=1,
@@ -3772,17 +3772,17 @@ package main_ADAN_86_VenousRed_cellml
     connect(brachial_L82.port_a,axillary_L80.port_b) annotation (Line(points={{-16,
             111.5},{-19,111.5}},                                                                             thickness=1,
         color={238,46,47}));
-    connect(common_carotid_R6_B.port_a,common_carotid_R6_A.port_b) annotation (Line(points={{-83,
-            189.5},{-88,189.5}},                                                                                           thickness=1,
+    connect(common_carotid_R6_B.port_a,common_carotid_R6_A.port_b) annotation (Line(points={{-63,
+              189.5},{-68,189.5}},                                                                                         thickness=1,
         color={238,46,47}));
-    connect(common_carotid_R6_C.port_a,common_carotid_R6_B.port_b) annotation (Line(points={{-60,
-            189.5},{-63,189.5}},                                                                                           thickness=1,
+    connect(common_carotid_R6_C.port_a,common_carotid_R6_B.port_b) annotation (Line(points={{-40,
+              189.5},{-43,189.5}},                                                                                         thickness=1,
         color={238,46,47}));
-    connect(internal_carotid_R8_B.port_a,internal_carotid_R8_A.port_b) annotation (Line(points={{4,189.5},
-            {-3,189.5}},                                                                                                       thickness=1,
+    connect(internal_carotid_R8_B.port_a,internal_carotid_R8_A.port_b) annotation (Line(points={{10,
+              189.5},{3,189.5}},                                                                                               thickness=1,
         color={238,46,47}));
     connect(internal_carotid_R8_C.port_a,internal_carotid_R8_B.port_b) annotation (Line(points={{35,
-            189.5},{24,189.5}},                                                                                                thickness=1,
+              189.5},{30,189.5}},                                                                                              thickness=1,
         color={238,46,47}));
     connect(common_carotid_L48_B.port_a,common_carotid_L48_A.port_b) annotation (Line(points={{-86,
             121.5},{-91,121.5}},                                                                                             thickness=1,
@@ -3853,14 +3853,14 @@ package main_ADAN_86_VenousRed_cellml
     connect(subclavian_vein_L134.port_b,subclavian_vein_L130.port_a) annotation (Line(points={{187,
             111.5},{192,111.5}},                                                                                             thickness=1,
         color={28,108,200}));
-    connect(brachial_vein_L138.port_b,axillary_vein_L136.port_a) annotation (Line(points={{133,
-            111.5},{142,111.5}},                                                                                         thickness=1,
+    connect(brachial_vein_L138.port_b,axillary_vein_L136.port_a) annotation (Line(points={{135,
+              111.5},{142,111.5}},                                                                                       thickness=1,
         color={28,108,200}));
-    connect(brachial_vein_L148.port_b,axillary_vein_L136.port_a) annotation (Line(points={{126,
-            99.5},{126,100},{136,100},{136,111.5},{142,111.5}},                                                          thickness=1,
+    connect(brachial_vein_L148.port_b,axillary_vein_L136.port_a) annotation (Line(points={{134,
+              99.5},{134,100},{138,100},{138,111.5},{142,111.5}},                                                        thickness=1,
         color={28,108,200}));
     connect(ulnar_vein_T7_L144.port_b,brachial_vein_L142.port_a) annotation (Line(points={{81,
-            111.5},{84,111.5},{84,110},{86,110},{86,111.5},{88,111.5}},                                                  thickness=1,
+              111.5},{88,111.5}},                                                                                        thickness=1,
         color={28,108,200}));
     connect(hepatic_vein_T1_C10.port_b,inferior_vena_cava_C8.port_a) annotation (Line(points={{80,47.5},
             {406,47.5},{406,48},{408,48},{408,-2.5},{409,-2.5}},                                                             thickness=1,
@@ -3935,10 +3935,10 @@ package main_ADAN_86_VenousRed_cellml
             165.5},{114,165.5}},                                                                                         thickness=1,
         color={28,108,200}));
     connect(brachial_vein_L142.port_b,brachial_vein_L138.port_a) annotation (Line(points={{108,
-            111.5},{113,111.5}},                                                                                         thickness=1,
+              111.5},{115,111.5}},                                                                                       thickness=1,
         color={28,108,200}));
     connect(brachial_vein_L152.port_b,brachial_vein_L148.port_a) annotation (Line(points={{108,
-            99.5},{106,99.5}},                                                                                           thickness=1,
+              99.5},{114,99.5}},                                                                                         thickness=1,
         color={28,108,200}));
     connect(inferior_vena_cava_C16.port_b,inferior_vena_cava_C12.port_a) annotation (Line(points={{380,
             -2.5},{383,-2.5}},                                                                                                   thickness=1,
@@ -4385,8 +4385,8 @@ end main_ADAN_86_VenousRed_cellml;
       annotation (Placement(transformation(extent={{-100,20},{-80,40}})));
   equation
 
-    connect(Systemic1.thoracic_pressure_input, sine.y) annotation (Line(points=
-            {{-63.6842,81.3333},{-50,81.3333},{-50,-72},{-53,-72}}, color={0,0,
+    connect(Systemic1.thoracic_pressure_input, sine.y) annotation (Line(points={{
+            -63.6842,81.3333},{-50,81.3333},{-50,-72},{-53,-72}},   color={0,0,
             127}));
     annotation (experiment(
         StopTime=10,

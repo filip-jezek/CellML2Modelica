@@ -2115,20 +2115,75 @@ package Vessel_modules
   end AdjustableConductanceRtam;
 
   model vp_type
-    extends ADAN_main.Vessel_modules.Interfaces.bg_vessel;
 
-    Real u_C(unit = "Pa", start = 0.0);
+    extends Interfaces.bg_base;
+    parameter Boolean UseDistentionOutput = false annotation(choices(checkBox=true));
+    parameter Real a(unit = "1") = 0.2802;
+    parameter Real b(unit = "m-1") = -505.3;
+    parameter Real c(unit = "1") = 0.1324;
+    parameter Real d(unit = "m-1") = -11.14;
+
+    parameter Real mu(unit = "J.s.m-3") = 0.004;
+    parameter Real rho(unit = "J.s2.m-5") = 1050;
+    parameter Real sinAlpha = 0 "sin of vessel orientation angle, 0 being supine, 1 being up, -1 aiming down.";
+    Modelica.SIunits.Height height = sinAlpha*l;
+
+    input Real E(unit = "Pa")  "Elasticity";
+    input Modelica.SIunits.Length l "Segmant length";
+    input Modelica.SIunits.Radius r "Vessel radius";
+  //  Modelica.SIunits.Thickness h "Thickness";
+
+    Physiolibrary.Types.HydraulicInertance I;
+  //  Physiolibrary.Types.HydraulicCompliance C;
+    Physiolibrary.Types.HydraulicResistance R;
+    Physiolibrary.Types.HydraulicResistance R_v "Viscoelasticity of the vessel";
 
 
+    Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
+    Physiolibrary.Types.RealIO.FractionOutput distentionFraction = sqrt(volume)/sqrt(zpv) if
+      UseDistentionOutput annotation (Placement(transformation(extent={{76,10},{96,
+              30}}), iconTransformation(extent={{-20,-20},{20,20}},
+          rotation=90,
+          origin={0,40})));
+
+            Real u_C(unit = "Pa", start = 0.0);
     input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
+    parameter Physiolibrary.Types.Pressure p0 = 665 "nominal venous pressure";
+    outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
+    outer parameter Physiolibrary.Types.Fraction C_fact;
+    Physiolibrary.Types.HydraulicCompliance c0 = C_fact*zpv/p0 "nominal compliance";
+    Physiolibrary.Types.Volume Vmax = 2*zpv;
+  initial equation
+    //volume = zpv;
+    u_C = p0;
+  equation
+  //  h = r*(a*exp(b*r)+c*exp(d*r));
+    I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2);
+  //  C = 2*Modelica.Constants.pi*((r*venous_diameter_correction)^3) *l/(E*h);
+    R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4));
+    R_v = 0.01/c0;
+
+
+   // v0 = len*pi*2*r^2
+   // p0 = 5 mmHg
+   //
+   // C = alpha*c0;
+   // v0 = alpha*V000
+   // v00 = r^2*pi*len
+   // zero pressure volume = current volume at p0
+   // ressitances?
+  // gth, E, r
+
+
   //   parameter Physiolibrary.Types.Fraction fzpv = 2.5 "Zero-pressure volume factor";
   //   parameter Physiolibrary.Types.Fraction fc = 2.5 "compliance factor";
   //   Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume";
   //   Physiolibrary.Types.Volume zpv = (1 + (phi_norm-1)*fzpv) * l*Modelica.Constants.pi*(r^2) "Zero-pressure volume scaled by the phi input";
   //   Physiolibrary.Types.HydraulicCompliance compliance = (1 + (phi_norm-1)*fc)*C "Compliance scaled by the phi input";
   //  outer Physiolibrary.Types.Fraction cfactor;
-  equation
-    volume = u_C*C + zpv;
+
+  //  volume = u_C*C + zpv;
+      volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
   //   volume = u_C*compliance + zpv;
 
     der(v_out) = (u_in-u_out-R*v_out)/I;

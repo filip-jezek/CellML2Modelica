@@ -2403,6 +2403,10 @@ package main_ADAN_86_VenousRed_cellml
     Real q_rv(unit = "m3", start = 500.0e-6);
     Real q_la(unit = "m3", start = 20.0e-6);
     Real q_lv(unit = "m3", start = 500.0e-6);
+    Physiolibrary.Types.Volume stressed_volume = q_la + q_lv + q_ra + q_rv;
+    Physiolibrary.Types.Volume zp_volume = q_la_0 + q_lv_0 + q_ra_0 + q_rv_0;
+    Physiolibrary.Types.Volume total_volume = stressed_volume + zp_volume;
+
   equation
     T = Parameters_Heart1.T;
     t_ac = Parameters_Heart1.t_ac;
@@ -4370,6 +4374,7 @@ end main_ADAN_86_VenousRed_cellml;
           Heart1.v_aov)
       annotation (Placement(transformation(extent={{-70,80},{-50,100}})));
     replaceable main_ADAN_86_VenousRed_cellml.Pulmonary Pulmonary1(
+      u_pas(displayUnit="Pa"),
         u_la = Heart1.u_la,
         v_puv = Heart1.v_puv,
         t = environment1.time_)
@@ -4380,12 +4385,14 @@ end main_ADAN_86_VenousRed_cellml;
         u_root = Systemic1.u_root,
         u_pas = Pulmonary1.u_pas,
         v_pvn = Pulmonary1.v_pvn,
-        t = environment1.time_)
+        t = environment1.time_,
+      q_rv(displayUnit="ml"))
     annotation (Placement(transformation(extent={{-10,80},{10,100}})));
     Modelica.Blocks.Sources.Sine     sine(amplitude=533, freqHz=0.2)
       annotation (Placement(transformation(extent={{-74,-82},{-54,-62}})));
     Modelica.Blocks.Sources.Constant const1(k=1)
       annotation (Placement(transformation(extent={{-100,20},{-80,40}})));
+      Physiolibrary.Types.Volume total_volume = Systemic1.total_volume + Pulmonary1.total_stressed_volume + Heart1.total_volume;
   equation
 
     connect(Systemic1.thoracic_pressure_input, sine.y) annotation (Line(points={{

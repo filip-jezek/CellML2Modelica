@@ -6,7 +6,7 @@ venous tree component	Ra	        Rv	        I	        C	        Zpv
 celiac_trunk_C116	    3.73E-03	4.95E-02	4.00E+05	3.73E-03	4.95E-02
 
 """
-
+print("starting python script..")
 import csv
 import TerminalDS
 
@@ -25,6 +25,8 @@ with open('venous reduced parameterization - Parameter export.csv') as csv_file:
             line_count += 1
             t = TerminalDS.TerminalDS()
             t.name = row[0]
+            if t.name == '':
+                continue
             t.RA   = row[1]
             t.RV   = row[2]
             t.I    = row[3]

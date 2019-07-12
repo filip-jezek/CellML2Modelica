@@ -2,6 +2,7 @@ import scipy.io as skipy
 import DyMat
 from matplotlib import pyplot as plt
 import re
+import datetime
 
 
 class TerminalDS:
@@ -84,6 +85,11 @@ def createTerminatorsDS(lines):
     return terminators
 
 def buildParameterFile(modelname, TerminalDSs):
+    annotation = """   annotation (Documentation(info="<html>
+<p>Generated tissue parameters</p>
+</html>", revisions="<html>
+<p>This revision was generated at """ + str(datetime.datetime.now())+ """</p>
+</html>")); \n"""
     with open(modelname + '.mo', 'w') as file:
         file.write('package SystemicTissueParametersPckg \n')
         file.write('model SystemicTissueParameters \n')
@@ -100,4 +106,7 @@ def buildParameterFile(modelname, TerminalDSs):
             file.write("  parameter Volume Zpv_"  + t.name + ' = ' + str(t.zpv) +  ';\n')
 
         file.write('end SystemicTissueParameters;\n')
+        file.write(annotation)
         file.write('end SystemicTissueParametersPckg;\n')
+
+        print("File " + file.name + " written")

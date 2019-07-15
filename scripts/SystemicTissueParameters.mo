@@ -107,10 +107,20 @@ model SystemicTissueParameters
   parameter HydraulicInertance I_vertebral_R272 = 3.94E+07;
   parameter HydraulicCompliance C_vertebral_R272 = 6.81E-09;
   parameter Volume Zpv_vertebral_R272 = 5.26E-05;
+  parameter HydraulicResistance Ra_splachnic_tissue = 1.19E+09;
+  parameter HydraulicResistance Rv_splachnic_tissue = 2.23E+08;
+  parameter HydraulicInertance I_splachnic_tissue = 1.00E+07;
+  parameter HydraulicCompliance C_splachnic_tissue = 7.78E-08;
+  parameter Volume Zpv_splachnic_tissue = 2.07E-04;
+  parameter HydraulicResistance Ra_cardiac_tissue = 2.67E+09;
+  parameter HydraulicResistance Rv_cardiac_tissue = 5.01E+08;
+  parameter HydraulicInertance I_cardiac_tissue = 1.00E+07;
+  parameter HydraulicCompliance C_cardiac_tissue = 3.46E-08;
+  parameter Volume Zpv_cardiac_tissue = 9.22E-05;
 end SystemicTissueParameters;
    annotation (Documentation(info="<html>
 <p>Generated tissue parameters</p>
 </html>", revisions="<html>
-<p>This revision was generated at 2019-07-12 14:17:13.813868</p>
+<p>This revision was generated at 2019-07-15 11:36:55.332316</p>
 </html>")); 
 end SystemicTissueParametersPckg;

@@ -1940,11 +1940,17 @@ package Vessel_modules
     partial model bg_base
       replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
           Placement(transformation(extent={{-110,-10},{-90,10}}),
-            iconTransformation(extent={{-110,-10},{-90,10}})));
+            iconTransformation(extent={{-110,-10},{-90,10}})),
+            Dialog(tab = "Redeclares"));
       replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b if not terminator annotation (
           Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
-              extent={{90,-10},{110,10}})));
-      parameter Boolean terminator = false;
+              extent={{90,-10},{110,10}})),
+            Dialog(tab = "Redeclares"));
+      parameter Boolean terminator = false annotation(choices(checkBox=true));
+      parameter Boolean UseInertance = true annotation(choices(checkBox=true));
+      parameter Boolean UseOuter_thoracic_pressure = false annotation(choices(checkBox=true));
+      outer Physiolibrary.Types.Pressure thoracic_pressure;
+
       Real u_in(unit = "Pa") = port_a.pressure;
       Real v_in(unit = "m3.s-1") = port_a.q;
 
@@ -1958,40 +1964,45 @@ package Vessel_modules
               extent={{-100,-20},{100,0}},
               lineColor={28,108,200},
               textString="%name"),
-            Rectangle(extent={{-100,20},{100,-20}}, lineColor={28,108,200})}),
+            Rectangle(extent={{-100,20},{100,-20}}, lineColor={28,108,200}),
+              Rectangle(extent={{-100,20},{100,-20}}, lineColor={0,140,72},
+                lineThickness =                                                          0.5,
+              visible = DynamicSelect(false, UseOuter_thoracic_pressure))}),
                                                 Diagram(coordinateSystem(extent={{-100,
                 -20},{100,20}})));
     end bg_base;
 
     partial model bg_vessel
-      extends bg_base;
+      extends bg_base(terminator=false);
       parameter Boolean UseDistentionOutput = false annotation(choices(checkBox=true));
-      parameter Real a(unit = "1") = 0.2802;
-      parameter Real b(unit = "m-1") = -505.3;
-      parameter Real c(unit = "1") = 0.1324;
-      parameter Real d(unit = "m-1") = -11.14;
+      parameter Boolean UseNonLinearCompliance = false annotation(choices(checkBox=true),Dialog(group = "Parameters"));
 
-      parameter Real mu(unit = "J.s.m-3") = 0.004;
-      parameter Real rho(unit = "J.s2.m-5") = 1050;
-      parameter Real sinAlpha = 0 "sin of vessel orientation angle, 0 being supine, 1 being up, -1 aiming down.";
-      Modelica.SIunits.Height height = sinAlpha*l;
+      parameter Real a(unit = "1") = 0.2802 annotation (Dialog(tab = "Defaults", group = "Vessel parameter computations"));
+      parameter Real b(unit = "m-1") = -505.3 annotation (Dialog(tab = "Defaults", group = "Vessel parameter computations"));
+      parameter Real c(unit = "1") = 0.1324 annotation (Dialog(tab = "Defaults", group = "Vessel parameter computations"));
+      parameter Real d(unit = "m-1") = -11.14 annotation (Dialog(tab = "Defaults", group = "Vessel parameter computations"));
+
+      constant Real mu(unit = "J.s.m-3") = 0.004;
+      constant Real rho(unit = "J.s2.m-5") = 1050;
+      parameter Real sinAlpha = 0 "sin of vessel orientation angle, 0 being supine, 1 being up, -1 aiming down."  annotation (Dialog(tab = "General", group = "Orientations"));
+      parameter Modelica.SIunits.Height height = sinAlpha*l annotation (Dialog(tab = "General", group = "Orientations"));
 
       //parameter Physiolibrary.Types.Pressure thoracic_pressure = 0;
-      outer Physiolibrary.Types.Pressure thoracic_pressure;
 
 
-      input Real E(unit = "Pa")  "Elasticity";
-      input Modelica.SIunits.Length l "Segmant length";
-      input Modelica.SIunits.Radius r "Vessel radius";
-      Modelica.SIunits.Thickness h "Thickness";
+      parameter Real E(unit = "Pa") = 4e5 "Elasticity"  annotation (Dialog(tab = "General", group = "Vessel properties", enable = not UseNonLinearCompliance));
+     parameter Modelica.SIunits.Length l = 1e-2 "Segmant length" annotation (Dialog(tab = "General", group = "Vessel properties"));
+     parameter Modelica.SIunits.Radius r = 1e-3 "Vessel radius" annotation (Dialog(tab = "General", group = "Vessel properties"));
 
-      Physiolibrary.Types.HydraulicInertance I;
-      Physiolibrary.Types.HydraulicCompliance C;
-      Physiolibrary.Types.HydraulicResistance R;
-      Physiolibrary.Types.HydraulicResistance R_v "Viscoelasticity of the vessel";
+      parameter Modelica.SIunits.Thickness h = r*(a*exp(b*r)+c*exp(d*r)) "Thickness" annotation (Dialog(tab = "General", group = "Vessel properties"));
+
+      parameter Physiolibrary.Types.HydraulicInertance I = rho*l/(Modelica.Constants.pi*(r)^2) annotation (Dialog(tab = "General", group = "Calculated parameters"));
+      parameter Physiolibrary.Types.HydraulicCompliance C = 2*Modelica.Constants.pi*(r^3) *l/(E*h) annotation (Dialog(tab = "General", group = "Calculated parameters", enable = not UseNonLinearCompliance));
+      parameter Physiolibrary.Types.HydraulicResistance R = 8*mu*l/(Modelica.Constants.pi*(r^4)) annotation (Dialog(tab = "General", group = "Calculated parameters"));
+      parameter Physiolibrary.Types.HydraulicResistance R_v = 0.01/C "Viscoleasticity of the vessel" annotation (Dialog(tab = "General", group = "Calculated parameters"));
 
 
-      Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2);
+      parameter Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume" annotation (Dialog(tab = "General", group = "Calculated parameters"));
       Physiolibrary.Types.RealIO.FractionOutput distentionFraction = sqrt(volume)/sqrt(zpv) if
         UseDistentionOutput annotation (Placement(transformation(extent={{76,10},{96,
                 30}}), iconTransformation(extent={{-20,-20},{20,20}},
@@ -1999,11 +2010,11 @@ package Vessel_modules
             origin={0,40})));
 
     equation
-      h = r*(a*exp(b*r)+c*exp(d*r));
-      I = rho*l/(Modelica.Constants.pi*(r)^2);
-      C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
-      R = 8*mu*l/(Modelica.Constants.pi*(r^4));
-      R_v = 0.01/C;
+    //  h = r*(a*exp(b*r)+c*exp(d*r));
+    //  I = rho*l/(Modelica.Constants.pi*(r)^2);
+    //  C = 2*Modelica.Constants.pi*(r^3) *l/(E*h);
+    //  R = 8*mu*l/(Modelica.Constants.pi*(r^4));
+    //  R_v = 0.01/C;
       annotation (Icon(graphics={
             Text(
               extent={{-100,0},{100,20}},
@@ -2075,9 +2086,19 @@ package Vessel_modules
     Real u_C(unit = "Pa", start = 0.0);
   equation
     volume = u_C*C + zpv;
-    der(v_in) = (u_in-u_out-R*v_in)/I;
+
+    if UseInertance then
+      der(v_in) = (u_in-u_out-R*v_in)/I;
+    else
+      0 = u_in-u_out-R*v_in;
+    end if;
+
     der(u_C) = (v_in-v_out)/C;
-    u_out = u_C+R_v*(v_in-v_out);
+    if UseOuter_thoracic_pressure then
+        u_out = u_C+R_v*(v_in-v_out) + thoracic_pressure;
+    else
+      u_out = u_C+R_v*(v_in-v_out);
+    end if;
 
       annotation (Icon(graphics={Line(
               points={{-80,0},{80,0}},
@@ -2087,20 +2108,7 @@ package Vessel_modules
   end pv_type;
 
   model pv_type_thoracic
-    extends ADAN_main.Vessel_modules.Interfaces.bg_vessel_thoracic;
-   // input Physiolibrary.Types.Pressure thoracic_pressure;
-    Real u_C(unit = "Pa", start = 0.0);
-  equation
-    volume = u_C*C + zpv;
-    der(v_in) = (u_in-u_out-R*v_in)/I;
-    der(u_C) = (v_in-v_out)/C;
-    u_out = u_C+R_v*(v_in-v_out) + thoracic_pressure;
-
-    annotation (Icon(graphics={Line(
-            points={{-80,0},{80,0}},
-            color={238,46,47},
-            arrow={Arrow.None,Arrow.Filled},
-            thickness=0.5)}));
+    extends ADAN_main.Vessel_modules.pv_type(final UseOuter_thoracic_pressure=true);
   end pv_type_thoracic;
 
   model AdjustableConductanceRtam
@@ -2116,52 +2124,21 @@ package Vessel_modules
 
   model vp_type
 
-    extends Interfaces.bg_base;
-    parameter Boolean UseDistentionOutput = false annotation(choices(checkBox=true));
-    parameter Real a(unit = "1") = 0.2802;
-    parameter Real b(unit = "m-1") = -505.3;
-    parameter Real c(unit = "1") = 0.1324;
-    parameter Real d(unit = "m-1") = -11.14;
+    extends Interfaces.bg_vessel(UseNonLinearCompliance = true, zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2), R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4)), I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2));
 
-    parameter Real mu(unit = "J.s.m-3") = 0.004;
-    parameter Real rho(unit = "J.s2.m-5") = 1050;
-    parameter Real sinAlpha = 0 "sin of vessel orientation angle, 0 being supine, 1 being up, -1 aiming down.";
-    Modelica.SIunits.Height height = sinAlpha*l;
+  //  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
 
-    input Real E(unit = "Pa")  "Elasticity";
-    input Modelica.SIunits.Length l "Segmant length";
-    input Modelica.SIunits.Radius r "Vessel radius";
-  //  Modelica.SIunits.Thickness h "Thickness";
-
-    Physiolibrary.Types.HydraulicInertance I;
-  //  Physiolibrary.Types.HydraulicCompliance C;
-    Physiolibrary.Types.HydraulicResistance R;
-    Physiolibrary.Types.HydraulicResistance R_v "Viscoelasticity of the vessel";
-
-
-    Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
-    Physiolibrary.Types.RealIO.FractionOutput distentionFraction = sqrt(volume)/sqrt(zpv) if
-      UseDistentionOutput annotation (Placement(transformation(extent={{76,10},{96,
-              30}}), iconTransformation(extent={{-20,-20},{20,20}},
-          rotation=90,
-          origin={0,40})));
-
-            Real u_C(unit = "Pa", start = 0.0);
+    Real u_C(unit = "Pa", start = 0.0);
     input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
     parameter Physiolibrary.Types.Pressure p0 = 665 "nominal venous pressure";
     outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
     outer parameter Physiolibrary.Types.Fraction C_fact;
     Physiolibrary.Types.HydraulicCompliance c0 = C_fact*zpv/p0 "nominal compliance";
+
     Physiolibrary.Types.Volume Vmax = 2*zpv;
   initial equation
-    //volume = zpv;
     u_C = p0;
   equation
-  //  h = r*(a*exp(b*r)+c*exp(d*r));
-    I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2);
-  //  C = 2*Modelica.Constants.pi*((r*venous_diameter_correction)^3) *l/(E*h);
-    R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4));
-    R_v = 0.01/c0;
 
 
    // v0 = len*pi*2*r^2
@@ -2186,7 +2163,11 @@ package Vessel_modules
       volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
   //   volume = u_C*compliance + zpv;
 
-    der(v_out) = (u_in-u_out-R*v_out)/I;
+    if E == 0 or not UseInertance then
+      0 = u_in-u_out-R*v_out;
+    else
+      der(v_out) = (u_in-u_out-R*v_out)/I;
+    end if;
     //       der(u_C) = (v_in-v_out)/C;
     der(volume) = v_in-v_out;
     u_in = u_C+R_v*(v_in-v_out);
@@ -2294,12 +2275,12 @@ package Vessel_modules
     Real I_e(unit = "J.s2.m-6");
     parameter Real Rv(unit="J.s.m-6") "venule resistance";
     parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
-
+    parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
     Real u_C(unit = "Pa", start = 0.0);
 
     Real u(unit = "Pa");
   initial equation
-    volume = zpv;
+    volume = nominal_pressure*C + zpv;
   equation
 
         I_e = I*1e-6;
@@ -5710,11 +5691,6 @@ type"),         Text(
         C_T=Parameters_Systemic1.C_T_hepatic_artery_proper_right_branch_C134,
         r=Parameters_Systemic1.r_hepatic_artery_proper_right_branch_C134)
         annotation (Placement(transformation(extent={{56,5},{76,10}})));
-      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138(
-        l=Parameters_Systemic1.l_superior_mesenteric_T4_C138,
-        E=Parameters_Systemic1.E_superior_mesenteric_T4_C138,
-        r=Parameters_Systemic1.r_superior_mesenteric_T4_C138)
-        annotation (Placement(transformation(extent={{-45,-91},{-25,-86}})));
       ADAN_main.Vessel_modules.arterialTree.pp_BC_type middle_colic_T8_C140(
         u_out=u_ivl,
         l=Parameters_Systemic1.l_middle_colic_T8_C140,
@@ -6297,6 +6273,11 @@ type"),         Text(
       Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b_inferior
         annotation (Placement(transformation(extent={{124,-24},{144,-4}}),
             iconTransformation(extent={{90,-110},{110,-90}})));
+      ADAN_main.Vessel_modules.Obsolete.pv_jII_type superior_mesenteric_T4_C138(
+        l=Parameters_Systemic1.l_superior_mesenteric_T4_C138,
+        E=Parameters_Systemic1.E_superior_mesenteric_T4_C138,
+        r=Parameters_Systemic1.r_superior_mesenteric_T4_C138)
+        annotation (Placement(transformation(extent={{-45,-91},{-25,-86}})));
     equation
       v_posterior_intercostal_T1_R98 = posterior_intercostal_T1_R98.v_T;
       v_posterior_intercostal_T1_L102 = posterior_intercostal_T1_L102.v_T;
@@ -10113,8 +10094,8 @@ type"),         Text(
 
     model testNonlinearVeins
       Components.ElasticVessel_nonLinear elasticVessel_nonLinear(Compliance(
-            displayUnit="ml/mmHg") = 7.5006157584566e-7, Vmax(displayUnit="l")
-           = 0.001)
+            displayUnit="ml/mmHg") = 7.5006157584566e-7, Vmax(displayUnit="l")=
+             0.001)
         annotation (Placement(transformation(extent={{-18,2},{2,22}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedPump unlimitedPump(SolutionFlow=
             8.3333333333333e-5)

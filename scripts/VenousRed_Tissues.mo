@@ -2508,6 +2508,8 @@ package main_ADAN_86_VenousRed_cellml
   partial model Systemic_base
     extends Physiolibrary.Icons.PerfusionOD;
 
+    parameter Boolean UseMesentericBranch = true;
+
     inner parameter Physiolibrary.Types.Fraction venous_diameter_correction = 1.5;
     inner parameter Physiolibrary.Types.Fraction C_fact = 1;
 
@@ -2823,7 +2825,7 @@ package main_ADAN_86_VenousRed_cellml
         I = tissueParameters.I_celiac_trunk_C116,
         C = tissueParameters.C_celiac_trunk_C116,
         zpv =  tissueParameters.Zpv_celiac_trunk_C116)
-    annotation (Placement(transformation(extent={{35,45},{55,50}})));
+    annotation (Placement(transformation(extent={{35,57},{55,62}})));
     Systemic_tissue renal_L166(
         Ra = tissueParameters.Ra_renal_L166,
         Rv = tissueParameters.Rv_renal_L166,
@@ -3162,7 +3164,7 @@ package main_ADAN_86_VenousRed_cellml
         l = Parameters_Venous1.l_hepatic_vein_T1_C10,
         E = Parameters_Venous1.E_hepatic_vein_T1_C10,
         r = Parameters_Venous1.r_hepatic_vein_T1_C10)
-    annotation (Placement(transformation(extent={{60,45},{80,50}})));
+    annotation (Placement(transformation(extent={{60,57},{80,62}})));
     Systemic_vein inferior_vena_cava_C12(
         phi_norm = phi_norm,
         l = Parameters_Venous1.l_inferior_vena_cava_C12,
@@ -3531,6 +3533,41 @@ package main_ADAN_86_VenousRed_cellml
 
     SystemicTissueParametersPckg.SystemicTissueParameters tissueParameters
       annotation (Placement(transformation(extent={{-140,-98},{-120,-78}})));
+    ADAN_main.Vessel_modules.pv_type mesenteric_artery(
+      l(displayUnit="cm") = 0.108,
+      E(displayUnit="Pa") = 4.00E+05,
+      r=3.73E-03) annotation (Placement(transformation(extent={{9,47},{29,52}})));
+    ADAN_main.Vessel_modules.systemic_tissue splachnic_tissue(
+      Ra=tissueParameters.Ra_splachnic_tissue,
+      Rv=tissueParameters.Rv_splachnic_tissue,
+      I=tissueParameters.I_splachnic_tissue,
+      C=tissueParameters.C_splachnic_tissue,
+      zpv=tissueParameters.Zpv_splachnic_tissue)
+      annotation (Placement(transformation(extent={{35,47},{55,52}})));
+    ADAN_main.Vessel_modules.vp_type splachnic_vein(
+      phi_norm=phi_norm,
+      l=1.00E-01,
+      r=7.50E-03) annotation (Placement(transformation(extent={{60,47},{80,52}})));
+    ADAN_main.Vessel_modules.pv_type_thoracic coronary_arteries(
+      UseNonLinearCompliance=false,
+      C(displayUnit="m3/Pa") = 3e-11,
+      R(displayUnit="(Pa.s)/m3") = 7e8)
+      annotation (Placement(transformation(extent={{10,74},{30,78}})));
+    ADAN_main.Vessel_modules.systemic_tissue cardiac_tissue(
+      UseOuter_thoracic_pressure=true,
+      I=tissueParameters.I_cardiac_tissue,
+      C=tissueParameters.C_cardiac_tissue,
+      Ra=tissueParameters.Ra_cardiac_tissue,
+      Rv=tissueParameters.Rv_cardiac_tissue,
+      zpv=tissueParameters.Zpv_cardiac_tissue)
+      annotation (Placement(transformation(extent={{36,74},{56,78}})));
+    Systemic_vein coronary_veins(
+      phi_norm = phi_norm,
+      UseOuter_thoracic_pressure=true,
+      UseNonLinearCompliance=false,
+      C(displayUnit="m3/Pa") = 7e-10,
+      R(displayUnit="(Pa.s)/m3") = 2e8)
+      annotation (Placement(transformation(extent={{60,74},{80,78}})));
   equation
 
     connect(internal_iliac_T1_R218.port_b,internal_iliac_vein_T1_R30.port_a) annotation (Line(points={{55,29.5},
@@ -3587,8 +3624,8 @@ package main_ADAN_86_VenousRed_cellml
     connect(external_carotid_T2_L62.port_b,external_jugular_vein_L132.port_a) annotation (Line(points={{55,
             121.5},{61,121.5}},                                                                                                       thickness=1,
         color={28,108,200}));
-    connect(celiac_trunk_C116.port_b,hepatic_vein_T1_C10.port_a) annotation (Line(points={{55,47.5},
-            {56,47.5},{56,48},{60,48},{60,47.5}},                                                                        thickness=1,
+    connect(celiac_trunk_C116.port_b,hepatic_vein_T1_C10.port_a) annotation (Line(points={{55,59.5},
+            {56,59.5},{56,60},{60,60},{60,59.5}},                                                                        thickness=1,
         color={28,108,200}));
     connect(renal_L166.port_b,renal_vein_T1_L22.port_a) annotation (Line(points={{55,
             -64.5},{60,-64.5}},                                                                                 thickness=1,
@@ -3624,8 +3661,8 @@ package main_ADAN_86_VenousRed_cellml
     connect(abdominal_aorta_C136.port_a,abdominal_aorta_C114.port_b) annotation (Line(points={{-280,
             -2.5},{-287,-2.5}},                                                                                              thickness=1,
         color={238,46,47}));
-    connect(celiac_trunk_C116.port_a,abdominal_aorta_C114.port_b) annotation (Line(points={{35,47.5},
-            {-284,47.5},{-284,-2.5},{-287,-2.5}},                                                                         thickness=1,
+    connect(celiac_trunk_C116.port_a,abdominal_aorta_C114.port_b) annotation (Line(points={{35,59.5},
+            {-284,59.5},{-284,-2.5},{-287,-2.5}},                                                                         thickness=1,
         color={238,46,47}));
     connect(abdominal_aorta_C164.port_a,abdominal_aorta_C136.port_b) annotation (Line(points={{-255,
             -2.5},{-260,-2.5}},                                                                                              thickness=1,
@@ -3869,8 +3906,8 @@ package main_ADAN_86_VenousRed_cellml
     connect(ulnar_vein_T7_L144.port_b,brachial_vein_L142.port_a) annotation (Line(points={{81,
             111.5},{88,111.5}},                                                                                          thickness=1,
         color={28,108,200}));
-    connect(hepatic_vein_T1_C10.port_b,inferior_vena_cava_C8.port_a) annotation (Line(points={{80,47.5},
-            {406,47.5},{406,48},{408,48},{408,-2.5},{409,-2.5}},                                                             thickness=1,
+    connect(hepatic_vein_T1_C10.port_b,inferior_vena_cava_C8.port_a) annotation (Line(points={{80,59.5},
+            {406,59.5},{406,60},{408,60},{408,-2.5},{409,-2.5}},                                                             thickness=1,
         color={28,108,200}));
     connect(inferior_vena_cava_C12.port_b,inferior_vena_cava_C8.port_a) annotation (Line(points={{403,
             -2.5},{403,-2},{409,-2},{409,-2.5}},                                                                                thickness=1,
@@ -3998,6 +4035,40 @@ package main_ADAN_86_VenousRed_cellml
         thickness=1));
     connect(thoracic_aorta_C104.port_a, thoracic_aorta_C100.port_b) annotation (Line(
         points={{-168,67.5},{-163,67.5}},
+        color={0,0,0},
+        thickness=1));
+    connect(mesenteric_artery.port_a, abdominal_aorta_C136.port_b) annotation (
+        Line(
+        points={{9,49.5},{-258,49.5},{-258,-2.5},{-260,-2.5}},
+        color={0,0,0},
+        thickness=1));
+    connect(splachnic_tissue.port_a, mesenteric_artery.port_b) annotation (Line(
+        points={{35,49.5},{29,49.5}},
+        color={0,0,0},
+        thickness=1));
+    connect(splachnic_tissue.port_b, splachnic_vein.port_a) annotation (Line(
+        points={{55,49.5},{60,49.5}},
+        color={0,0,0},
+        thickness=1));
+    connect(splachnic_vein.port_b, inferior_vena_cava_C12.port_a) annotation (
+        Line(
+        points={{80,49.5},{196,49.5},{196,50},{383,50},{383,-2.5}},
+        color={0,0,0},
+        thickness=1));
+    connect(cardiac_tissue.port_b, coronary_veins.port_a) annotation (Line(
+        points={{56,76},{60,76}},
+        color={0,0,0},
+        thickness=1));
+    connect(cardiac_tissue.port_a, coronary_arteries.port_b) annotation (Line(
+        points={{36,76},{30,76}},
+        color={0,0,0},
+        thickness=1));
+    connect(ascending_aorta_B.port_b, coronary_arteries.port_a) annotation (Line(
+        points={{-218,87.5},{-218,76},{10,76}},
+        color={0,0,0},
+        thickness=1));
+    connect(coronary_veins.port_b, inferior_vena_cava_C8.port_b) annotation (Line(
+        points={{80,76},{429,76},{429,-2.5}},
         color={0,0,0},
         thickness=1));
       annotation (Diagram(coordinateSystem(extent={{-320,-100},{440,200}})),

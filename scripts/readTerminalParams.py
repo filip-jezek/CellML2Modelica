@@ -20,7 +20,8 @@ nmsList = d.names(block = 2)
 nmsStr = "\r".join(nmsList)
 steadyStateInd = TerminalDS.findLowestIndex(steadyStateAt, time)
 
-lines = open('terminators_venousRed.txt', 'r').read().splitlines()    
+# lines = open('terminators_venousRed.txt', 'r').read().splitlines()    
+lines = open('terminators_venousRedPlus.txt', 'r').read().splitlines()    
 terminators_venous = TerminalDS.createTerminatorsDS(lines)
 
 name_patt = ["Systemic1.", '']
@@ -29,8 +30,8 @@ name_patt = ["Systemic1.", '']
 
 for t in terminators_venous:
     t.C = d.data("".join([name_patt[0], t.name,'.', 'C']))[-1]
-    t.RA = d.data("".join([name_patt[0], t.name,'.', 'R']))[-1]
-    t.RV = 3.0*d.data("".join([name_patt[0], t.name,'.', 'R_T']))[-1]
+    t.RA = d.data("".join([name_patt[0], t.name,'.', 'Ra']))[-1]
+    t.RV = 3.0*d.data("".join([name_patt[0], t.name,'.', 'Rv']))[-1]
     t.I = d.data( "".join([name_patt[0], t.name,'.', 'I']))[-1]
     t.zpv = d.data("".join([name_patt[0], t.name,'.', 'zpv']))[-1]
     t.pa_avg = TerminalDS.average(d.data("".join([name_patt[0], t.name,'.', 'u_in'])), steadyStateInd)

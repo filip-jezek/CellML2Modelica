@@ -2160,8 +2160,12 @@ package Vessel_modules
   //  outer Physiolibrary.Types.Fraction cfactor;
 
   //  volume = u_C*C + zpv;
+
+    if UseNonLinearCompliance then
       volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
-  //   volume = u_C*compliance + zpv;
+    else
+      volume = u_C*C + zpv;
+    end if;
 
     if E == 0 or not UseInertance then
       0 = u_in-u_out-R*v_out;
@@ -2286,10 +2290,17 @@ package Vessel_modules
         I_e = I*1e-6;
         Rvis = 0.01/C;
 
-        der(v_in) =(u_in - u - Ra*v_in)/I;
+        if UseInertance then
+          der(v_in) =(u_in - u - Ra*v_in)/I;
+          der(v_out) =(u - u_out - Rv*v_out)/I_e;
+        else
+          0 =(u_in - u - Ra*v_in);
+          0 =(u - u_out - Rv*v_out);
+        end if;
+
         der(volume) = (v_in-v_out);
         u =u_C + Rvis*(v_in - v_out);
-        der(v_out) =(u - u_out - Rv*v_out)/I_e;
+
 
     volume = u_C*C + zpv;
 
@@ -2967,6 +2978,13 @@ package Vessel_modules
     model vp_jII_type
       extends vp_type;
     end vp_jII_type;
+
+    model pv_type_thoracic_leveled
+        extends pv_type_thoracic(redeclare Interfaces.HydraulicPort_a_leveled
+          port_a, redeclare Interfaces.HydraulicPort_b_leveled port_b);
+    equation
+      port_a.position + height = port_b.position;
+    end pv_type_thoracic_leveled;
   end Obsolete;
 
   package arterialTree
@@ -3442,23 +3460,125 @@ package Vessel_modules
   end arterialTree;
 
   model pv_type_leveled
-    extends pv_type(redeclare Interfaces.HydraulicPort_a_leveled port_a,
+    extends Interfaces.bg_vessel( redeclare Interfaces.HydraulicPort_a_leveled port_a,
         redeclare Interfaces.HydraulicPort_b_leveled port_b);
+
+    Physiolibrary.Types.Pressure u_C(start = 0.0, fixed = true);
+
+  //  Physiolibrary.Types.Height height_mean =  (port_a.position + port_b.position)/2;
+    outer Modelica.SIunits.Angle Tilt(unit= "deg");
+    Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
+    Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
   equation
+
+    volume = (u_C)  *C + zpv "Lim 2013";
+
+
+
+    if UseInertance then
+      der(v_in) = (u_in-u_out_hs-R*v_in)/I;
+    else
+      0 = u_in-u_out_hs-R*v_in;
+    end if;
+
+    der(u_C) = (v_in-v_out)/C;
+    if UseOuter_thoracic_pressure then
+        u_out_hs = u_C+R_v*(v_in-v_out) + thoracic_pressure;
+    else
+      u_out_hs = u_C+R_v*(v_in-v_out);
+    end if;
+
     port_a.position + height = port_b.position;
   end pv_type_leveled;
 
   model vp_type_leveled
-    extends vp_type(redeclare Interfaces.HydraulicPort_a_leveled port_b,
-        redeclare Interfaces.HydraulicPort_b_leveled port_a);
+    extends Interfaces.bg_vessel(
+      redeclare Interfaces.HydraulicPort_a_leveled port_b,
+      redeclare Interfaces.HydraulicPort_b_leveled port_a,
+      UseNonLinearCompliance = true,
+      zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2),
+      R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4)),
+      I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2));
+
+  //  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
+
+    Real u_C(unit = "Pa", start = 0.0);
+    input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
+    parameter Physiolibrary.Types.Pressure p0 = 665 "nominal venous pressure";
+    outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
+    outer parameter Physiolibrary.Types.Fraction C_fact;
+    Physiolibrary.Types.HydraulicCompliance c0 = C_fact*zpv/p0 "nominal compliance";
+
+    Physiolibrary.Types.Volume Vmax = 2*zpv;
+
+    outer Modelica.SIunits.Angle Tilt;
+    Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
+    Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
+
+
+  initial equation
+    u_C = p0;
   equation
     port_a.position + height = port_b.position;
+
+    if UseNonLinearCompliance then
+      volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
+    else
+      volume = (u_C) *C + zpv;
+    end if;
+
+    if E == 0 or not UseInertance then
+      0 = u_in-u_out_hs-R*v_out;
+    else
+      der(v_out) = (u_in-u_out_hs-R*v_out)/I;
+    end if;
+    //       der(u_C) = (v_in-v_out)/C;
+    der(volume) = v_in-v_out;
+    u_in = u_C+R_v*(v_in-v_out);
 
   end vp_type_leveled;
 
   model systemic_tissue_leveled
-      extends systemic_tissue(redeclare Interfaces.HydraulicPort_a_leveled
+      extends Interfaces.bg_base( redeclare Interfaces.HydraulicPort_a_leveled
           port_a, redeclare Interfaces.HydraulicPort_a_leveled port_b);
+
+    parameter Real I(unit = "J.s2.m-6");
+    parameter Real C(unit = "m6.J-1");
+    parameter Real Ra(unit="J.s.m-6") "Arteriole resistance";
+    Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
+    Real I_e(unit = "J.s2.m-6");
+    parameter Real Rv(unit="J.s.m-6") "venule resistance";
+    parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
+    parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
+    constant Real rho(unit = "J.s2.m-5") = 1050;
+    Real u_C(unit = "Pa", start = 0.0);
+
+    Real u(unit = "Pa");
+
+    outer Modelica.SIunits.Angle Tilt(unit= "deg");
+    Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
+    Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
+
+    Modelica.SIunits.Height height = port_b.position - port_a.position;
+  initial equation
+    u_C = nominal_pressure;
+  equation
+
+        I_e = I*1e-6;
+        Rvis = 0.01/C;
+
+        if UseInertance then
+          der(v_in) =(u_in - u - Ra*v_in)/I;
+          der(v_out) =(u - u_out_hs - Rv*v_out)/I_e;
+        else
+          0 =(u_in - u - Ra*v_in);
+          0 =(u - u_out_hs - Rv*v_out);
+        end if;
+
+        der(volume) = (v_in-v_out);
+        u =u_C + Rvis*(v_in - v_out);
+
+    volume = (u_C) *C + zpv;
 
     annotation (Icon(graphics={Text(
             extent={{-100,20},{-20,40}},
@@ -3472,13 +3592,6 @@ package Vessel_modules
             horizontalAlignment=TextAlignment.Right,
             textString=DynamicSelect("level B", String(port_b.position*100, significantDigits=2) + " cm"))}));
   end systemic_tissue_leveled;
-
-  model pv_type_thoracic_leveled
-      extends pv_type_thoracic(redeclare Interfaces.HydraulicPort_a_leveled
-        port_a, redeclare Interfaces.HydraulicPort_b_leveled port_b);
-  equation
-    port_a.position + height = port_b.position;
-  end pv_type_thoracic_leveled;
 
   model vv_type_thoracic_leveled
     extends vv_type_thoracic(redeclare Interfaces.HydraulicPort_a_leveled port_a,
@@ -10109,6 +10222,123 @@ type"),         Text(
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end testNonlinearVeins;
+
+    model height_test
+      inner parameter Physiolibrary.Types.Fraction venous_diameter_correction = 1;
+      inner parameter Physiolibrary.Types.Fraction C_fact = 1;
+
+      Vessel_modules.pv_type_leveled pv_type_leveled(
+        UseInertance=false,
+        sinAlpha=1,                                               l=0.5,
+        r=0.01)
+        annotation (Placement(transformation(extent={{-72,4},{-14,16}})));
+      parameter Physiolibrary.Types.VolumeFlowRate m_flow(displayUnit="l/min")=3.3333333333333e-5;
+      parameter Physiolibrary.Types.Pressure p = 0;
+      Components.Auxiliary.AcausalConnector.Pq_terminator_q_leveled
+        pq_terminator_q_leveled(level=1, v=-m_flow)
+        annotation (Placement(transformation(extent={{-120,0},{-100,20}})));
+      Components.Auxiliary.AcausalConnector.Pq_terminator_p pq_terminator_p(
+          redeclare Vessel_modules.Interfaces.HydraulicPort_a_leveled port_a, u = p)
+        annotation (Placement(transformation(extent={{100,0},{80,20}})));
+
+    inner parameter Modelica.SIunits.Angle Tilt = 0;
+    inner parameter Physiolibrary.Types.Pressure thoracic_pressure = 0;
+      Vessel_modules.pv_type_leveled pv_type_leveled1(
+        UseInertance=false,
+        sinAlpha=1,
+        l=0.25,
+        r=0.01)
+        annotation (Placement(transformation(extent={{0,4},{58,16}})));
+      Components.Auxiliary.AcausalConnector.Pq_terminator_q_leveled
+        pq_terminator_q_leveled1(level=1, v=-m_flow)
+        annotation (Placement(transformation(extent={{-120,-40},{-100,-20}})));
+      Components.Auxiliary.AcausalConnector.Pq_terminator_p_leveled
+        pq_terminator_p_leveled(level=1.75, u = p)
+        annotation (Placement(transformation(extent={{100,-40},{80,-20}})));
+      Vessel_modules.systemic_tissue_leveled systemic_tissue_leveled(
+        UseInertance=false,
+        I=0,
+        C=3.33E-08,
+        Ra=9.58E+08,
+        Rv=1.80E+08,
+        zpv=2.57e-10) "Aka renal tissue"
+        annotation (Placement(transformation(extent={{-60,-40},{40,-20}})));
+      Components.Auxiliary.AcausalConnector.Pq_terminator_q_leveled
+        pq_terminator_q_leveled2(level=0, v=-m_flow)
+        annotation (Placement(transformation(extent={{-120,-80},{-100,-60}})));
+      Components.Auxiliary.AcausalConnector.Pq_terminator_p_leveled
+        pq_terminator_p_leveled1(level=0, u=p)
+        annotation (Placement(transformation(extent={{100,-80},{80,-60}})));
+      Vessel_modules.pv_type_leveled pv_type_leveled2(
+        UseInertance=false,
+        sinAlpha=-1,
+        l=0.5,
+        r=0.01)
+        annotation (Placement(transformation(extent={{-92,-74},{-56,-66}})));
+      Vessel_modules.systemic_tissue_leveled systemic_tissue_leveled1(
+        UseInertance=false,
+        I=0,
+        C=3.33E-08,
+        Ra=9.58E+08,
+        Rv=1.80E+08,
+        zpv(displayUnit="ml") = 0.000257)
+                      "Aka renal tissue"
+        annotation (Placement(transformation(extent={{-40,-74},{0,-66}})));
+      Vessel_modules.vp_type_leveled vp_type_leveled(
+        phi_norm = 1,
+        UseInertance=false,
+        UseNonLinearCompliance=false,
+        sinAlpha=1,
+        l=0.5,
+        r(displayUnit="mm") = 0.015)
+        annotation (Placement(transformation(extent={{20,-74},{56,-66}})));
+    equation
+      connect(pq_terminator_q_leveled.port_a, pv_type_leveled.port_a) annotation (
+          Line(
+          points={{-100,10},{-72,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(pv_type_leveled.port_b, pv_type_leveled1.port_a) annotation (Line(
+          points={{-14,10},{-1.77636e-15,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(pv_type_leveled1.port_b, pq_terminator_p.port_a) annotation (Line(
+          points={{58,10},{80,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(pq_terminator_q_leveled1.port_a, systemic_tissue_leveled.port_a)
+        annotation (Line(
+          points={{-100,-30},{-60,-30}},
+          color={0,0,0},
+          thickness=1));
+      connect(pq_terminator_p_leveled.port_a, systemic_tissue_leveled.port_b)
+        annotation (Line(
+          points={{80,-30},{40,-30}},
+          color={0,0,0},
+          thickness=1));
+      connect(pq_terminator_q_leveled2.port_a, pv_type_leveled2.port_a) annotation (
+         Line(
+          points={{-100,-70},{-92,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(pv_type_leveled2.port_b, systemic_tissue_leveled1.port_a) annotation (
+         Line(
+          points={{-56,-70},{-40,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(systemic_tissue_leveled1.port_b, vp_type_leveled.port_a) annotation (
+          Line(
+          points={{0,-70},{20,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(pq_terminator_p_leveled1.port_a, vp_type_leveled.port_b) annotation (
+          Line(
+          points={{80,-70},{56,-70}},
+          color={0,0,0},
+          thickness=1));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end height_test;
   end tests;
 
   package Experiments

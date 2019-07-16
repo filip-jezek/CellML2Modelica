@@ -2512,6 +2512,7 @@ package main_ADAN_86_VenousRed_cellml
 
     inner parameter Physiolibrary.Types.Fraction venous_diameter_correction = 1.5;
     inner parameter Physiolibrary.Types.Fraction C_fact = 1;
+    inner parameter Modelica.SIunits.Angle Tilt = 0;
 
     replaceable model Systemic_artery_thoracic =
         ADAN_main.Vessel_modules.pv_type_thoracic constrainedby
@@ -2557,147 +2558,6 @@ package main_ADAN_86_VenousRed_cellml
 
     parameter Physiolibrary.Types.Fraction phi0 = 0.25 "default value of phi. Also used for normalization";
     Physiolibrary.Types.Fraction phi_norm "Normalized phi value to 1";
-    Physiolibrary.Types.Volume total_volume = volume_arterial + volume_peripheral + volume_venous;
-    Physiolibrary.Types.Volume volume_arterial = ascending_aorta_A.volume +
-      ascending_aorta_B.volume +
-      ascending_aorta_C.volume +
-      ascending_aorta_D.volume +
-      aortic_arch_C2.volume +
-      brachiocephalic_trunk_C4.volume +
-      aortic_arch_C46.volume +
-      aortic_arch_C64.volume +
-      aortic_arch_C94.volume +
-      thoracic_aorta_C96.volume +
-      thoracic_aorta_C100.volume +
-      thoracic_aorta_C104.volume +
-      thoracic_aorta_C108.volume +
-      thoracic_aorta_C112.volume +
-      abdominal_aorta_C114.volume +
-      abdominal_aorta_C136.volume +
-      abdominal_aorta_C164.volume +
-      abdominal_aorta_C176.volume +
-      abdominal_aorta_C188.volume +
-      abdominal_aorta_C192.volume +
-      common_iliac_R216.volume +
-      external_iliac_R220.volume +
-      femoral_R222.volume +
-      femoral_R226.volume +
-      popliteal_R228.volume +
-      popliteal_R232.volume +
-      tibiofibular_trunk_R234.volume +
-      common_iliac_L194.volume +
-      external_iliac_L198.volume +
-      femoral_L200.volume +
-      femoral_L204.volume +
-      popliteal_L206.volume +
-      popliteal_L210.volume +
-      tibiofibular_trunk_L212.volume +
-      subclavian_R28.volume +
-      subclavian_R30.volume +
-      axillary_R32.volume +
-      brachial_R34.volume +
-      ulnar_T2_R36.volume +
-      subclavian_L66.volume +
-      subclavian_L78.volume +
-      axillary_L80.volume +
-      brachial_L82.volume +
-      ulnar_T2_L84.volume +
-      common_carotid_R6_A.volume +
-      common_carotid_R6_B.volume +
-      common_carotid_R6_C.volume +
-      internal_carotid_R8_A.volume +
-      internal_carotid_R8_B.volume +
-      common_carotid_L48_A.volume +
-      common_carotid_L48_B.volume +
-      common_carotid_L48_C.volume +
-      common_carotid_L48_D.volume +
-      internal_carotid_L50_A.volume +
-      internal_carotid_L50_B.volume;
-    Physiolibrary.Types.Volume volume_peripheral = celiac_trunk_C116.volume +
-      renal_L166.volume +
-      renal_R178.volume +
-      internal_iliac_T1_R218.volume +
-      profundus_T2_R224.volume +
-      anterior_tibial_T3_R230.volume +
-      posterior_tibial_T4_R236.volume +
-      internal_iliac_T1_L196.volume +
-      profundus_T2_L202.volume +
-      anterior_tibial_T3_L208.volume +
-      posterior_tibial_T4_L214.volume +
-      ulnar_T2_R42.volume +
-      radial_T1_R44.volume +
-      ulnar_T2_L90.volume +
-      radial_T1_L92.volume +
-      internal_carotid_R8_C.volume +
-      external_carotid_T2_R26.volume +
-      internal_carotid_L50_C.volume +
-      external_carotid_T2_L62.volume +
-      vertebral_L2.volume +
-      vertebral_R272.volume;
-    Physiolibrary.Types.Volume volume_venous = superior_vena_cava_C2.volume +
-      superior_vena_cava_C88.volume +
-      inferior_vena_cava_C8.volume +
-      hepatic_vein_T1_C10.volume +
-      inferior_vena_cava_C12.volume +
-      inferior_vena_cava_C16.volume +
-      renal_vein_T1_R18.volume +
-      inferior_vena_cava_C20.volume +
-      renal_vein_T1_L22.volume +
-      inferior_vena_cava_C24.volume +
-      common_iliac_vein_L56.volume +
-      common_iliac_vein_R26.volume +
-      external_iliac_vein_R28.volume +
-      internal_iliac_vein_T1_R30.volume +
-      external_iliac_vein_R32.volume +
-      femoral_vein_R34.volume +
-      femoral_vein_R38.volume +
-      profunda_femoris_vein_T2_R40.volume +
-      femoral_vein_R42.volume +
-      femoral_vein_R46.volume +
-      popliteal_vein_R48.volume +
-      anterior_tibial_vein_T4_R50.volume +
-      popliteal_vein_R52.volume +
-      posterior_tibial_vein_T6_R54.volume +
-      external_iliac_vein_L58.volume +
-      internal_iliac_vein_T1_L60.volume +
-      external_iliac_vein_L62.volume +
-      femoral_vein_L64.volume +
-      femoral_vein_L68.volume +
-      profunda_femoris_vein_T2_L70.volume +
-      femoral_vein_L72.volume +
-      femoral_vein_L76.volume +
-      popliteal_vein_L78.volume +
-      anterior_tibial_vein_T4_L80.volume +
-      popliteal_vein_L82.volume +
-      posterior_tibial_vein_T6_L84.volume +
-      brachiocephalic_vein_R90.volume +
-      brachiocephalic_vein_L124.volume +
-      vertebral_vein_R92.volume +
-      brachiocephalic_vein_R94.volume +
-      subclavian_vein_R96.volume +
-      internal_jugular_vein_R122.volume +
-      external_jugular_vein_R98.volume +
-      subclavian_vein_R100.volume +
-      axillary_vein_R102.volume +
-      brachial_vein_R104.volume +
-      brachial_vein_R114.volume +
-      brachial_vein_R108.volume +
-      ulnar_vein_T7_R110.volume +
-      brachial_vein_R118.volume +
-      radial_vein_T3_R120.volume +
-      vertebral_vein_L126.volume +
-      brachiocephalic_vein_L128.volume +
-      subclavian_vein_L130.volume +
-      internal_jugular_vein_L156.volume +
-      external_jugular_vein_L132.volume +
-      subclavian_vein_L134.volume +
-      axillary_vein_L136.volume +
-      brachial_vein_L138.volume +
-      brachial_vein_L148.volume +
-      brachial_vein_L142.volume +
-      ulnar_vein_T7_L144.volume +
-      brachial_vein_L152.volume +
-      radial_vein_T3_L154.volume;
     Parameters_Venous_cellml.Parameters_Systemic Parameters_Systemic1
     annotation (Placement(transformation(extent={{-96,-87},{-76,-82}})));
     replaceable
@@ -3533,27 +3393,27 @@ package main_ADAN_86_VenousRed_cellml
 
     SystemicTissueParametersPckg.SystemicTissueParameters tissueParameters
       annotation (Placement(transformation(extent={{-140,-98},{-120,-78}})));
-    ADAN_main.Vessel_modules.pv_type mesenteric_artery(
+    Systemic_artery                  mesenteric_artery(
       l(displayUnit="cm") = 0.108,
       E(displayUnit="Pa") = 4.00E+05,
       r=3.73E-03) annotation (Placement(transformation(extent={{9,47},{29,52}})));
-    ADAN_main.Vessel_modules.systemic_tissue splachnic_tissue(
+    Systemic_tissue                          splachnic_tissue(
       Ra=tissueParameters.Ra_splachnic_tissue,
       Rv=tissueParameters.Rv_splachnic_tissue,
       I=tissueParameters.I_splachnic_tissue,
       C=tissueParameters.C_splachnic_tissue,
       zpv=tissueParameters.Zpv_splachnic_tissue)
       annotation (Placement(transformation(extent={{35,47},{55,52}})));
-    ADAN_main.Vessel_modules.vp_type splachnic_vein(
+    Systemic_vein                    splachnic_vein(
       phi_norm=phi_norm,
       l=1.00E-01,
       r=7.50E-03) annotation (Placement(transformation(extent={{60,47},{80,52}})));
-    ADAN_main.Vessel_modules.pv_type_thoracic coronary_arteries(
+    Systemic_artery_thoracic                  coronary_arteries(
       UseNonLinearCompliance=false,
       C(displayUnit="m3/Pa") = 3e-11,
       R(displayUnit="(Pa.s)/m3") = 7e8)
       annotation (Placement(transformation(extent={{10,74},{30,78}})));
-    ADAN_main.Vessel_modules.systemic_tissue cardiac_tissue(
+    Systemic_tissue                          cardiac_tissue(
       UseOuter_thoracic_pressure=true,
       I=tissueParameters.I_cardiac_tissue,
       C=tissueParameters.C_cardiac_tissue,
@@ -4075,104 +3935,157 @@ package main_ADAN_86_VenousRed_cellml
           Icon(coordinateSystem(extent={{-320,-100},{440,200}})));
   end Systemic_base;
 
-  model Systemic_eq
+  partial model Systemic_volumes
     extends Systemic_base;
-    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_v
-      pq_terminator_v(v=-v_aov)
-      annotation (Placement(transformation(extent={{-298,78},{-278,98}})));
-    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p
-      pq_terminator_p1(u=u_ra)
-      annotation (Placement(transformation(extent={{342,156},{322,176}})));
-    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p
-      pq_terminator_p(u=u_ra)
-      annotation (Placement(transformation(extent={{458,-12},{438,8}})));
-    input Real u_ra(unit = "Pa");
-    input Real v_aov(unit = "m3.s-1");
+  Physiolibrary.Types.Volume total_volume = volume_arterial + volume_peripheral + volume_venous;
+    Physiolibrary.Types.Volume volume_arterial = ascending_aorta_A.volume +
+      ascending_aorta_B.volume +
+      ascending_aorta_C.volume +
+      ascending_aorta_D.volume +
+      aortic_arch_C2.volume +
+      brachiocephalic_trunk_C4.volume +
+      aortic_arch_C46.volume +
+      aortic_arch_C64.volume +
+      aortic_arch_C94.volume +
+      thoracic_aorta_C96.volume +
+      thoracic_aorta_C100.volume +
+      thoracic_aorta_C104.volume +
+      thoracic_aorta_C108.volume +
+      thoracic_aorta_C112.volume +
+      abdominal_aorta_C114.volume +
+      abdominal_aorta_C136.volume +
+      abdominal_aorta_C164.volume +
+      abdominal_aorta_C176.volume +
+      abdominal_aorta_C188.volume +
+      abdominal_aorta_C192.volume +
+      common_iliac_R216.volume +
+      external_iliac_R220.volume +
+      femoral_R222.volume +
+      femoral_R226.volume +
+      popliteal_R228.volume +
+      popliteal_R232.volume +
+      tibiofibular_trunk_R234.volume +
+      common_iliac_L194.volume +
+      external_iliac_L198.volume +
+      femoral_L200.volume +
+      femoral_L204.volume +
+      popliteal_L206.volume +
+      popliteal_L210.volume +
+      tibiofibular_trunk_L212.volume +
+      subclavian_R28.volume +
+      subclavian_R30.volume +
+      axillary_R32.volume +
+      brachial_R34.volume +
+      ulnar_T2_R36.volume +
+      subclavian_L66.volume +
+      subclavian_L78.volume +
+      axillary_L80.volume +
+      brachial_L82.volume +
+      ulnar_T2_L84.volume +
+      common_carotid_R6_A.volume +
+      common_carotid_R6_B.volume +
+      common_carotid_R6_C.volume +
+      internal_carotid_R8_A.volume +
+      internal_carotid_R8_B.volume +
+      common_carotid_L48_A.volume +
+      common_carotid_L48_B.volume +
+      common_carotid_L48_C.volume +
+      common_carotid_L48_D.volume +
+      internal_carotid_L50_A.volume +
+      internal_carotid_L50_B.volume +
+      coronary_arteries.volume +
+      mesenteric_artery.volume;
+    Physiolibrary.Types.Volume volume_peripheral = celiac_trunk_C116.volume +
+      renal_L166.volume +
+      renal_R178.volume +
+      internal_iliac_T1_R218.volume +
+      profundus_T2_R224.volume +
+      anterior_tibial_T3_R230.volume +
+      posterior_tibial_T4_R236.volume +
+      internal_iliac_T1_L196.volume +
+      profundus_T2_L202.volume +
+      anterior_tibial_T3_L208.volume +
+      posterior_tibial_T4_L214.volume +
+      ulnar_T2_R42.volume +
+      radial_T1_R44.volume +
+      ulnar_T2_L90.volume +
+      radial_T1_L92.volume +
+      internal_carotid_R8_C.volume +
+      external_carotid_T2_R26.volume +
+      internal_carotid_L50_C.volume +
+      external_carotid_T2_L62.volume +
+      vertebral_L2.volume +
+      vertebral_R272.volume +
+      cardiac_tissue.volume +
+      splachnic_tissue.volume;
+    Physiolibrary.Types.Volume volume_venous = superior_vena_cava_C2.volume +
+      superior_vena_cava_C88.volume +
+      inferior_vena_cava_C8.volume +
+      hepatic_vein_T1_C10.volume +
+      inferior_vena_cava_C12.volume +
+      inferior_vena_cava_C16.volume +
+      renal_vein_T1_R18.volume +
+      inferior_vena_cava_C20.volume +
+      renal_vein_T1_L22.volume +
+      inferior_vena_cava_C24.volume +
+      common_iliac_vein_L56.volume +
+      common_iliac_vein_R26.volume +
+      external_iliac_vein_R28.volume +
+      internal_iliac_vein_T1_R30.volume +
+      external_iliac_vein_R32.volume +
+      femoral_vein_R34.volume +
+      femoral_vein_R38.volume +
+      profunda_femoris_vein_T2_R40.volume +
+      femoral_vein_R42.volume +
+      femoral_vein_R46.volume +
+      popliteal_vein_R48.volume +
+      anterior_tibial_vein_T4_R50.volume +
+      popliteal_vein_R52.volume +
+      posterior_tibial_vein_T6_R54.volume +
+      external_iliac_vein_L58.volume +
+      internal_iliac_vein_T1_L60.volume +
+      external_iliac_vein_L62.volume +
+      femoral_vein_L64.volume +
+      femoral_vein_L68.volume +
+      profunda_femoris_vein_T2_L70.volume +
+      femoral_vein_L72.volume +
+      femoral_vein_L76.volume +
+      popliteal_vein_L78.volume +
+      anterior_tibial_vein_T4_L80.volume +
+      popliteal_vein_L82.volume +
+      posterior_tibial_vein_T6_L84.volume +
+      brachiocephalic_vein_R90.volume +
+      brachiocephalic_vein_L124.volume +
+      vertebral_vein_R92.volume +
+      brachiocephalic_vein_R94.volume +
+      subclavian_vein_R96.volume +
+      internal_jugular_vein_R122.volume +
+      external_jugular_vein_R98.volume +
+      subclavian_vein_R100.volume +
+      axillary_vein_R102.volume +
+      brachial_vein_R104.volume +
+      brachial_vein_R114.volume +
+      brachial_vein_R108.volume +
+      ulnar_vein_T7_R110.volume +
+      brachial_vein_R118.volume +
+      radial_vein_T3_R120.volume +
+      vertebral_vein_L126.volume +
+      brachiocephalic_vein_L128.volume +
+      subclavian_vein_L130.volume +
+      internal_jugular_vein_L156.volume +
+      external_jugular_vein_L132.volume +
+      subclavian_vein_L134.volume +
+      axillary_vein_L136.volume +
+      brachial_vein_L138.volume +
+      brachial_vein_L148.volume +
+      brachial_vein_L142.volume +
+      ulnar_vein_T7_L144.volume +
+      brachial_vein_L152.volume +
+      radial_vein_T3_L154.volume +
+      coronary_veins.volume +
+      splachnic_vein.volume;
 
-  equation
-    phi_norm = phi0/0.25;
-    connect(ascending_aorta_A.port_a, pq_terminator_v.port_a) annotation (Line(
-        points={{-263,87.5},{-270,87.5},{-270,88},{-278,88}},
-        color={0,0,0},
-        thickness=1));
-    connect(superior_vena_cava_C2.port_b, pq_terminator_p1.port_a) annotation (
-        Line(
-        points={{317,165.5},{320,165.5},{320,166},{322,166}},
-        color={0,0,0},
-        thickness=1));
-    connect(inferior_vena_cava_C8.port_b, pq_terminator_p.port_a) annotation (
-        Line(
-        points={{429,-2.5},{434,-2.5},{434,-2},{438,-2}},
-        color={0,0,0},
-        thickness=1));
-  end Systemic_eq;
-
-  model Systemic_con
-    extends Systemic_base;
-    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
-        Placement(transformation(extent={{-290,76},{-270,96}}),
-          iconTransformation(extent={{-110,-10},{-90,10}})));
-    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
-        Placement(transformation(extent={{450,70},{470,90}}), iconTransformation(
-            extent={{90,-12},{110,8}})));
-    parameter Physiolibrary.Types.Time phiDelay = 0;
-    Physiolibrary.Types.RealIO.FractionInput phi_in annotation (Placement(
-        transformation(extent={{-100,-100},{-60,-60}}),
-                                                      iconTransformation(extent={{-100,60},
-                {-60,100}})));
-
-  equation
-      if phiDelay > 0 then
-        phi_norm = delay(phi_in/phi0, phiDelay, 10);
-      else
-        phi_norm = phi_in/phi0;
-      end if;
-
-    connect(ascending_aorta_A.port_a, port_a) annotation (Line(
-        points={{-263,87.5},{-263.5,87.5},{-263.5,86},{-280,86}},
-        color={0,0,0},
-        thickness=1));
-    connect(superior_vena_cava_C2.port_b, port_b) annotation (Line(
-        points={{317,165.5},{432,165.5},{432,80},{460,80}},
-        color={0,0,0},
-        thickness=1));
-    connect(inferior_vena_cava_C8.port_b, port_b) annotation (Line(
-        points={{429,-2.5},{429,-2},{432,-2},{432,80},{460,80}},
-        color={0,0,0},
-        thickness=1));
-  end Systemic_con;
-
-  model Systemic_baroreflex
-      extends Systemic_con(redeclare
-          ADAN_main.Vessel_modules.Obsolete.pv_jII_type_baroreceptor
-          aortic_arch_C46, redeclare
-          ADAN_main.Vessel_modules.Obsolete.pv_type_baroreceptor
-          internal_carotid_R8_A);
-    ADAN_main.Components.Auxiliary.Baroreflex
-               baroreflex
-      annotation (Placement(transformation(extent={{-20,74},{0,54}})));
-    Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
-          transformation(extent={{10,64},{30,84}}),   iconTransformation(extent={{-8,-110},
-              {12,-90}})));
-    Physiolibrary.Types.RealIO.FractionOutput  phi_baroreflex
-                                                  annotation (Placement(
-          transformation(extent={{10,52},{30,72}}),   iconTransformation(extent={{-6,90},
-              {14,110}})));
-  equation
-    connect(baroreflex.HR,HR)  annotation (Line(points={{0,73.8},{0,74},{20,74}},
-                             color={0,0,127}));
-    connect(baroreflex.carotid_BR, internal_carotid_R8_A.y) annotation (Line(
-          points={{-20,74},{-24,74},{-24,187},{-4.8,187}},   color={0,0,127}));
-    connect(aortic_arch_C46.y,baroreflex. aortic_BR) annotation (Line(points={{-118.8,
-              85},{-119.3,85},{-119.3,54},{-20,54}},         color={0,0,127}));
-    connect(baroreflex.phi,phi_baroreflex)  annotation (Line(points={{0.2,64},{
-              12,64},{12,62},{20,62}},
-                                color={0,0,127}));
-  end Systemic_baroreflex;
-
-  model zpv
-    extends Systemic_eq;
-  Physiolibrary.Types.Volume zpv_arterial = ascending_aorta_A.zpv +
+    Physiolibrary.Types.Volume zpv_arterial = ascending_aorta_A.zpv +
       ascending_aorta_B.zpv +
       ascending_aorta_C.zpv +
       ascending_aorta_D.zpv +
@@ -4226,7 +4139,9 @@ package main_ADAN_86_VenousRed_cellml
       common_carotid_L48_C.zpv +
       common_carotid_L48_D.zpv +
       internal_carotid_L50_A.zpv +
-      internal_carotid_L50_B.zpv;
+      internal_carotid_L50_B.zpv +
+      coronary_arteries.zpv +
+      mesenteric_artery.zpv;
     Physiolibrary.Types.Volume zpv_peripheral = celiac_trunk_C116.zpv +
       renal_L166.zpv +
       renal_R178.zpv +
@@ -4247,7 +4162,9 @@ package main_ADAN_86_VenousRed_cellml
       internal_carotid_L50_C.zpv +
       external_carotid_T2_L62.zpv +
       vertebral_L2.zpv +
-      vertebral_R272.zpv;
+      vertebral_R272.zpv  +
+      cardiac_tissue.zpv +
+      splachnic_tissue.zpv;
     Physiolibrary.Types.Volume zpv_venous = superior_vena_cava_C2.zpv +
       superior_vena_cava_C88.zpv +
       inferior_vena_cava_C8.zpv +
@@ -4311,7 +4228,9 @@ package main_ADAN_86_VenousRed_cellml
       brachial_vein_L142.zpv +
       ulnar_vein_T7_L144.zpv +
       brachial_vein_L152.zpv +
-      radial_vein_T3_L154.zpv;
+      radial_vein_T3_L154.zpv +
+      coronary_veins.zpv +
+      splachnic_vein.zpv;
 
   Modelica.SIunits.Length l_arterial = ascending_aorta_A.l +
       ascending_aorta_B.l +
@@ -4367,7 +4286,9 @@ package main_ADAN_86_VenousRed_cellml
       common_carotid_L48_C.l +
       common_carotid_L48_D.l +
       internal_carotid_L50_A.l +
-      internal_carotid_L50_B.l;
+      internal_carotid_L50_B.l +
+      coronary_arteries.l +
+      mesenteric_artery.l;
 
   Modelica.SIunits.Length l_venous = superior_vena_cava_C2.l +
       superior_vena_cava_C88.l +
@@ -4432,17 +4353,130 @@ package main_ADAN_86_VenousRed_cellml
       brachial_vein_L142.l +
       ulnar_vein_T7_L144.l +
       brachial_vein_L152.l +
-      radial_vein_T3_L154.l;
-  end zpv;
+      radial_vein_T3_L154.l +
+      coronary_veins.l +
+      splachnic_vein.l;
+  end Systemic_volumes;
+
+  model Systemic_eq
+    extends Systemic_volumes;
+    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_v
+      pq_terminator_v(v=-v_aov)
+      annotation (Placement(transformation(extent={{-298,78},{-278,98}})));
+    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p pq_terminator_sup_vc(u=u_ra)
+      annotation (Placement(transformation(extent={{342,156},{322,176}})));
+    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p pq_terminator_inf_vc(u=u_ra)
+      annotation (Placement(transformation(extent={{458,-12},{438,8}})));
+    input Real u_ra(unit = "Pa");
+    input Real v_aov(unit = "m3.s-1");
+
+  equation
+    phi_norm = phi0/0.25;
+    connect(ascending_aorta_A.port_a, pq_terminator_v.port_a) annotation (Line(
+        points={{-263,87.5},{-270,87.5},{-270,88},{-278,88}},
+        color={0,0,0},
+        thickness=1));
+    connect(superior_vena_cava_C2.port_b, pq_terminator_sup_vc.port_a)
+      annotation (Line(
+        points={{317,165.5},{320,165.5},{320,166},{322,166}},
+        color={0,0,0},
+        thickness=1));
+    connect(inferior_vena_cava_C8.port_b, pq_terminator_inf_vc.port_a)
+      annotation (Line(
+        points={{429,-2.5},{434,-2.5},{434,-2},{438,-2}},
+        color={0,0,0},
+        thickness=1));
+  end Systemic_eq;
+
+  model Systemic_con
+    extends Systemic_volumes;
+    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_v
+      pq_terminator_v(v=-v_aov)
+      annotation (Placement(transformation(extent={{-298,78},{-278,98}})));
+    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p pq_terminator_sup_vc(u=u_ra)
+      annotation (Placement(transformation(extent={{342,156},{322,176}})));
+    replaceable ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p pq_terminator_inf_vc(u=u_ra)
+      annotation (Placement(transformation(extent={{458,-12},{438,8}})));
+    Real u_ra(unit = "Pa") = port_b.pressure;
+    Real v_aov(unit = "m3.s-1") = port_a.q;
+
+    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_a port_a annotation (
+        Placement(transformation(extent={{-330,70},{-310,90}}),
+          iconTransformation(extent={{-110,-10},{-90,10}})));
+    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b annotation (
+        Placement(transformation(extent={{450,70},{470,90}}), iconTransformation(
+            extent={{90,-12},{110,8}})));
+    parameter Physiolibrary.Types.Time phiDelay = 0;
+    Physiolibrary.Types.RealIO.FractionInput phi_in annotation (Placement(
+        transformation(extent={{-100,-100},{-60,-60}}),
+                                                      iconTransformation(extent={{-100,60},
+                {-60,100}})));
+
+
+
+  equation
+    port_a.pressure = pq_terminator_v.u;
+    port_b.q= pq_terminator_inf_vc.v + pq_terminator_sup_vc.v;
+
+      if phiDelay > 0 then
+        phi_norm = delay(phi_in/phi0, phiDelay, 10);
+      else
+        phi_norm = phi_in/phi0;
+      end if;
+
+    connect(ascending_aorta_A.port_a, pq_terminator_v.port_a) annotation (Line(
+        points={{-263,87.5},{-270,87.5},{-270,88},{-278,88}},
+        color={0,0,0},
+        thickness=1));
+    connect(superior_vena_cava_C2.port_b, pq_terminator_sup_vc.port_a)
+      annotation (Line(
+        points={{317,165.5},{320,165.5},{320,166},{322,166}},
+        color={0,0,0},
+        thickness=1));
+    connect(inferior_vena_cava_C8.port_b, pq_terminator_inf_vc.port_a)
+      annotation (Line(
+        points={{429,-2.5},{434,-2.5},{434,-2},{438,-2}},
+        color={0,0,0},
+        thickness=1));
+
+  end Systemic_con;
+
+  model Systemic_baroreflex
+      extends Systemic_con(redeclare
+          ADAN_main.Vessel_modules.Obsolete.pv_jII_type_baroreceptor
+          aortic_arch_C46, redeclare
+          ADAN_main.Vessel_modules.Obsolete.pv_type_baroreceptor
+          internal_carotid_R8_A);
+    ADAN_main.Components.Auxiliary.Baroreflex
+               baroreflex
+      annotation (Placement(transformation(extent={{-20,74},{0,54}})));
+    Physiolibrary.Types.RealIO.FrequencyOutput HR annotation (Placement(
+          transformation(extent={{10,64},{30,84}}),   iconTransformation(extent={{-8,-110},
+              {12,-90}})));
+    Physiolibrary.Types.RealIO.FractionOutput  phi_baroreflex
+                                                  annotation (Placement(
+          transformation(extent={{10,52},{30,72}}),   iconTransformation(extent={{-6,90},
+              {14,110}})));
+  equation
+    connect(baroreflex.HR,HR)  annotation (Line(points={{0,73.8},{0,74},{20,74}},
+                             color={0,0,127}));
+    connect(baroreflex.carotid_BR, internal_carotid_R8_A.y) annotation (Line(
+          points={{-20,74},{-24,74},{-24,187},{1.2,187}},    color={0,0,127}));
+    connect(aortic_arch_C46.y,baroreflex. aortic_BR) annotation (Line(points={{-118.8,
+              85},{-119.3,85},{-119.3,54},{-20,54}},         color={0,0,127}));
+    connect(baroreflex.phi,phi_baroreflex)  annotation (Line(points={{0.2,64},{
+              12,64},{12,62},{20,62}},
+                                color={0,0,127}));
+  end Systemic_baroreflex;
+
 end main_ADAN_86_VenousRed_cellml;
 
   model CardiovascularSystem
     main_ADAN_86_VenousRed_cellml.environment environment1
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
-    replaceable main_ADAN_86_VenousRed_cellml.zpv         Systemic1(u_ra=Heart1.u_ra,
-        v_aov=Heart1.v_aov) constrainedby
-      main_ADAN_86_VenousRed_cellml.Systemic_base(u_ra=Heart1.u_ra, v_aov=
-          Heart1.v_aov)
+    replaceable main_ADAN_86_VenousRed_cellml.Systemic_eq Systemic1(u_ra=
+          Heart1.u_ra, v_aov=Heart1.v_aov) constrainedby
+      main_ADAN_86_VenousRed_cellml.Systemic_base(u_ra=Heart1.u_ra, v_aov=Heart1.v_aov)
       annotation (Placement(transformation(extent={{-70,80},{-50,100}})));
     replaceable main_ADAN_86_VenousRed_cellml.Pulmonary Pulmonary1(
       u_pas(displayUnit="Pa"),
@@ -4451,20 +4485,36 @@ end main_ADAN_86_VenousRed_cellml;
         t = environment1.time_)
     annotation (Placement(transformation(extent={{-40,80},{-20,100}})));
     replaceable main_ADAN_86_VenousRed_cellml.Heart Heart1(
-        v_sup_venacava = Systemic1.v_sup_venacava,
-        v_inf_venacava = Systemic1.v_inf_venacava,
-        u_root = Systemic1.u_root,
-        u_pas = Pulmonary1.u_pas,
-        v_pvn = Pulmonary1.v_pvn,
-        t = environment1.time_,
+      v_sup_venacava=Systemic1.pq_terminator_inf_vc.v,
+      v_inf_venacava=Systemic1.pq_terminator_sup_vc.v,
+      u_root=Systemic1.u_root,
+      u_pas=Pulmonary1.u_pas,
+      v_pvn=Pulmonary1.v_pvn,
+      t=environment1.time_,
       q_rv(displayUnit="ml"))
-    annotation (Placement(transformation(extent={{-10,80},{10,100}})));
+      annotation (Placement(transformation(extent={{-10,80},{10,100}})));
     Modelica.Blocks.Sources.Sine     sine(amplitude=533, freqHz=0.2)
       annotation (Placement(transformation(extent={{-74,-82},{-54,-62}})));
     Modelica.Blocks.Sources.Constant const1(k=1)
       annotation (Placement(transformation(extent={{-100,20},{-80,40}})));
       Physiolibrary.Types.Volume total_volume = Systemic1.total_volume + Pulmonary1.total_stressed_volume + Heart1.total_volume;
+
+  Physiolibrary.Types.Volume q_sy;
+  Physiolibrary.Types.Volume q_ra;
+  Physiolibrary.Types.Volume q_pa;
+  Physiolibrary.Types.Volume q_la;
   equation
+    time*der(q_sy) = Heart1.v_aov;
+    time*der(q_ra) = Heart1.v_sup_venacava + Heart1.v_inf_venacava;
+    time*der(q_pa) = Heart1.v_puv;
+    time*der(q_la) = Heart1.v_pvn;
+
+    when time > 30 then
+      reinit(q_sy, 0);
+      reinit(q_ra, 0);
+      reinit(q_pa, 0);
+      reinit(q_la, 0);
+    end when;
 
     connect(Systemic1.thoracic_pressure_input, sine.y) annotation (Line(points={{
             -63.6842,81.3333},{-50,81.3333},{-50,-72},{-53,-72}},   color={0,0,
@@ -5715,26 +5765,26 @@ end main_ADAN_86_VenousRed_cellml;
   model CardiovascularSystem_leveled
     main_ADAN_86_VenousRed_cellml.environment environment1
     annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
-    replaceable main_ADAN_86_VenousRed_cellml.zpv         Systemic1(
+    replaceable main_ADAN_86_VenousRed_cellml.Systemic_eq Systemic1(
       redeclare model Systemic_artery_thoracic =
-          ADAN_main.Vessel_modules.pv_type_thoracic_leveled,
+          ADAN_main.Vessel_modules.Obsolete.pv_type_thoracic_leveled,
       redeclare model Systemic_artery =
           ADAN_main.Vessel_modules.pv_type_leveled,
       redeclare model Systemic_vein = ADAN_main.Vessel_modules.vp_type_leveled,
       redeclare model Systemic_tissue =
           ADAN_main.Vessel_modules.systemic_tissue_leveled,
-                                                                    u_ra=Heart1.u_ra,
-        v_aov=Heart1.v_aov,
+      u_ra=Heart1.u_ra,
+      v_aov=Heart1.v_aov,
       redeclare
         ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_q_leveled
         pq_terminator_v,
       redeclare
         ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p_leveled
-        pq_terminator_p1,
+        pq_terminator_sup_vc,
       redeclare
         ADAN_main.Components.Auxiliary.AcausalConnector.Pq_terminator_p_leveled
-        pq_terminator_p,
-      redeclare ADAN_main.Vessel_modules.pv_type_thoracic_leveled
+        pq_terminator_inf_vc,
+      redeclare ADAN_main.Vessel_modules.Obsolete.pv_type_thoracic_leveled
         ascending_aorta_A(sinAlpha=1),
       ascending_aorta_B(sinAlpha=1),
       ascending_aorta_C(sinAlpha=1),
@@ -5838,10 +5888,8 @@ end main_ADAN_86_VenousRed_cellml;
       external_iliac_vein_L58(sinAlpha=1),
       inferior_vena_cava_C16(sinAlpha=1),
       inferior_vena_cava_C12(sinAlpha=1),
-      inferior_vena_cava_C8(sinAlpha=1))
-                            constrainedby
-      main_ADAN_86_VenousRed_cellml.Systemic_base(u_ra=Heart1.u_ra, v_aov=
-          Heart1.v_aov)
+      inferior_vena_cava_C8(sinAlpha=1)) constrainedby
+      main_ADAN_86_VenousRed_cellml.Systemic_base(u_ra=Heart1.u_ra, v_aov=Heart1.v_aov)
       annotation (Placement(transformation(extent={{-70,80},{-50,100}})));
 
     replaceable main_ADAN_86_VenousRed_cellml.Pulmonary Pulmonary1(

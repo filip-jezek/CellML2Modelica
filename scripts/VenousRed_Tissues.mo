@@ -5921,5 +5921,7 @@ end main_ADAN_86_VenousRed_cellml;
         __Dymola_Algorithm="Cvode"));
   end CardiovascularSystem_leveled;
   annotation (uses(                           Physiolibrary(version=
-            "2.3.2-beta"), Modelica(version="3.2.2")));
+            "2.3.2-beta"), Modelica(version="3.2.2")), Documentation(revisions="<html>
+<p>Generated from <a href=\"https://models.cellml.org/workspace/4ac\">https://models.cellml.org/workspace/4ac</a> Revision: b580e909bfa88dbf598e9fd1f4b15024e676e9b6 from Date: 2019-04-08 8:13:36 AM, Message: tuning the param for veins</p>
+</html>"));
 end VenousRed_Tissues;

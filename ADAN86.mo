@@ -13232,6 +13232,286 @@ type"),         Text(
         end pow;
       end _7af7a4;
 
+      package SystemicTissueParameters
+      model SystemicTissueParameters
+        import Physiolibrary.Types.*;
+        parameter HydraulicResistance Ra_celiac_trunk_C116 = 8.65E+08 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_celiac_trunk_C116 = 1.62E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_celiac_trunk_C116 = 5.21E+05 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_celiac_trunk_C116 = 3.69E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_celiac_trunk_C116 = 2.85E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_renal_L166 = 9.58E+08 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_renal_L166 = 1.80E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_renal_L166 = 9.83E+05 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_renal_L166 = 3.33E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_renal_L166 = 2.57E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_renal_R178 = 9.61E+08 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_renal_R178 = 1.80E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_renal_R178 = 1.43E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_renal_R178 = 3.32E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_renal_R178 = 2.56E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_internal_iliac_T1_R218 = 1.75E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_internal_iliac_T1_R218 = 3.28E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_internal_iliac_T1_R218 = 3.05E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_internal_iliac_T1_R218 = 1.82E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_internal_iliac_T1_R218 = 1.41E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_profundus_T2_R224 = 1.53E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_profundus_T2_R224 = 2.87E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_profundus_T2_R224 = 1.73E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_profundus_T2_R224 = 2.08E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_profundus_T2_R224 = 1.61E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_anterior_tibial_T3_R230 = 1.20E+10 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_anterior_tibial_T3_R230 = 2.25E+09 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_anterior_tibial_T3_R230 = 9.49E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_anterior_tibial_T3_R230 = 2.65E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_anterior_tibial_T3_R230 = 2.05E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_posterior_tibial_T4_R236 = 1.03E+10 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_posterior_tibial_T4_R236 = 1.93E+09 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_posterior_tibial_T4_R236 = 8.47E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_posterior_tibial_T4_R236 = 3.10E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_posterior_tibial_T4_R236 = 2.39E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_internal_iliac_T1_L196 = 1.75E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_internal_iliac_T1_L196 = 3.29E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_internal_iliac_T1_L196 = 3.05E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_internal_iliac_T1_L196 = 1.82E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_internal_iliac_T1_L196 = 1.40E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_profundus_T2_L202 = 1.53E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_profundus_T2_L202 = 2.87E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_profundus_T2_L202 = 1.73E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_profundus_T2_L202 = 2.08E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_profundus_T2_L202 = 1.61E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_anterior_tibial_T3_L208 = 1.20E+10 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_anterior_tibial_T3_L208 = 2.25E+09 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_anterior_tibial_T3_L208 = 9.49E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_anterior_tibial_T3_L208 = 2.65E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_anterior_tibial_T3_L208 = 2.05E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_posterior_tibial_T4_L214 = 1.03E+10 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_posterior_tibial_T4_L214 = 1.93E+09 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_posterior_tibial_T4_L214 = 8.47E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_posterior_tibial_T4_L214 = 3.10E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_posterior_tibial_T4_L214 = 2.39E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_ulnar_T2_R42 = 5.13E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_ulnar_T2_R42 = 9.61E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_ulnar_T2_R42 = 4.03E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_ulnar_T2_R42 = 6.22E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_ulnar_T2_R42 = 4.81E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_radial_T1_R44 = 6.11E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_radial_T1_R44 = 1.15E+09 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_radial_T1_R44 = 5.32E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_radial_T1_R44 = 5.21E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_radial_T1_R44 = 4.03E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_ulnar_T2_L90 = 5.21E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_ulnar_T2_L90 = 9.77E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_ulnar_T2_L90 = 4.03E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_ulnar_T2_L90 = 6.12E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_ulnar_T2_L90 = 4.73E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_radial_T1_L92 = 6.02E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_radial_T1_L92 = 1.13E+09 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_radial_T1_L92 = 5.32E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_radial_T1_L92 = 5.29E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_radial_T1_L92 = 4.09E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_internal_carotid_R8_C = 4.26E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_internal_carotid_R8_C = 7.99E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_internal_carotid_R8_C = 6.13E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_internal_carotid_R8_C = 7.48E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_internal_carotid_R8_C = 5.78E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_external_carotid_T2_R26 = 4.19E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_external_carotid_T2_R26 = 7.86E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_external_carotid_T2_R26 = 3.97E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_external_carotid_T2_R26 = 7.60E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_external_carotid_T2_R26 = 5.87E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_internal_carotid_L50_C = 4.28E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_internal_carotid_L50_C = 8.02E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_internal_carotid_L50_C = 6.13E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_internal_carotid_L50_C = 7.45E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_internal_carotid_L50_C = 5.76E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_external_carotid_T2_L62 = 4.21E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_external_carotid_T2_L62 = 7.89E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_external_carotid_T2_L62 = 3.97E+06 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_external_carotid_T2_L62 = 7.57E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_external_carotid_T2_L62 = 5.85E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_vertebral_L2 = 4.70E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_vertebral_L2 = 8.80E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_vertebral_L2 = 3.93E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_vertebral_L2 = 6.79E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_vertebral_L2 = 5.25E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_vertebral_R272 = 4.68E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_vertebral_R272 = 8.77E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_vertebral_R272 = 3.94E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_vertebral_R272 = 6.81E-09 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_vertebral_R272 = 5.26E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_splachnic_tissue = 1.19E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_splachnic_tissue = 2.23E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_splachnic_tissue = 1.00E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_splachnic_tissue = 7.78E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_splachnic_tissue = 2.07E-04 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        parameter HydraulicResistance Ra_cardiac_tissue = 2.67E+09 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
+        parameter HydraulicResistance Rv_cardiac_tissue = 5.01E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
+        parameter HydraulicInertance I_cardiac_tissue = 1.00E+07 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
+        parameter HydraulicCompliance C_cardiac_tissue = 3.46E-08 annotation(Dialog(tab="Tissue parametrization", group="Compliances"));
+        parameter Volume Zpv_cardiac_tissue = 9.22E-05 annotation(Dialog(tab="Tissue parametrization", group="Zero pressure volumes"));
+        annotation(defaultComponentName = "tissueParameters");
+      end SystemicTissueParameters;
+
+        model SystemicTissueParameters_Calculated
+          extends SystemicTissueParameters(
+            Ra_celiac_trunk_C116 = (arterioles_pressure - tissue_pressure)/q_celiac_trunk_C116,
+            Rv_celiac_trunk_C116 = (tissue_pressure - venules_pressure) /q_celiac_trunk_C116,
+            C_celiac_trunk_C116 = stressed_volume/tissue_pressure*qf_celiac_trunk_C116,
+            Zpv_celiac_trunk_C116 = total_zpv*qf_celiac_trunk_C116,
+            Ra_renal_L166 = (arterioles_pressure - tissue_pressure)/q_renal_L166,
+            Rv_renal_L166 = (tissue_pressure - venules_pressure) /q_renal_L166,
+            C_renal_L166 = stressed_volume/tissue_pressure*qf_renal_L166,
+            Zpv_renal_L166 = total_zpv*qf_renal_L166,
+            Ra_renal_R178 = (arterioles_pressure - tissue_pressure)/q_renal_R178,
+            Rv_renal_R178 = (tissue_pressure - venules_pressure) /q_renal_R178,
+            C_renal_R178 = stressed_volume/tissue_pressure*qf_renal_R178,
+            Zpv_renal_R178 = total_zpv*qf_renal_R178,
+            Ra_internal_iliac_T1_R218 = (arterioles_pressure - tissue_pressure)/q_internal_iliac_T1_R218,
+            Rv_internal_iliac_T1_R218 = (tissue_pressure - venules_pressure) /q_internal_iliac_T1_R218,
+            C_internal_iliac_T1_R218 = stressed_volume/tissue_pressure*qf_internal_iliac_T1_R218,
+            Zpv_internal_iliac_T1_R218 = total_zpv*qf_internal_iliac_T1_R218,
+            Ra_profundus_T2_R224 = (arterioles_pressure - tissue_pressure)/q_profundus_T2_R224,
+            Rv_profundus_T2_R224 = (tissue_pressure - venules_pressure) /q_profundus_T2_R224,
+            C_profundus_T2_R224 = stressed_volume/tissue_pressure*qf_profundus_T2_R224,
+            Zpv_profundus_T2_R224 = total_zpv*qf_profundus_T2_R224,
+            Ra_anterior_tibial_T3_R230 = (arterioles_pressure - tissue_pressure)/q_anterior_tibial_T3_R230,
+            Rv_anterior_tibial_T3_R230 = (tissue_pressure - venules_pressure) /q_anterior_tibial_T3_R230,
+            C_anterior_tibial_T3_R230 = stressed_volume/tissue_pressure*qf_anterior_tibial_T3_R230,
+            Zpv_anterior_tibial_T3_R230 = total_zpv*qf_anterior_tibial_T3_R230,
+            Ra_posterior_tibial_T4_R236 = (arterioles_pressure - tissue_pressure)/q_posterior_tibial_T4_R236,
+            Rv_posterior_tibial_T4_R236 = (tissue_pressure - venules_pressure) /q_posterior_tibial_T4_R236,
+            C_posterior_tibial_T4_R236 = stressed_volume/tissue_pressure*qf_posterior_tibial_T4_R236,
+            Zpv_posterior_tibial_T4_R236 = total_zpv*qf_posterior_tibial_T4_R236,
+            Ra_internal_iliac_T1_L196 = (arterioles_pressure - tissue_pressure)/q_internal_iliac_T1_L196,
+            Rv_internal_iliac_T1_L196 = (tissue_pressure - venules_pressure) /q_internal_iliac_T1_L196,
+            C_internal_iliac_T1_L196 = stressed_volume/tissue_pressure*qf_internal_iliac_T1_L196,
+            Zpv_internal_iliac_T1_L196 = total_zpv*qf_internal_iliac_T1_L196,
+            Ra_profundus_T2_L202 = (arterioles_pressure - tissue_pressure)/q_profundus_T2_L202,
+            Rv_profundus_T2_L202 = (tissue_pressure - venules_pressure) /q_profundus_T2_L202,
+            C_profundus_T2_L202 = stressed_volume/tissue_pressure*qf_profundus_T2_L202,
+            Zpv_profundus_T2_L202 = total_zpv*qf_profundus_T2_L202,
+            Ra_anterior_tibial_T3_L208 = (arterioles_pressure - tissue_pressure)/q_anterior_tibial_T3_L208,
+            Rv_anterior_tibial_T3_L208 = (tissue_pressure - venules_pressure) /q_anterior_tibial_T3_L208,
+            C_anterior_tibial_T3_L208 = stressed_volume/tissue_pressure*qf_anterior_tibial_T3_L208,
+            Zpv_anterior_tibial_T3_L208 = total_zpv*qf_anterior_tibial_T3_L208,
+            Ra_posterior_tibial_T4_L214 = (arterioles_pressure - tissue_pressure)/q_posterior_tibial_T4_L214,
+            Rv_posterior_tibial_T4_L214 = (tissue_pressure - venules_pressure) /q_posterior_tibial_T4_L214,
+            C_posterior_tibial_T4_L214 = stressed_volume/tissue_pressure*qf_posterior_tibial_T4_L214,
+            Zpv_posterior_tibial_T4_L214 = total_zpv*qf_posterior_tibial_T4_L214,
+            Ra_ulnar_T2_R42 = (arterioles_pressure - tissue_pressure)/q_ulnar_T2_R42,
+            Rv_ulnar_T2_R42 = (tissue_pressure - venules_pressure) /q_ulnar_T2_R42,
+            C_ulnar_T2_R42 = stressed_volume/tissue_pressure*qf_ulnar_T2_R42,
+            Zpv_ulnar_T2_R42 = total_zpv*qf_ulnar_T2_R42,
+            Ra_radial_T1_R44 = (arterioles_pressure - tissue_pressure)/q_radial_T1_R44,
+            Rv_radial_T1_R44 = (tissue_pressure - venules_pressure) /q_radial_T1_R44,
+            C_radial_T1_R44 = stressed_volume/tissue_pressure*qf_radial_T1_R44,
+            Zpv_radial_T1_R44 = total_zpv*qf_radial_T1_R44,
+            Ra_ulnar_T2_L90 = (arterioles_pressure - tissue_pressure)/q_ulnar_T2_L90,
+            Rv_ulnar_T2_L90 = (tissue_pressure - venules_pressure) /q_ulnar_T2_L90,
+            C_ulnar_T2_L90 = stressed_volume/tissue_pressure*qf_ulnar_T2_L90,
+            Zpv_ulnar_T2_L90 = total_zpv*qf_ulnar_T2_L90,
+            Ra_radial_T1_L92 = (arterioles_pressure - tissue_pressure)/q_radial_T1_L92,
+            Rv_radial_T1_L92 = (tissue_pressure - venules_pressure) /q_radial_T1_L92,
+            C_radial_T1_L92 = stressed_volume/tissue_pressure*qf_radial_T1_L92,
+            Zpv_radial_T1_L92 = total_zpv*qf_radial_T1_L92,
+            Ra_internal_carotid_R8_C = (arterioles_pressure - tissue_pressure)/q_internal_carotid_R8_C,
+            Rv_internal_carotid_R8_C = (tissue_pressure - venules_pressure) /q_internal_carotid_R8_C,
+            C_internal_carotid_R8_C = stressed_volume/tissue_pressure*qf_internal_carotid_R8_C,
+            Zpv_internal_carotid_R8_C = total_zpv*qf_internal_carotid_R8_C,
+            Ra_external_carotid_T2_R26 = (arterioles_pressure - tissue_pressure)/q_external_carotid_T2_R26,
+            Rv_external_carotid_T2_R26 = (tissue_pressure - venules_pressure) /q_external_carotid_T2_R26,
+            C_external_carotid_T2_R26 = stressed_volume/tissue_pressure*qf_external_carotid_T2_R26,
+            Zpv_external_carotid_T2_R26 = total_zpv*qf_external_carotid_T2_R26,
+            Ra_internal_carotid_L50_C = (arterioles_pressure - tissue_pressure)/q_internal_carotid_L50_C,
+            Rv_internal_carotid_L50_C = (tissue_pressure - venules_pressure) /q_internal_carotid_L50_C,
+            C_internal_carotid_L50_C = stressed_volume/tissue_pressure*qf_internal_carotid_L50_C,
+            Zpv_internal_carotid_L50_C = total_zpv*qf_internal_carotid_L50_C,
+            Ra_external_carotid_T2_L62 = (arterioles_pressure - tissue_pressure)/q_external_carotid_T2_L62,
+            Rv_external_carotid_T2_L62 = (tissue_pressure - venules_pressure) /q_external_carotid_T2_L62,
+            C_external_carotid_T2_L62 = stressed_volume/tissue_pressure*qf_external_carotid_T2_L62,
+            Zpv_external_carotid_T2_L62 = total_zpv*qf_external_carotid_T2_L62,
+            Ra_vertebral_L2 = (arterioles_pressure - tissue_pressure)/q_vertebral_L2,
+            Rv_vertebral_L2 = (tissue_pressure - venules_pressure) /q_vertebral_L2,
+            C_vertebral_L2 = stressed_volume/tissue_pressure*qf_vertebral_L2,
+            Zpv_vertebral_L2 = total_zpv*qf_vertebral_L2,
+            Ra_vertebral_R272 = (arterioles_pressure - tissue_pressure)/q_vertebral_R272,
+            Rv_vertebral_R272 = (tissue_pressure - venules_pressure) /q_vertebral_R272,
+            C_vertebral_R272 = stressed_volume/tissue_pressure*qf_vertebral_R272,
+            Zpv_vertebral_R272 = total_zpv*qf_vertebral_R272,
+            Ra_splachnic_tissue = (arterioles_pressure - tissue_pressure)/q_splachnic_tissue,
+            Rv_splachnic_tissue = (tissue_pressure - venules_pressure) /q_splachnic_tissue,
+            C_splachnic_tissue = stressed_volume/tissue_pressure*qf_splachnic_tissue,
+            Zpv_splachnic_tissue = total_zpv*qf_splachnic_tissue,
+            Ra_cardiac_tissue = (arterioles_pressure - tissue_pressure)/q_cardiac_tissue,
+            Rv_cardiac_tissue = (tissue_pressure - venules_pressure) /q_cardiac_tissue,
+            C_cardiac_tissue = stressed_volume/tissue_pressure*qf_cardiac_tissue,
+            Zpv_cardiac_tissue = total_zpv*qf_cardiac_tissue);
+          import Physiolibrary.Types.*;
+
+        parameter Pressure arterioles_pressure=13332;
+        parameter Pressure venules_pressure=666.6;
+        parameter Pressure tissue_pressure=2666.4;
+        parameter Volume total_zpv=0.002304;
+        parameter Volume stressed_volume=0.000795;
+        parameter VolumeFlowRate cardiac_output=9.98e-5;
+
+        parameter Fraction qf_celiac_trunk_C116=0.124          "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_renal_L166=0.112                 "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_renal_R178=0.111                 "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_internal_iliac_T1_R218=0.061     "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_profundus_T2_R224=0.07           "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_anterior_tibial_T3_R230=0.009    "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_posterior_tibial_T4_R236=0.01    "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_internal_iliac_T1_L196=0.061     "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_profundus_T2_L202=0.07           "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_anterior_tibial_T3_L208=0.009    "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_posterior_tibial_T4_L214=0.01    "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_ulnar_T2_R42=0.021               "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_radial_T1_R44=0.017              "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_ulnar_T2_L90=0.021               "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_radial_T1_L92=0.018              "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_internal_carotid_R8_C=0.025      "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_external_carotid_T2_R26=0.025    "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_internal_carotid_L50_C=0.025     "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_external_carotid_T2_L62=0.025    "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_vertebral_L2=0.023               "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_vertebral_R272=0.023             "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_splachnic_tissue=0.09            "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+        parameter Fraction qf_cardiac_tissue=0.04              "Fraction of tissue size, estimated from flow fraction" annotation(Dialog(tab="General", group="Flow fractions"));
+
+        parameter VolumeFlowRate q_celiac_trunk_C116 =        cardiac_output*qf_celiac_trunk_C116 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_renal_L166 =               cardiac_output*qf_renal_L166 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_renal_R178 =               cardiac_output*qf_renal_R178 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_internal_iliac_T1_R218 =   cardiac_output*qf_internal_iliac_T1_R218 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_profundus_T2_R224 =        cardiac_output*qf_profundus_T2_R224 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_anterior_tibial_T3_R230 =  cardiac_output*qf_anterior_tibial_T3_R230 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_posterior_tibial_T4_R236 = cardiac_output*qf_posterior_tibial_T4_R236 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_internal_iliac_T1_L196 =   cardiac_output*qf_internal_iliac_T1_L196 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_profundus_T2_L202 =        cardiac_output*qf_profundus_T2_L202 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_anterior_tibial_T3_L208 =  cardiac_output*qf_anterior_tibial_T3_L208 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_posterior_tibial_T4_L214 = cardiac_output*qf_posterior_tibial_T4_L214 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_ulnar_T2_R42 =             cardiac_output*qf_ulnar_T2_R42 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_radial_T1_R44 =            cardiac_output*qf_radial_T1_R44 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_ulnar_T2_L90 =             cardiac_output*qf_ulnar_T2_L90 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_radial_T1_L92 =            cardiac_output*qf_radial_T1_L92 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_internal_carotid_R8_C =    cardiac_output*qf_internal_carotid_R8_C "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_external_carotid_T2_R26 =  cardiac_output*qf_external_carotid_T2_R26 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_internal_carotid_L50_C =   cardiac_output*qf_internal_carotid_L50_C "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_external_carotid_T2_L62 =  cardiac_output*qf_external_carotid_T2_L62 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_vertebral_L2 =             cardiac_output*qf_vertebral_L2 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_vertebral_R272 =           cardiac_output*qf_vertebral_R272 "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_splachnic_tissue =         cardiac_output*qf_splachnic_tissue "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+        parameter VolumeFlowRate q_cardiac_tissue =           cardiac_output*qf_cardiac_tissue "Tissue flow" annotation(Dialog(tab="Calculated", group="Flows"));
+
+        end SystemicTissueParameters_Calculated;
+         annotation (Documentation(info="<html>
+<p>Generated tissue parameters</p>
+</html>",       revisions="<html>
+<p>This revision was generated at 2019-07-15 11:36:55.332316</p>
+</html>"));
+      end SystemicTissueParameters;
+
       partial model Systemic_base
         extends Physiolibrary.Icons.PerfusionOD;
 
@@ -14125,8 +14405,11 @@ type"),         Text(
         Real v_sup_venacava(unit = "m3.s-1")= superior_vena_cava_C2.v_out;
         Real v_inf_venacava(unit = "m3.s-1")= inferior_vena_cava_C8.v_out;
 
-        SystemicTissueParametersPckg.SystemicTissueParameters tissueParameters
-          annotation (Placement(transformation(extent={{-140,-98},{-120,-78}})));
+        replaceable SystemicTissueParameters.SystemicTissueParameters
+          tissueParameters constrainedby
+          SystemicTissueParameters.SystemicTissueParameters annotation (
+            Placement(transformation(extent={{-140,-98},{-120,-78}})),
+            __Dymola_choicesAllMatching=true);
         Systemic_artery                  mesenteric_artery(
           l(displayUnit="cm") = 0.108,
           E(displayUnit="Pa") = 4.00E+05,
@@ -21125,7 +21408,7 @@ type"),         Text(
           Interval=0.01,
           Tolerance=1e-07,
           __Dymola_Algorithm="Cvode"),
-          uses(SystemicTissueParametersPckg),
+          uses,
           uses(Physiolibrary));
     end CardiovascularSystem;
 
@@ -21310,6 +21593,17 @@ type"),         Text(
           Tolerance=1e-07,
           __Dymola_Algorithm="Cvode"));
     end CardiovascularSystem_7af;
+
+    package Experiments
+      model zpv_x_stressed_volume_ratio
+        extends CardiovascularSystem_leveled(Systemic1(redeclare
+              Components.AdanVenousRed.SystemicTissueParameters.SystemicTissueParameters_Calculated
+              tissueParameters(total_zpv=zpv_fraction*systemic_volume, stressed_volume=(1
+                   - zpv_fraction)*systemic_volume)));
+              parameter Physiolibrary.Types.Fraction zpv_fraction = 0.7434656341;
+              parameter Physiolibrary.Types.Volume systemic_volume = 0.003099;
+      end zpv_x_stressed_volume_ratio;
+    end Experiments;
   annotation(preferredView="info",
   version="2.3.2-beta",
   versionBuild=1,

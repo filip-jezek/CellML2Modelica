@@ -3255,7 +3255,11 @@ type"),         Text(
 
       if UseNonLinearCompliance then
     //    volume = zpvs + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
-        tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
+        if volume > zpvs then
+          tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
+        else
+          u_C = 0;
+        end if;
 
       else
         volume = u_C*C + zpvs;
@@ -22320,10 +22324,7 @@ type"),         Text(
           UseThoracicPressureInput=true));
       Components.ConditionalConnection conditionalConnection(
           disconnectedValue=0.25,
-        disconnected=false,
-        delayTime=0,
-        uMax=4,
-        uMin=0.18)
+        disconnected=false)
         annotation (Placement(transformation(extent={{8,4},{-4,10}})));
       Components.ConditionalConnection conditionalConnection1(
           disconnectedValue=1, disconnected=false)
@@ -22510,8 +22511,11 @@ type"),         Text(
     end CVS_7af_leveled;
 
     model CVS_7af_sit_stand
-      extends CVS_7af_leveled(Tilt_ramp(duration=0, startTime=0), redeclare
-          Components.AdanVenousRed.Systemic_Sit_Stand Systemic1);
+      extends CVS_7af_leveled(
+        Tilt_ramp(duration=0, startTime=0),
+        redeclare Components.AdanVenousRed.Systemic_Sit_Stand Systemic1,
+        heartComponent(Heart1(q_la(displayUnit="ml", start=0.00042), q_ra(
+                displayUnit="ml", start=0.00042))));
       replaceable Modelica.Blocks.Sources.Ramp sit_ramp(
         height=1,
         duration=1,

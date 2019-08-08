@@ -68,6 +68,8 @@ def average(vals_list, fromInd):
 def findLowestIndex(time, timeArr):
     """Finds lowest index in timeArr event times list from specified time """
     lst = timeArr.tolist()
+    if time < 0:
+        return len(timeArr) -1
     return next((i for i, x in enumerate(lst) if x >= time))
     # for i in lst:
     #     if i > time:

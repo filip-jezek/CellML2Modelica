@@ -1,0 +1,9 @@
+﻿// we expect to have cd in project root directory
+cd("./scripts/")
+
+Execute("BuildParameterFileFromCsv.py");
+eraseClasses({"SystemicTissueParametersPckg"})
+openModel("SystemicTissueParameters.mo", mustRead=true)
+
+// return to the root directory
+cd("../")

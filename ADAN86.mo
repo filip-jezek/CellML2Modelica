@@ -1558,6 +1558,8 @@ type"),         Text(
         Real v_out(unit = "m3.s-1", nominal = 1e-6) = -port_b.q if not terminator;
 
         Physiolibrary.Types.Volume volume(nominal = 1e-6);
+      equation
+        assert(volume > 0, "Volume in %name is negative!", AssertionLevel.warning);
 
           annotation (Icon(coordinateSystem(extent={{-100,-20},{100,20}}), graphics={
               Text(
@@ -1656,6 +1658,50 @@ type"),         Text(
         extends Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b;
         output Modelica.SIunits.Height position;
       end HydraulicPort_b_leveled;
+
+      partial model systemic_tissue_base
+        extends ADAN_main.Components.Vessel_modules.Interfaces.bg_base(UseInertance = false);
+        parameter Real I(unit = "J.s2.m-6");
+        parameter Real C(unit = "m6.J-1");
+        parameter Real Ra(unit="J.s.m-6") "Arteriole resistance";
+        Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
+        Real I_e(unit = "J.s2.m-6");
+        parameter Real Rv(unit="J.s.m-6") "venule resistance";
+        parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
+        parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
+        Real u_C(unit = "Pa", start = 0.0, nominal = 1000);
+
+        Real u(unit = "Pa", nominal = 1000);
+
+        Physiolibrary.Types.Pressure u_out_hs "Output pressure including the hydrostatic pressure";
+      initial equation
+        volume = nominal_pressure*C + zpv;
+      equation
+
+            I_e = I*1e-6;
+            Rvis = 0.01/C;
+
+            if UseInertance then
+              der(v_in) =(u_in - u - Ra*v_in)/I;
+              der(v_out) =(u - u_out_hs - Rv*v_out)/I_e;
+            else
+              0 =(u_in - u - Ra*v_in);
+              0 =(u - u_out_hs - Rv*v_out);
+            end if;
+
+            der(volume) = (v_in-v_out);
+            u =u_C + Rvis*(v_in - v_out);
+
+        volume = (u_C) *C + zpv;
+
+        annotation (Icon(graphics={
+              Rectangle(
+                extent={{-20,20},{20,0}},
+                lineThickness=0.5,
+                fillColor={244,125,35},
+                fillPattern=FillPattern.Solid,
+                pattern=LinePattern.None)}));
+      end systemic_tissue_base;
     end Interfaces;
 
     model vv_type_thoracic
@@ -1693,20 +1739,26 @@ type"),         Text(
       extends ADAN_main.Components.Vessel_modules.Interfaces.bg_vessel;
 
       Real u_C(unit = "Pa", start = 10000.0, fixed = true);
+
+    //  Physiolibrary.Types.Height height_mean =  (port_a.position + port_b.position)/2;
+      outer Modelica.SIunits.Angle Tilt(unit= "deg");
+      Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
+      Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
+
     equation
-      volume = u_C*C + zpv;
+      volume = (u_C)  *C + zpv "Lim 2013";
 
       if UseInertance then
-        der(v_in) = (u_in-u_out-R*v_in)/I;
+        der(v_in) = (u_in-u_out_hs-R*v_in)/I;
       else
-        0 = u_in-u_out-R*v_in;
+        0 = u_in-u_out_hs-R*v_in;
       end if;
 
       der(u_C) = (v_in-v_out)/C;
       if UseOuter_thoracic_pressure then
-          u_out = u_C+R_v*(v_in-v_out) + thoracic_pressure;
+          u_out_hs = u_C+R_v*(v_in-v_out) + thoracic_pressure;
       else
-        u_out = u_C+R_v*(v_in-v_out);
+        u_out_hs = u_C+R_v*(v_in-v_out);
       end if;
 
         annotation (Icon(graphics={Line(
@@ -1745,43 +1797,42 @@ type"),         Text(
       input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
       parameter Physiolibrary.Types.Pressure p0 = 665 "nominal venous pressure";
       outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
-      outer parameter Physiolibrary.Types.Fraction C_fact;
-      Physiolibrary.Types.HydraulicCompliance c0 = C_fact*zpv/p0 "nominal compliance";
+      outer parameter Physiolibrary.Types.Fraction C_effect;
+      Physiolibrary.Types.HydraulicCompliance c0 = C_effect*zpv/p0 "nominal compliance";
+      outer Physiolibrary.Types.Fraction ZPV_effect;
+      Physiolibrary.Types.Volume zpvs = zpv *ZPV_effect;
 
       Physiolibrary.Types.Volume Vmax = 2*zpv;
+
+      outer Modelica.SIunits.Angle Tilt;
+      Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
+      Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
+
+      parameter Integer PV_variant = 1;
     initial equation
       u_C = p0;
     equation
-
-     // v0 = len*pi*2*r^2
-     // p0 = 5 mmHg
-     //
-     // C = alpha*c0;
-     // v0 = alpha*V000
-     // v00 = r^2*pi*len
-     // zero pressure volume = current volume at p0
-     // ressitances?
-    // gth, E, r
-
-    //   parameter Physiolibrary.Types.Fraction fzpv = 2.5 "Zero-pressure volume factor";
-    //   parameter Physiolibrary.Types.Fraction fc = 2.5 "compliance factor";
-    //   Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume";
-    //   Physiolibrary.Types.Volume zpv = (1 + (phi_norm-1)*fzpv) * l*Modelica.Constants.pi*(r^2) "Zero-pressure volume scaled by the phi input";
-    //   Physiolibrary.Types.HydraulicCompliance compliance = (1 + (phi_norm-1)*fc)*C "Compliance scaled by the phi input";
-    //  outer Physiolibrary.Types.Fraction cfactor;
-
-    //  volume = u_C*C + zpv;
-
       if UseNonLinearCompliance then
-        volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
+        if PV_variant == 1 then
+          tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
+        elseif PV_variant == 2 then
+          // Dan 1
+          volume  = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*u_C/p0) + 1)/2;
+        elseif PV_variant == 3 then
+          // Dan 2
+          volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
+        else
+          // default original relation
+          volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
+        end if;
       else
-        volume = u_C*C + zpv;
+        volume = (u_C) *C + zpv;
       end if;
 
       if E == 0 or not UseInertance then
-        0 = u_in-u_out-R*v_out;
+        0 = u_in-u_out_hs-R*v_out;
       else
-        der(v_out) = (u_in-u_out-R*v_out)/I;
+        der(v_out) = (u_in-u_out_hs-R*v_out)/I;
       end if;
       //       der(u_C) = (v_in-v_out)/C;
       der(volume) = v_in-v_out;
@@ -1877,37 +1928,10 @@ type"),         Text(
     end pp_vBC_type;
 
     model systemic_tissue
-      extends ADAN_main.Components.Vessel_modules.Interfaces.bg_base(UseInertance = false);
-      parameter Real I(unit = "J.s2.m-6");
-      parameter Real C(unit = "m6.J-1");
-      parameter Real Ra(unit="J.s.m-6") "Arteriole resistance";
-      Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
-      Real I_e(unit = "J.s2.m-6");
-      parameter Real Rv(unit="J.s.m-6") "venule resistance";
-      parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
-      parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
-      Real u_C(unit = "Pa", start = 0.0, nominal = 1000);
-
-      Real u(unit = "Pa", nominal = 1000);
-    initial equation
-      volume = nominal_pressure*C + zpv;
+      extends ADAN_main.Components.Vessel_modules.Interfaces.systemic_tissue_base;
     equation
 
-          I_e = I*1e-6;
-          Rvis = 0.01/C;
-
-          if UseInertance then
-            der(v_in) =(u_in - u - Ra*v_in)/I;
-            der(v_out) =(u - u_out - Rv*v_out)/I_e;
-          else
-            0 =(u_in - u - Ra*v_in);
-            0 =(u - u_out - Rv*v_out);
-          end if;
-
-          der(volume) = (v_in-v_out);
-          u =u_C + Rvis*(v_in - v_out);
-
-      volume = u_C*C + zpv;
+        u_out_hs = u_out;
 
       annotation (Icon(graphics={
             Rectangle(
@@ -3075,123 +3099,36 @@ type"),         Text(
     end arterialTree;
 
     model pv_type_leveled
-      extends Interfaces.bg_vessel( redeclare Interfaces.HydraulicPort_a_leveled port_a,
+      extends pv_type(  redeclare Interfaces.HydraulicPort_a_leveled port_a,
           redeclare Interfaces.HydraulicPort_b_leveled port_b);
-
-      Physiolibrary.Types.Pressure u_C(start = 10000.0, fixed = true);
-
-    //  Physiolibrary.Types.Height height_mean =  (port_a.position + port_b.position)/2;
-      outer Modelica.SIunits.Angle Tilt(unit= "deg");
-      Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
-      Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
     equation
-
-      volume = (u_C)  *C + zpv "Lim 2013";
-
-      if UseInertance then
-        der(v_in) = (u_in-u_out_hs-R*v_in)/I;
-      else
-        0 = u_in-u_out_hs-R*v_in;
-      end if;
-
-      der(u_C) = (v_in-v_out)/C;
-      if UseOuter_thoracic_pressure then
-          u_out_hs = u_C+R_v*(v_in-v_out) + thoracic_pressure;
-      else
-        u_out_hs = u_C+R_v*(v_in-v_out);
-      end if;
-
       port_a.position + height = port_b.position;
     end pv_type_leveled;
 
     model vp_type_leveled
-      extends Interfaces.bg_vessel(
+      extends vp_type(
         redeclare Interfaces.HydraulicPort_a_leveled port_b,
-        redeclare Interfaces.HydraulicPort_b_leveled port_a,
-        UseNonLinearCompliance = true,
-        zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2),
-        R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4)),
-        I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2));
+        redeclare Interfaces.HydraulicPort_b_leveled port_a);
 
-    //  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
-
-      Real u_C(unit = "Pa", start = p0);
-      input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
-      parameter Physiolibrary.Types.Pressure p0 = 665 "nominal venous pressure";
-      outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
-      outer parameter Physiolibrary.Types.Fraction C_fact;
-      Physiolibrary.Types.HydraulicCompliance c0 = C_fact*zpv/p0 "nominal compliance";
-
-      Physiolibrary.Types.Volume Vmax = 2*zpv;
-
-      outer Modelica.SIunits.Angle Tilt;
-      Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
-      Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
-
-    initial equation
-      u_C = p0;
     equation
       port_a.position + height = port_b.position;
 
-      if UseNonLinearCompliance then
-        volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
-      else
-        volume = (u_C) *C + zpv;
-      end if;
 
-      if E == 0 or not UseInertance then
-        0 = u_in-u_out_hs-R*v_out;
-      else
-        der(v_out) = (u_in-u_out_hs-R*v_out)/I;
-      end if;
-      //       der(u_C) = (v_in-v_out)/C;
-      der(volume) = v_in-v_out;
-      u_in = u_C+R_v*(v_in-v_out);
 
     end vp_type_leveled;
 
     model systemic_tissue_leveled
-        extends Interfaces.bg_base( redeclare Interfaces.HydraulicPort_a_leveled
-            port_a, redeclare Interfaces.HydraulicPort_a_leveled port_b,
-            UseInertance = false);
+        extends Interfaces.systemic_tissue_base(
+          redeclare Interfaces.HydraulicPort_a_leveled port_a,
+          redeclare Interfaces.HydraulicPort_a_leveled port_b);
 
-      parameter Real I(unit = "J.s2.m-6");
-      parameter Real C(unit = "m6.J-1");
-      parameter Real Ra(unit="J.s.m-6") "Arteriole resistance";
-      Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
-      Real I_e(unit = "J.s2.m-6");
-      parameter Real Rv(unit="J.s.m-6") "venule resistance";
-      parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
-      parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
       constant Real rho(unit = "J.s2.m-5") = 1050;
-      Real u_C(unit = "Pa", start = 0.0, nominal = 1000);
-
-      Real u(unit = "Pa", nominal = 1000);
-
       outer Modelica.SIunits.Angle Tilt(unit= "deg");
       Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
-      Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
 
       Modelica.SIunits.Height height = port_b.position - port_a.position;
-    initial equation
-      u_C = nominal_pressure*C + zpv;
     equation
-
-          I_e = I*1e-6;
-          Rvis = 0.01/C;
-
-          if UseInertance then
-            der(v_in) =(u_in - u - Ra*v_in)/I;
-            der(v_out) =(u - u_out_hs - Rv*v_out)/I_e;
-          else
-            0 =(u_in - u - Ra*v_in);
-            0 =(u - u_out_hs - Rv*v_out);
-          end if;
-
-          der(volume) = (v_in-v_out);
-          u =u_C + Rvis*(v_in - v_out);
-
-      volume = (u_C) *C + zpv;
+      u_out_hs = u_out + P_hs;
 
       annotation (Icon(graphics={Text(
               extent={{-100,20},{-20,40}},
@@ -3254,7 +3191,10 @@ type"),         Text(
     //  volume = u_C*C + zpv;
 
       if UseNonLinearCompliance then
-    //    volume = zpvs + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
+        // volume = zpvs + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*u_C);
+        // v_dan1  = Vmax*(tanh(pi/4.*u/u0) + 1)/2 ;
+        // v_dan2  = Vmax*(tanh(pi/4.*(exp(u./u0)-1)) + 1)/2 ;
+
         if volume > zpvs then
           tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
         else
@@ -13918,15 +13858,13 @@ type"),         Text(
               "No position calculations", choice=ADAN_main.Components.Vessel_modules.pv_type_leveled
               "Position calculation"));
         replaceable model Systemic_vein =
-            ADAN_main.Components.Vessel_modules.vp_type
-             annotation (choices(choice=ADAN_main.Components.Vessel_modules.vp_type
-                                                                                   "No position calculations",
-             choice=ADAN_main.Components.Vessel_modules.vp_type_leveled "Position calculation",
-             choice=ADAN_main.Components.Vessel_modules.vp_type_phi_sensitive "Phi_sensitive"));
+            ADAN_main.Components.Vessel_modules.vp_type constrainedby
+          ADAN_main.Components.Vessel_modules.vp_type;
 
         replaceable model Systemic_tissue =
               ADAN_main.Components.Vessel_modules.systemic_tissue
-          constrainedby ADAN_main.Components.Vessel_modules.systemic_tissue
+          constrainedby
+          ADAN_main.Components.Vessel_modules.Interfaces.systemic_tissue_base
                                                                  annotation (choices(
               choice=ADAN_main.Components.Vessel_modules.systemic_tissue
               "No position calculations", choice=ADAN_main.Components.Vessel_modules.systemic_tissue_leveled
@@ -13961,7 +13899,11 @@ type"),         Text(
         if not UseTiltInput then
           Tilt = 0;
         end if;
-        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+             annotation (choices(choice=ADAN_main.Components.Vessel_modules.vp_type
+                                                                                   "No position calculations",
+             choice=ADAN_main.Components.Vessel_modules.vp_type_leveled "Position calculation",
+             choice=ADAN_main.Components.Vessel_modules.vp_type_phi_sensitive "Phi_sensitive"),
+                    Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
               coordinateSystem(preserveAspectRatio=false)));
       end Systemic_interfaces;
 
@@ -22213,6 +22155,22 @@ type"),         Text(
           __Dymola_Algorithm="Cvode"));
     end CardiovascularSystem_leveled;
 
+    model CardiovascularSystem_leveled_sitting
+      extends CardiovascularSystem_leveled(Systemic1(
+          femoral_R226(sinAlpha=0),
+          femoral_L204(sinAlpha=0),
+          femoral_R222(sinAlpha=0),
+          femoral_L200(sinAlpha=0),
+          femoral_vein_R42(sinAlpha=0),
+          femoral_vein_R38(sinAlpha=0),
+          femoral_vein_R46(sinAlpha=0),
+          femoral_vein_R34(sinAlpha=0),
+          femoral_vein_L76(sinAlpha=0),
+          femoral_vein_L72(sinAlpha=0),
+          femoral_vein_L68(sinAlpha=0),
+          femoral_vein_L64(sinAlpha=0)));
+    end CardiovascularSystem_leveled_sitting;
+
     model CardiovascularSystem_7af
       ADAN_main.Components.AdanVenousRed.environment environment1
         annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
@@ -22272,11 +22230,33 @@ type"),         Text(
               parameter Physiolibrary.Types.Fraction zpv_fraction = 0.7434656341;
               parameter Physiolibrary.Types.Volume systemic_volume = 0.003099;
       end zpv_x_stressed_volume_ratio;
+
+      model test
+              Real x(start = 1, fixed = true);
+              Real y;
+              Real z(start = 1);
+
+      initial equation
+        y = 1;
+      equation
+        der(x) = -x;
+        der(y) = -y;
+        der(z) = -z;
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+              coordinateSystem(preserveAspectRatio=false)));
+      end test;
+
+      model test_start
+        extends test(x(start = 2), y(start = 2), z(start = 2));
+      end test_start;
     end Experiments;
 
     model CVS_7af
       replaceable Components.AdanVenousRed.Systemic_con Systemic1(
-          UseThoracic_PressureInput=false, UsePhi_Input=false) constrainedby
+          UseThoracic_PressureInput=false, UsePhi_Input=false,
+        redeclare
+          Components.AdanVenousRed.SystemicTissueParameters.SystemicTissueParameters_Calculated
+          tissueParameters)                                    constrainedby
         Components.AdanVenousRed.Systemic_base annotation (Placement(
             transformation(extent={{-58,18},{18,48}})),
           __Dymola_choicesAllMatching=true);
@@ -22310,8 +22290,6 @@ type"),         Text(
         redeclare Components.AdanVenousRed.Systemic_baroreflex Systemic1(
           UseThoracic_PressureInput=true,
           UsePhi_Input=true,
-          redeclare model Systemic_vein =
-              Components.Vessel_modules.vp_type_phi_sensitive,
           baroreflex(resetAt=-1),
           baroreceptor_aortic(epsilon_start=1.19),
           baroreceptor_carotid(epsilon_start=1.06, s_start=0.96),
@@ -22355,22 +22333,6 @@ type"),         Text(
           Tolerance=1e-06,
           __Dymola_Algorithm="Cvode"));
     end CVS_7af_baro;
-
-    model CardiovascularSystem_leveled_sitting
-      extends CardiovascularSystem_leveled(Systemic1(
-          femoral_R226(sinAlpha=0),
-          femoral_L204(sinAlpha=0),
-          femoral_R222(sinAlpha=0),
-          femoral_L200(sinAlpha=0),
-          femoral_vein_R42(sinAlpha=0),
-          femoral_vein_R38(sinAlpha=0),
-          femoral_vein_R46(sinAlpha=0),
-          femoral_vein_R34(sinAlpha=0),
-          femoral_vein_L76(sinAlpha=0),
-          femoral_vein_L72(sinAlpha=0),
-          femoral_vein_L68(sinAlpha=0),
-          femoral_vein_L64(sinAlpha=0)));
-    end CardiovascularSystem_leveled_sitting;
 
     model CVS_7af_leveled
       extends CVS_7af(
@@ -22525,6 +22487,29 @@ type"),         Text(
       connect(sit_ramp.y, Systemic1.stand_input) annotation (Line(points={{-69,
               52},{-40.2,52},{-40.2,20}}, color={0,0,127}));
     end CVS_7af_sit_stand;
+
+    model CVS_7af_leveled_baro
+      extends CVS_7af_leveled(
+        heartComponent(UseFrequencyInput=true),
+        redeclare Components.AdanVenousRed.Systemic_baroreflex Systemic1(
+            UseThoracic_PressureInput=false, UsePhi_Input=true),
+        Tilt_ramp(startTime=50));
+      Components.ConditionalConnection conditionalConnection1(disconnectedValue
+          =1, disconnected=true)
+        annotation (Placement(transformation(extent={{0,50},{12,56}})));
+      Components.ConditionalConnection conditionalConnection(disconnectedValue=
+            0.25, disconnected=true)
+        annotation (Placement(transformation(extent={{8,4},{-4,10}})));
+    equation
+      connect(conditionalConnection1.u, Systemic1.HR) annotation (Line(points={{-6,54},
+              {-19.6,54},{-19.6,45.6}}, color={0,0,127}));
+      connect(conditionalConnection1.y, heartComponent.frequency_input) annotation (
+         Line(points={{17,54},{52,54},{52,-22},{-16,-22}}, color={0,0,127}));
+      connect(Systemic1.phi_input,conditionalConnection. y) annotation (Line(
+            points={{-14,20},{-10,20},{-10,8},{-9,8}},     color={0,0,127}));
+      connect(Systemic1.phi_baroreflex,conditionalConnection. u) annotation (
+          Line(points={{-27.4,45.4},{-27.4,28},{14,28},{14,8}}, color={0,0,127}));
+    end CVS_7af_leveled_baro;
   annotation(preferredView="info",
   version="2.3.2-beta",
   versionBuild=1,

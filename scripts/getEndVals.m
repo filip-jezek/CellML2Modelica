@@ -24,4 +24,11 @@ end;
 fclose(fileID);
 disp("Done, Johne!")
 
+%% tests
 
+for i = 1:size(state_names, 1)
+    disp([num2str(i),  ': ', state_names(i, :)])
+    if state_names(i, :) == s
+        print(num2str(i))
+    end;
+end;

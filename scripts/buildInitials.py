@@ -49,6 +49,8 @@ for name in nmsList:
     n = mc_tree.findNode(name)
     if n is None:
         continue
+    if 'radial_vein_T3_R120' in name:
+        print(d.data(name))
     n.start_val = d.data(name)[steadyStateInd]
 
 

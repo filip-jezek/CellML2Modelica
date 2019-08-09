@@ -70,9 +70,10 @@ def findLowestIndex(time, timeArr):
     lst = timeArr.tolist()
     if time < 0:
         return len(timeArr) -1
-    return next((i for i, x in enumerate(lst) if x >= time))
+    i = (i for i, x in enumerate(lst) if x >= time)
+    return next(i)
     # for i in lst:
-    #     if i > time:
+    #     if i >= time:
     #         return i
     # return -1
 

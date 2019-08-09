@@ -1,6 +1,8 @@
 from collections import defaultdict
 
 class ModelicaClass:
+
+
     
     def __init__(self, name = 'Empty', start_val = None, path = None, isRoot = False):
         self.name = name
@@ -39,7 +41,7 @@ class ModelicaClass:
 
     def printObjectTree(self, indent_level = 0) -> str:
         if self.isValueType:
-            return self.name + '(start = ' + str(self.start_val) + ')'
+            return self.name + '(start = ' + str(self.start_val) + ', fixed = true)'
         else :
             return '\n' + (' ' * indent_level) + self.name + '(' + self.printChildren(indent_level = indent_level+2) + ')'
 

@@ -22247,7 +22247,7 @@ type"),         Text(
       end test;
 
       model test_start
-        extends test(x(start = 2), y(start = 2), z(start = 2));
+        extends test(x(start = 2, fixed = true), y(start = 2, fixed = true), z(start = 2, fixed = true));
       end test_start;
     end Experiments;
 

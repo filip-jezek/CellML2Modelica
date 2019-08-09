@@ -1,4 +1,11 @@
-## Reads parameters of venous terminals for reparametrization
+""" Generates extending model with steady state parametrization, read from .mat simulation result.
+
+Make sure all states listed in states.csv does not have initial equations.
+Deleting state from the states.csv will diable generation of the initial value
+
+MIT licence
+Filip Ježek, University of Michigan. 2019
+"""
 
 import scipy.io as skipy
 import DyMat
@@ -9,13 +16,24 @@ import ModelicaClass as mc
 import os
 import datetime
 
+base_model_full_path = 'ADAN_main.AdanVenousRed_Safaei.CVS_7af'
+relative_folder = ''
+steadyStateAt = 14
+
+# get the main and path
+if '.' in base_model_full_path:
+    base_model_path, base_model = base_model_full_path.rsplit('.', 1)
+else:
+    base_model_path = None
+    base_model = base_model_full_path
+
 # Build modelica Object Tree
-mc_tree = mc.ModelicaClass.BuildObjectTreeFromFile(r'scripts\states.csv', root='CVS')
+mc_tree = mc.ModelicaClass.BuildObjectTreeFromFile(r'scripts\states.csv', root=base_model)
 
-steadyStateAt = -1
-base_model = 'CVS_7af'
 
-mat_date = str(datetime.datetime.fromtimestamp(os.path.getmtime(base_model + '.mat')))
+mat_file_path = relative_folder + base_model + '.mat'
+
+mat_date = str(datetime.datetime.fromtimestamp(os.path.getmtime(mat_file_path)))
 
 # open file with values
 d = DyMat.DyMatFile(base_model)
@@ -36,9 +54,10 @@ for name in nmsList:
 
 mc_string = mc_tree.printObjectTree(indent_level=4)
 init_model = base_model + '_init'
+base_model_path_string = '' if base_model_path is None else base_model_path + '.'
 print_string = \
-    "model " + init_model + ' "Steady state initialization from ' + str(mat_date) + ' at time ' + str(steadyStateAt) + '"\n' + \
-    '  extends ' + mc_string + ';\n' + \
+    "model " + init_model + ' "Steady state initialization from ' + str(mat_date) + ' at time ' + str(time[steadyStateInd]) + '"\n' + \
+    '  extends ' + base_model_path_string + mc_string + ';\n' + \
     'end ' + init_model + ';\n'
 
 print(print_string)

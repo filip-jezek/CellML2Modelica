@@ -1669,13 +1669,13 @@ type"),         Text(
         parameter Real Rv(unit="J.s.m-6") "venule resistance";
         parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
         parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
-        Real u_C(unit = "Pa", start = 0.0, nominal = 1000);
+        Real u_C(unit = "Pa", start = nominal_pressure, nominal = 1000);
 
         Real u(unit = "Pa", nominal = 1000);
 
         Physiolibrary.Types.Pressure u_out_hs "Output pressure including the hydrostatic pressure";
       initial equation
-        volume = nominal_pressure*C + zpv;
+      //  volume = nominal_pressure*C + zpv;
       equation
 
             I_e = I*1e-6;
@@ -1810,7 +1810,7 @@ type"),         Text(
 
       parameter Integer PV_variant = 1;
     initial equation
-      u_C = p0;
+    //  u_C = p0;
     equation
       if UseNonLinearCompliance then
         if PV_variant == 1 then
@@ -22494,8 +22494,8 @@ type"),         Text(
         redeclare Components.AdanVenousRed.Systemic_baroreflex Systemic1(
             UseThoracic_PressureInput=false, UsePhi_Input=true),
         Tilt_ramp(startTime=50));
-      Components.ConditionalConnection conditionalConnection1(disconnectedValue
-          =1, disconnected=true)
+      Components.ConditionalConnection conditionalConnection1(disconnectedValue=
+           1, disconnected=true)
         annotation (Placement(transformation(extent={{0,50},{12,56}})));
       Components.ConditionalConnection conditionalConnection(disconnectedValue=
             0.25, disconnected=true)

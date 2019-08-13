@@ -77,10 +77,15 @@ def findLowestIndex(time, timeArr, returnLast = True):
     # return next(i)
     l = len(timeArr)
     for i in range(l):
-        if timeArr[i] >= time and not returnLast:
+        if timeArr[i] >= time:
+            if not returnLast:
+                return i
+            # otherwise find last index with the same time
+            for j in range(i+1, l):
+                if timeArr[j] > timeArr[i]:
+                    return j-1
+            # it was already last one
             return i
-        elif timeArr[i] >= time and returnLast and i + 1 < l and timeArr[i+1] >= time:
-            return i+1
     raise IndexError("The requested steady state time " + time + "s is bigger than the simulation stop time of " + str(timeArr[-1])+ "s")
 
 

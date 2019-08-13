@@ -18,7 +18,7 @@ import datetime
 
 base_model_full_path = 'ADAN_main.AdanVenousRed_Safaei.CVS_7af'
 relative_folder = ''
-steadyStateAt = 14
+steadyStateAt = 79
 
 # get the main and path
 if '.' in base_model_full_path:
@@ -40,8 +40,8 @@ d = DyMat.DyMatFile(base_model)
 time = d.abscissa(2)[0]
 
 nmsList = d.names(block = 2)
-nmsStr = "\r".join(nmsList)
-steadyStateInd = TerminalDS.findLowestIndex(steadyStateAt, time)
+#nmsStr = "\r".join(nmsList)
+steadyStateInd = TerminalDS.findLowestIndex(steadyStateAt, time, returnLast=True)
 
 # pick value
 for name in nmsList:

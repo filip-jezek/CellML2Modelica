@@ -65,17 +65,24 @@ def average(vals_list, fromInd):
         return sum(vals_list)/2
     return sum(vals_list[fromInd:]) / len(vals_list[fromInd:])
 
-def findLowestIndex(time, timeArr):
-    """Finds lowest index in timeArr event times list from specified time """
-    lst = timeArr.tolist()
+def findLowestIndex(time, timeArr, returnLast = True):
+    """Finds lowest index in timeArr event times list from specified time 
+        If the returnLast == True, then return the last index of 
+    """
     if time < 0:
         return len(timeArr) -1
-    i = (i for i, x in enumerate(lst) if x >= time)
-    return next(i)
-    # for i in lst:
-    #     if i >= time:
-    #         return i
-    # return -1
+
+    # lst = timeArr.tolist()
+    # i = (i for i, x in enumerate(lst) if x >= time)
+    # return next(i)
+    l = len(timeArr)
+    for i in range(l):
+        if timeArr[i] >= time and not returnLast:
+            return i
+        elif timeArr[i] >= time and returnLast and i + 1 < l and timeArr[i+1] >= time:
+            return i+1
+    raise IndexError("The requested steady state time " + time + "s is bigger than the simulation stop time of " + str(timeArr[-1])+ "s")
+
 
 def createTerminatorsDS(lines):
     # terms_List = re.findall(r'(?<=\.)\w+_T[\d]+_\w+(?=\.)', nmsStr)

@@ -1604,11 +1604,12 @@ type"),         Text(
         parameter Physiolibrary.Types.HydraulicResistance R_v = 0.01/C "Viscoleasticity of the vessel" annotation (Dialog(tab = "General", group = "Calculated parameters"));
 
         parameter Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume" annotation (Dialog(tab = "General", group = "Calculated parameters"));
-        Physiolibrary.Types.RealIO.FractionOutput distentionFraction = sqrt(max(volume, 0))/sqrt(zpv) if
+        Physiolibrary.Types.RealIO.FractionOutput distentionFraction = sqrt(max(volume, 0))/sqrt(distentionBase) if
           UseDistentionOutput annotation (Placement(transformation(extent={{76,10},{96,
                   30}}), iconTransformation(extent={{-20,-20},{20,20}},
               rotation=90,
               origin={0,40})));
+        parameter Physiolibrary.Types.Volume distentionBase = l*Modelica.Constants.pi*(r^2);
 
         Modelica.Blocks.Interfaces.RealInput sinAlphaInput = _sinAlpha if
           UseSinAlphaInput annotation (Placement(transformation(extent={{-84,10},{-64,
@@ -11080,11 +11081,11 @@ type"),         Text(
           Real v_psh(unit = "m3.s-1", nominal = 1e-6);
           Real v_pvn(unit = "m3.s-1", nominal = 1e-6);
           input Real v_puv(unit = "m3.s-1");
-          Physiolibrary.Types.Volume V_pas = u_pas*C_pas "Pulmonary artery volume";
-          Physiolibrary.Types.Volume V_pat = u_pat*C_pat "Pulmonary arteries volume";
-          Physiolibrary.Types.Volume V_par = u_par*C_par "Pulmonary arterioles volume";
-          Physiolibrary.Types.Volume V_pcp = u_pcp*C_pcp "Pulmonary capillaries volume";
-          Physiolibrary.Types.Volume V_pvn = u_pvn*C_pvn "Pulmonary veins volume";
+          Physiolibrary.Types.Volume V_pas = (u_pas - thoracic_pressure)*C_pas "Pulmonary artery volume";
+          Physiolibrary.Types.Volume V_pat = (u_pat - thoracic_pressure)*C_pat "Pulmonary arteries volume";
+          Physiolibrary.Types.Volume V_par = (u_par - thoracic_pressure)*C_par "Pulmonary arterioles volume";
+          Physiolibrary.Types.Volume V_pcp = (u_pcp - thoracic_pressure)*C_pcp "Pulmonary capillaries volume";
+          Physiolibrary.Types.Volume V_pvn = (u_pvn - thoracic_pressure)*C_pvn "Pulmonary veins volume";
           Physiolibrary.Types.Volume total_stressed_volume = V_pas + V_pat + V_par + V_pcp + V_pvn;
           input Physiolibrary.Types.Pressure thoracic_pressure;
         //  Physiolibrary.Types.Volume V_pvc = u_pvc*C_pvc;
@@ -11108,11 +11109,11 @@ type"),         Text(
           I_pvn = Parameters_Pulmonary1.I_pvn;
           I_psh = Parameters_Pulmonary1.I_psh;
 
-              der(u_pas + thoracic_pressure) = (v_puv-v_pas)/C_pas;
-              der(u_pat + thoracic_pressure) = (v_pas-v_pat)/C_pat;
-              der(u_par + thoracic_pressure) = (v_pat-v_psh-v_par)/C_par;
-              der(u_pcp + thoracic_pressure) = (v_par-v_pcp)/C_pcp;
-              der(u_pvn) = (v_pcp+v_psh-v_pvn)/C_pvn;
+              der(V_pas) = (v_puv-v_pas);
+              der(V_pat) = (v_pas-v_pat);
+              der(V_par) = (v_pat-v_psh-v_par);
+              der(V_pcp) = (v_par-v_pcp);
+              der(V_pvn) = (v_pcp+v_psh-v_pvn);
               der(v_pas) = (u_pas-u_pat-v_pas*R_pas)/I_pas;
               der(v_pat) = (u_pat-u_par-v_pat*R_pat)/I_pat;
 
@@ -13488,13 +13489,13 @@ type"),         Text(
                       0.0);
                        /*  u_rv < u_par */
 
-              v_miv = noEvent(if u_la >= u_lv then
+              v_miv = noEvent(if u_la >= u_lv and q_la + q_la_0 > 0 then
                       CQ_miv*sqrt(u_la-u_lv)
                   else
                       0.0);
                        /*  u_la < u_lv */
 
-              v_aov = noEvent(if u_lv >= u_sas then
+              v_aov = noEvent(if u_lv >= u_sas and q_lv + q_lv_0 > 0 then
                       CQ_aov*sqrt(u_lv-u_sas)
                   else
                       0.0);
@@ -17497,6 +17498,213 @@ type"),         Text(
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end imp_comparison;
+
+    model Mynard_heart
+      Components.AdanVenousRed._7af7a4.HeartComponent heartComponent(
+        UseThoracicPressureInput=true,
+        HR=1,
+        Heart1(q_lv(start=6e-5), q_rv(start=6e-5)))
+        annotation (Placement(transformation(extent={{-20,-40},{0,-20}})));
+      Physiolibrary.Hydraulic.Components.Resistor pulmo_arte(Resistance(
+            displayUnit="(mmHg.min)/l") = 95992118.9388)
+        annotation (Placement(transformation(extent={{36,-50},{56,-30}})));
+      Physiolibrary.Hydraulic.Components.Resistor arteries(Resistance(
+            displayUnit="(mmHg.min)/l") = 159986864.898)
+        annotation (Placement(transformation(extent={{36,-30},{56,-10}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump pv(SolutionFlow=
+            8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{-102,-56},{-82,-36}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump sv(SolutionFlow=
+            8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{-100,-30},{-80,-10}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume pulmo(P=1333.22387415)
+        annotation (Placement(transformation(extent={{88,-60},{68,-40}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume systemic(P=2666.4477483)
+        annotation (Placement(transformation(extent={{88,-30},{68,-10}})));
+      Modelica.Blocks.Sources.Ramp ramp(
+        height=40*133,
+        duration=1,
+        offset=0,
+        startTime=10)
+        annotation (Placement(transformation(extent={{-40,-96},{-20,-76}})));
+      Physiolibrary.Hydraulic.Components.Resistor syst_ven(Resistance(
+            displayUnit="(mmHg.min)/l") = 7999343.2449)
+        annotation (Placement(transformation(extent={{-60,-30},{-40,-10}})));
+      Physiolibrary.Hydraulic.Components.Resistor pulm_ven(Resistance(
+            displayUnit="(mmHg.min)/l") = 7999343.2449)
+        annotation (Placement(transformation(extent={{-60,-56},{-40,-36}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel elasticVessel(Compliance(
+            displayUnit="ml/mmHg") = 3.0002463033826e-7)
+        annotation (Placement(transformation(extent={{-78,4},{-58,24}})));
+      Components.AdanVenousRed.PulmonaryComponent pulmonaryComponent(
+          UseThoracic_PressureInput=true)
+        annotation (Placement(transformation(extent={{-20,40},{0,60}})));
+      Physiolibrary.Hydraulic.Components.Resistor pulmo_arte1(Resistance(
+            displayUnit="(mmHg.min)/l") = 7999343.2449)
+        annotation (Placement(transformation(extent={{22,40},{42,60}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume pulmo1(P=1333.22387415)
+        annotation (Placement(transformation(extent={{80,40},{60,60}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump sv1(SolutionFlow=
+            8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
+      Physiolibrary.Hydraulic.Components.Resistor pulmo_arte2(Resistance(
+            displayUnit="(mmHg.min)/l") = 7999343.2449)
+        annotation (Placement(transformation(extent={{22,72},{42,92}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume pulmo2(P=1333.22387415)
+        annotation (Placement(transformation(extent={{80,72},{60,92}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedPump sv2(SolutionFlow=
+            8.3333333333333e-5)
+        annotation (Placement(transformation(extent={{-60,72},{-40,92}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel elasticVessel1(
+          Compliance(displayUnit="ml/mmHg") = 7.5006157584566e-7,
+          useExternalPressureInput=true)
+        annotation (Placement(transformation(extent={{-20,72},{0,92}})));
+    equation
+      connect(heartComponent.sa, arteries.q_in) annotation (Line(
+          points={{0,-20},{36,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(heartComponent.pa, pulmo_arte.q_in) annotation (Line(
+          points={{0,-40},{36,-40}},
+          color={0,0,0},
+          thickness=1));
+      connect(arteries.q_out, systemic.y) annotation (Line(
+          points={{56,-20},{68,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmo_arte.q_out, pulmo.y) annotation (Line(
+          points={{56,-40},{62,-40},{62,-50},{68,-50}},
+          color={0,0,0},
+          thickness=1));
+      connect(heartComponent.thoracic_pressure_input, ramp.y) annotation (Line(
+            points={{-10,-40},{-14,-40},{-14,-86},{-19,-86}}, color={0,0,127}));
+      connect(syst_ven.q_out, heartComponent.sv) annotation (Line(
+          points={{-40,-20},{-20,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulm_ven.q_out, heartComponent.pv) annotation (Line(
+          points={{-40,-46},{-26,-46},{-26,-40},{-20,-40}},
+          color={0,0,0},
+          thickness=1));
+      connect(syst_ven.q_in, sv.q_out) annotation (Line(
+          points={{-60,-20},{-80,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(elasticVessel.q_in, pulm_ven.q_in) annotation (Line(
+          points={{-68,14},{-64,14},{-64,-46},{-60,-46}},
+          color={0,0,0},
+          thickness=1));
+      connect(pv.q_out, pulm_ven.q_in) annotation (Line(
+          points={{-82,-46},{-60,-46}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmo_arte1.q_out, pulmo1.y) annotation (Line(
+          points={{42,50},{60,50}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmo_arte1.q_in, pulmonaryComponent.q_out) annotation (Line(
+          points={{22,50},{0,50}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonaryComponent.q_in, sv1.q_out) annotation (Line(
+          points={{-20,50},{-40,50}},
+          color={0,0,0},
+          thickness=1));
+      connect(ramp.y, pulmonaryComponent.thoracic_pressure_input) annotation (
+          Line(points={{-19,-86},{-12,-86},{-12,42}}, color={0,0,127}));
+      connect(pulmo_arte2.q_out, pulmo2.y) annotation (Line(
+          points={{42,82},{60,82}},
+          color={0,0,0},
+          thickness=1));
+      connect(sv2.q_out, elasticVessel1.q_in) annotation (Line(
+          points={{-40,82},{-10,82}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmo_arte2.q_in, elasticVessel1.q_in) annotation (Line(
+          points={{22,82},{-10,82}},
+          color={0,0,0},
+          thickness=1));
+      connect(pulmonaryComponent.thoracic_pressure_input, elasticVessel1.externalPressure)
+        annotation (Line(points={{-12,42},{-8,42},{-8,90},{-2,90}}, color={0,0,
+              127}));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Mynard_heart;
+
+    model testPVchars
+
+
+      parameter Real alphaC = 2.5;
+      parameter Real alphaZPV = 2.5;
+      inner Physiolibrary.Types.Fraction ZPV_effect = 1/ (1 + alphaZPV*(phi_norm-1));
+      inner Physiolibrary.Types.Fraction C_effect = 1/(1 + alphaC*(phi_norm-1));
+
+
+      inner parameter Physiolibrary.Types.Fraction venous_diameter_correction = 1.5;
+      inner parameter Physiolibrary.Types.Fraction C_fact = 1;
+      inner Modelica.SIunits.Angle Tilt = 0;
+
+      inner parameter Physiolibrary.Types.Fraction cfactor = 1;
+      inner Physiolibrary.Types.Pressure thoracic_pressure = 0;
+
+      parameter Physiolibrary.Types.Fraction phi_norm =  1 "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
+
+
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(
+          usePressureInput=true)
+        annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
+      Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(
+          usePressureInput=true)
+        annotation (Placement(transformation(extent={{100,-10},{80,10}})));
+      Modelica.Blocks.Sources.Ramp ramp(
+        height=133*400,
+        duration=1100,
+        offset=133,
+        startTime=100)
+        annotation (Placement(transformation(extent={{-80,-40},{-60,-20}})));
+        Components.Vessel_modules.vp_type
+                      superior_vena_cava_C88(
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_superior_vena_cava_C88,
+        E=Parameters_Venous1.E_superior_vena_cava_C88,
+        r=Parameters_Venous1.r_superior_vena_cava_C88,
+        UseInertance=true,
+        PV_variant=-1)
+          annotation (Placement(transformation(extent={{26,-3},{46,2}})));
+      Components.AdanVenousRed._b580e.Parameters_Venous_cellml.Parameters_Venous
+        Parameters_Venous1
+        annotation (Placement(transformation(extent={{-69,-87},{-49,-82}})));
+      Physiolibrary.Hydraulic.Components.Resistor resistor(Resistance=
+            7999343244.9)
+        annotation (Placement(transformation(extent={{-4,-10},{16,10}})));
+      Physiolibrary.Hydraulic.Components.Resistor resistor1(Resistance=
+            7999343244.9)
+        annotation (Placement(transformation(extent={{52,-10},{72,10}})));
+    equation
+      connect(unlimitedVolume.pressure, ramp.y) annotation (Line(points={{-40,0},{-50,
+              0},{-50,-30},{-59,-30}}, color={0,0,127}));
+      connect(unlimitedVolume1.pressure, ramp.y)
+        annotation (Line(points={{100,0},{100,-30},{-59,-30}},
+                                                             color={0,0,127}));
+      connect(unlimitedVolume.y, resistor.q_in) annotation (Line(
+          points={{-20,0},{-16,0},{-16,-0.5},{-4,0}},
+          color={0,0,0},
+          thickness=1));
+      connect(resistor.q_out, superior_vena_cava_C88.port_a) annotation (Line(
+          points={{16,0},{21,0},{21,-0.5},{26,-0.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(unlimitedVolume1.y, resistor1.q_out) annotation (Line(
+          points={{80,0},{76,0},{76,-0.5},{72,0}},
+          color={0,0,0},
+          thickness=1));
+      connect(resistor1.q_in, superior_vena_cava_C88.port_b) annotation (Line(
+          points={{52,0},{49,0},{49,-0.5},{46,-0.5}},
+          color={0,0,0},
+          thickness=1));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end testPVchars;
   end tests;
 
   package Experiments
@@ -21973,7 +22181,7 @@ type"),         Text(
             smooth=Smooth.None));
         connect(conditionalConnection.y,
                           ventricularInteraction_flat. HR) annotation (Line(
-              points={{-22,8},{-14.2,8}},                     color={0,0,127}));
+              points={{-17,8},{-14.2,8}},                     color={0,0,127}));
         connect(ventricularInteraction_flat.beat,pressure_envelope. beat)
           annotation (Line(points={{-14.2,-4},{-150,-4}}, color={255,0,255}));
         connect(pressure_envelope_data.p,IntraThoracicPressure. aortic_pressure)
@@ -22012,7 +22220,7 @@ type"),         Text(
           annotation (Line(points={{-116.4,-10},{-116,-10},{-116,24},{-113,24}},
               color={0,0,127}));
         connect(conditionalConnection1.y, ventricularInteraction_flat.phi)
-          annotation (Line(points={{-102,24},{-14.2,24}}, color={0,0,127}));
+          annotation (Line(points={{-97,24},{-14.2,24}},  color={0,0,127}));
         connect(systemic_baroreflex.phi_baroreflex, conditionalConnection2.u1)
           annotation (Line(points={{-116.4,-10},{-116,-10},{-116,2},{-113,2}},
               color={0,0,127}));
@@ -22200,7 +22408,8 @@ type"),         Text(
       ADAN_main.Components.AdanVenousRed.environment environment1
         annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
       replaceable ADAN_main.Components.AdanVenousRed.Systemic_eq Systemic1(u_ra=
-            Heart1.u_ra, v_aov=Heart1.v_aov) constrainedby
+            Heart1.u_ra, v_aov=Heart1.v_aov,
+        venous_diameter_correction=1)        constrainedby
         ADAN_main.Components.AdanVenousRed.Systemic_base(u_ra=Heart1.u_ra, v_aov=
             Heart1.v_aov)
         annotation (Placement(transformation(extent={{-60,80},{-10,100}})));
@@ -23071,7 +23280,13 @@ type"),         Text(
     end ss_init;
 
     model CVS_7af_normal
-      extends ADAN_main.AdanVenousRed_Safaei.ss_init.CVS_7af_normal_init;
+      extends ADAN_main.AdanVenousRed_Safaei.ss_init.CVS_7af_normal_init(
+          Systemic1(
+          aortic_arch_C46(distentionBase=3e-6),
+          internal_carotid_R8_A(distentionBase=1.5E-07),
+          baroreflex(fsn=0.03),
+          baroreceptor_aortic(epsilon_start=1.6, s_start=0.88),
+          baroreceptor_carotid(epsilon_start=2.65, s_start=0.9)));
     end CVS_7af_normal;
 
     model CVS_7af_normal_step_hr
@@ -23080,12 +23295,12 @@ type"),         Text(
       Modelica.Blocks.Sources.Step step(
         height=0.5,
         offset=1,
-        startTime=20)
+        startTime=20000)
         annotation (Placement(transformation(extent={{58,-36},{38,-16}})));
       Modelica.Blocks.Sources.Step step1(
         height=0.25,
         offset=0.25,
-        startTime=80)
+        startTime=800)
         annotation (Placement(transformation(extent={{32,-2},{12,18}})));
     equation
       connect(heartComponent.frequency_input, step.y) annotation (Line(points={
@@ -23103,6 +23318,126 @@ type"),         Text(
 <p>Generated from <a href=\"https://models.cellml.org/workspace/4ac\">https://models.cellml.org/workspace/4ac</a> Revision: b580e909bfa88dbf598e9fd1f4b15024e676e9b6 from Date: 2019-04-08 8:13:36 AM, Message: tuning the param for veins</p>
 </html>"));
   end AdanVenousRed_Safaei;
+
+  package dev
+    model Carlson2005
+
+    parameter Physiolibrary.Types.Fraction A = 0;
+
+    Real T_total = T_pass + A*T_act_max;
+    Real T_pass = C_pass*exp(exp_);
+    Real exp_ = Cd_pass*(L/L0 - 1);
+    Real T_act_max = C_act*exp(- ( (L/L0 - Cd_act)/Cdd_act)^2);
+
+    Physiolibrary.Types.Pressure P; //= T_total / D * 2;
+
+    Physiolibrary.Types.Pressure Pd;
+    parameter Physiolibrary.Types.Time tau = 0.001;
+
+
+    Modelica.SIunits.Length L = Modelica.Constants.pi*D;
+    Modelica.SIunits.Length L0 = Modelica.Constants.pi*D0;
+
+    Modelica.SIunits.Diameter D;
+    parameter Modelica.SIunits.Diameter D0= 0.0189322;
+
+    //Real C_pass;
+    //Real Cd_pass;
+
+    parameter Real C_pass = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
+    parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
+    parameter Real C_act = 0.405 "(N/m)";
+    parameter Real Cd_act = 0.910;
+    parameter Real Cdd_act = 0.374;
+
+    parameter Modelica.SIunits.Length vessel_length = 11.3168e-2;
+    Physiolibrary.Types.Volume V = vessel_length * Modelica.Constants.pi * (D/2)^2;
+    Physiolibrary.Types.Volume V0 = vessel_length * Modelica.Constants.pi * (D0/2)^2;
+
+    Physiolibrary.Types.Fraction ll0 = L/L0;
+
+
+
+      Physiolibrary.Types.Volume volume = V;
+
+      Physiolibrary.Types.Volume Vmax = 2*zpv;
+      parameter Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*(r^2) "Zero-pressure volume" annotation (Dialog(tab = "General", group = "Calculated parameters"));
+        parameter Physiolibrary.Types.Volume zpvs = zpv;
+     parameter Modelica.SIunits.Length l = vessel_length "Segmant length" annotation (Dialog(tab = "General", group = "Vessel properties"));
+     parameter Modelica.SIunits.Radius r = D0/2 "Vessel radius" annotation (Dialog(tab = "General", group = "Vessel properties"));
+      Physiolibrary.Types.HydraulicCompliance c0 = zpv/p0 "nominal compliance";
+      parameter Integer PV_variant = -1;
+      Physiolibrary.Types.Pressure u_C;
+      Physiolibrary.Types.Pressure u_C2;
+      parameter Physiolibrary.Types.Pressure p0 = 665;
+      Real tension = u_C*D/2;
+      Real s(unit= "m3/Pa") = der(V)/der(P);
+      Real s_mmhg_ml(unit = "ml/mmHg") = s*133.32*1000*1000;
+      Real target_s = 60*0.08 "total venous compliance times percentage of volume of this particular segment C24";
+    equation
+
+    //  der(D)*Pd*tau = ( Pd*D/2 - T_total);
+      P = T_total / D * 2;
+      der(D) = ( Pd*D/2 - T_total) /( Pd*tau);
+
+    //P = 2*133;
+    //D = D0;
+    //s_mmhg_ml = 6.18e-2;
+    ll0 = time;
+
+          volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C2));
+
+        if PV_variant == 0 then
+          volume = (u_C) *c0 + zpv;
+        elseif PV_variant == 1 then
+          tan((volume - zpvs)*Modelica.Constants.pi/(2*Vmax)) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
+        elseif PV_variant == 2 then
+          // Dan 1
+          volume  = Vmax*(tanh(Modelica.Constants.pi/4.*u_C/p0) + 1)/2;
+        elseif PV_variant == 3 then
+          // Dan 2
+          volume = Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
+        else
+          // default original relation
+          volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
+        end if;
+
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Carlson2005;
+
+    model Liang2005
+      Real sigma_x;
+
+      parameter Real D_zpv = 5;
+      parameter Real f_efs;
+      parameter Real f_efs_min;
+      Real G_zpv = -18;
+      Physiolibrary.Types.Volume zpv;
+      parameter Physiolibrary.Types.Time tau = 20;
+    equation
+      if  f_efs >= f_efs_min then
+        sigma_x = G_x * log( f_efs*(t - D_x) - f_efs_min + 1);
+      else
+        sigma_x = 0;
+      end if;
+
+      der(zpv) *tau = sigma_x - zpv;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Liang2005;
+
+    model test
+            Real e = exp(time);
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end test;
+
+    model Carlson2005_C24
+      extends Carlson2005(D0=0.0189322);
+    end Carlson2005_C24;
+  end dev;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
             "3.2.2")), experiment(
       StopTime=80,

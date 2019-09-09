@@ -1810,12 +1810,49 @@ type"),         Text(
       Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
       Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
 
-      parameter Integer PV_variant = 1;
-      parameter Physiolibrary.Types.Volume init_volume = zpv + 2*2*zpv/Modelica.Constants.pi*atan(Modelica.Constants.pi*zpv/p0/2/(2*zpv)*(p0));
+      parameter Integer PV_variant = 4;
+
+
+
+      parameter Physiolibrary.Types.Volume init_volume = V0;
+      // parameter Physiolibrary.Types.Volume init_volume = zpv + 2*2*zpv/Modelica.Constants.pi*atan(Modelica.Constants.pi*zpv/p0/2/(2*zpv)*(p0));
+
+    Real A = phi_norm * 0.25 "denormalizing the normalized normal";
+    Real T_total = T_pass + A*T_act_max;
+    Real T_pass = C_pass*exp(T_pass_exp);
+      Real T_pass_exp=Cd_pass*(wall_L/wall_L0 - 1);
+      Real T_act_max=C_act*exp(-((wall_L/wall_L0 - Cd_act)/Cdd_act)^2);
+    parameter Physiolibrary.Types.Time tau = 0.1 "Time constant of the smooth muscle activation";
+
+
+      Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
+        "Circumferential wall length";
+      Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+
+    Modelica.SIunits.Diameter D(start = 2*r);
+
+    parameter Real C_pass = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
+    parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
+    parameter Real C_act = 4.2 "(N/m)";
+    parameter Real Cd_act = 1;
+    parameter Real Cdd_act = 0.4;
+
+    parameter Modelica.SIunits.Length vessel_length = 11.3168e-2;
+    Physiolibrary.Types.Volume V = l * Modelica.Constants.pi * (D/2)^2;
+    parameter Physiolibrary.Types.Volume V0 = l * Modelica.Constants.pi * (r)^2;
+
+    Physiolibrary.Types.Fraction ll0=wall_L/wall_L0;
+
     initial equation
     //  u_C = p0;
     equation
+    //  der(D) = ( u_C *D/2 - T_total) /(tau);
+
+
+
       if UseNonLinearCompliance then
+          T_total = u_C * D/2;
+
         if PV_variant == 1 then
           tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
         elseif PV_variant == 2 then
@@ -1824,13 +1861,20 @@ type"),         Text(
         elseif PV_variant == 3 then
           // Dan 2
           volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
+        elseif PV_variant == 4 then
+          // Carslon&Secomb 2005
+          //      volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
+          volume = V;
+
         else
+          // 0
           // default original relation
           volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
         end if;
-      else
-        volume = (u_C) *C + zpv;
-      end if;
+    else
+         u_C = D;
+         volume = (u_C) *C + zpv;
+       end if;
 
       if E == 0 or not UseInertance then
         0 = u_in-u_out_hs-R*v_out;
@@ -23346,7 +23390,7 @@ type"),         Text(
 
     parameter Real C_pass = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
     parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
-    parameter Real C_act = 0.405 "(N/m)";
+    parameter Real C_act = 2.5405 "(N/m)";
     parameter Real Cd_act = 0.910;
     parameter Real Cdd_act = 0.374;
 

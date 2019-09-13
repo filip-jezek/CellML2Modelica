@@ -1833,7 +1833,7 @@ type"),         Text(
 
     parameter Real C_pass = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
     parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
-    parameter Real C_act = 4.2 "(N/m)";
+    parameter Real C_act = 42 "(N/m)";
     parameter Real Cd_act = 1;
     parameter Real Cdd_act = 0.4;
 
@@ -1846,7 +1846,7 @@ type"),         Text(
     initial equation
     //  u_C = p0;
     equation
-    //  der(D) = ( u_C *D/2 - T_total) /(tau);
+      der(D) = ( u_C *D/2 - T_total) /(p0*tau);
 
 
 
@@ -16193,6 +16193,55 @@ type"),         Text(
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end CerebralArterioles;
+
+    model Volume2Distention
+      Physiolibrary.Types.RealIO.VolumeInput volume annotation (Placement(
+            transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,
+                -20},{-80,20}})));
+      parameter Physiolibrary.Types.Volume v0;
+      Modelica.SIunits.Diameter d;
+      Modelica.SIunits.Diameter d0;
+      Modelica.SIunits.Length l_wall;
+      Modelica.SIunits.Length l0_wall;
+      Physiolibrary.Types.RealIO.FractionOutput dr = dd "Distention ratio" annotation (Placement(
+            transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-10,-10},
+                {10,10}},
+            rotation=0,
+            origin={100,0})));
+
+
+      parameter Modelica.SIunits.Length l = 1;
+      Physiolibrary.Types.Fraction cd = l_wall/l0_wall "Circumferential distention";
+      Physiolibrary.Types.Fraction dd = d/d0 "diameter distention";
+    equation
+
+      v0 = Modelica.Constants.pi*d0^2/4*l;
+      volume = Modelica.Constants.pi*d^2/4*l;
+      l_wall = Modelica.Constants.pi * d;
+      l0_wall = Modelica.Constants.pi * d0;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end Volume2Distention;
+
+    model PhiEffect
+      Modelica.Blocks.Interfaces.RealInput u annotation (Placement(transformation(
+              extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{
+                -80,20}})));
+      Modelica.Blocks.Interfaces.RealOutput y annotation (Placement(transformation(
+              extent={{96,-10},{116,10}}), iconTransformation(extent={{92,-10},{112,
+                10}})));
+
+    parameter Real factor = 0;
+    Real ee;
+    outer Physiolibrary.Types.Fraction phi_norm;
+    // Physiolibrary.Types.Fraction phi_norm = time;
+    equation
+      y = u*ee;
+      ee = exp((phi_norm-1)*factor);
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end PhiEffect;
   end Components;
 
   package tests
@@ -20325,8 +20374,8 @@ type"),         Text(
     Real P_LV = PVfunction(theta,V_LV,ep) + Pth;
     Real P_RV = PVfunction(theta,V_RV,0.3) + Pth;
     Real Fout_LV = max(0, (P_LV-P_ta)/Rv);
-    // Real Fin_RV =  max(0, (P_tv-P_RV)/R_tv);
-    Real Fin_RV =  max(0, (1-P_RV)/R_tv);
+    Real Fin_RV =  max(0, (P_tv-P_RV)/R_tv);
+    //Real Fin_RV =  max(0, (1-P_RV)/R_tv);
     Real Fout_RV = max(0, (P_RV-P_pa)/Rv);
     Real Fin_LV =  max(0, (P_pv-P_LV)/R_pv);
 
@@ -20843,8 +20892,8 @@ type"),         Text(
       connect(variable_arterial_resistance.resistance_modifier,arteries1. resistance_modifier)
         annotation (Line(points={{48,8},{48,20},{49.3333,20}},
                      color={0,0,127}));
-      connect(switch1.u1,arteries1.HR)        annotation (Line(points={{68,-98},{62.6667,
-              -98},{62.6667,20}},         color={0,0,127}));
+      connect(switch1.u1,arteries1.HR)        annotation (Line(points={{68,-98},
+              {62.6667,-98},{62.6667,20}},color={0,0,127}));
       connect(useClosedLoopHR.y,switch1. u2) annotation (Line(points={{51,-108},
               {60,-108},{60,-106},{68,-106}}, color={255,0,255}));
       connect(arteries1.p,pressure_envelope. p) annotation (Line(points={{62,40},
@@ -21100,6 +21149,311 @@ type"),         Text(
                 {120,100}})), Diagram(coordinateSystem(preserveAspectRatio=false,
               extent={{-100,-100},{120,100}})));
     end simplestVSNonlin;
+
+    model simplestVS_control
+      BeatDrive beatDrive
+        annotation (Placement(transformation(extent={{-100,-36},{-80,-16}})));
+      Physiolibrary.Types.Constants.FrequencyConst HR(k=1)
+        annotation (Placement(transformation(extent={{-124,-32},{-108,-18}})));
+      ComplianceDriver complianceDriver(ep=1, alphaF=1)
+        annotation (Placement(transformation(extent={{-60,-16},{-40,4}})));
+      Physiolibrary.Hydraulic.Components.Resistor R_TA(Resistance(displayUnit="(mmHg.s)/ml")=
+             3199737.29796)
+        annotation (Placement(transformation(extent={{40,20},{60,40}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_TA(
+        volume_start=7e-06,
+        Compliance=5.2504310309196e-10,
+        useExternalPressureInput=true)
+        annotation (Placement(transformation(extent={{10,20},{30,40}})));
+      Physiolibrary.Hydraulic.Components.IdealValve idealValve(_Gon(displayUnit=
+             "ml/(mmHg.s)") = 7.5006157584566e-06)
+        annotation (Placement(transformation(extent={{-20,20},{0,40}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_SA(
+        useComplianceInput=true,
+        Compliance(displayUnit="m3/Pa") = 7.6506280736257e-9,
+        useV0Input=true,
+        volume_start=0.0004,
+        ZeroPressureVolume=0.0003)
+        annotation (Placement(transformation(extent={{70,20},{90,40}})));
+      Physiolibrary.Hydraulic.Components.IdealValve idealValve1
+        annotation (Placement(transformation(extent={{0,-80},{-20,-60}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_LV(
+        volume_start=0.0001,
+        useComplianceInput=true,
+        useExternalPressureInput=true)
+        annotation (Placement(transformation(extent={{-40,20},{-20,0}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_RV(
+        volume_start=0.0001,
+        useComplianceInput=true,
+        useExternalPressureInput=true)
+        annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
+      Physiolibrary.Hydraulic.Components.IdealValve idealValve2
+        annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
+      Physiolibrary.Hydraulic.Components.IdealValve idealValve3(_Gon(
+            displayUnit="ml/(mmHg.s)") = 7.5006157584566e-06)
+        annotation (Placement(transformation(extent={{-40,-80},{-60,-60}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_PA(
+        volume_start=0.0001,
+        Compliance=4.1628417459434e-08,
+        useExternalPressureInput=true)
+        annotation (Placement(transformation(extent={{-90,-80},{-70,-60}})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_PV(
+        useExternalPressureInput=true,
+        useComplianceInput=true,
+        Compliance(displayUnit="ml/mmHg") = 7.5006157584566e-7,
+        volume_start=0.0004,
+        useV0Input=true,
+        ZeroPressureVolume=0.0003)
+        annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
+      Physiolibrary.Hydraulic.Components.Resistor R_PA(useConductanceInput=true,
+          Resistance(displayUnit="(Pa.s)/m3") = 27197767.03266)
+                             annotation (Placement(transformation(
+            extent={{10,-10},{-10,10}},
+            rotation=0,
+            origin={-110,-70})));
+      Physiolibrary.Hydraulic.Components.Resistor R_PV(Resistance(displayUnit="(mmHg.s)/ml")=
+             1599868.64898) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=0,
+            origin={-80,30})));
+      ComplianceDriver complianceDriver1(ep=0.3, alphaF=1)
+        annotation (Placement(transformation(extent={{-60,-44},{-40,-24}})));
+      Modelica.Blocks.Sources.Trapezoid           ThoracicPressure(
+        amplitude=40*133,
+        rising=1,
+        width=20,
+        falling=1,
+        period=100,
+        nperiod=1,
+        startTime=140)
+        annotation (Placement(transformation(extent={{-150,38},{-134,52}})),
+          __Dymola_choicesAllMatching=true);
+      Components.Volume2Distention volume2Distention(v0=0.0001, l(displayUnit="cm"))
+        annotation (Placement(transformation(extent={{100,40},{120,60}})));
+      Components.Auxiliary.Baroreflex baroreflex(resetAt=0)
+        annotation (Placement(transformation(extent={{160,40},{180,60}})));
+      Components.Baroreceptor baroreceptor(Ts(displayUnit="s") = 3)
+        annotation (Placement(transformation(extent={{128,40},{148,60}})));
+      replaceable
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_SV(
+        useV0Input=true,
+        useComplianceInput=true,
+        Compliance(displayUnit="ml/mmHg") = 4.5003694550739e-7,
+        volume_start=0.0033,
+        ZeroPressureVolume=0.0003)       constrainedby
+        Physiolibrary.Hydraulic.Components.ElasticVessel
+        annotation (Placement(transformation(extent={{118,-80},{138,-60}})));
+      Physiolibrary.Hydraulic.Components.Resistor R_SA(useConductanceInput=true,
+          Resistance(displayUnit="(Pa.s)/m3") = 76793695.15104)
+                             annotation (Placement(transformation(
+            extent={{-10,10},{10,-10}},
+            rotation=0,
+            origin={110,30})));
+      Physiolibrary.Hydraulic.Components.ElasticVessel C_TV(
+        volume_start=7.5e-05,
+        Compliance=9.0007389101479e-10,
+        useExternalPressureInput=true)
+        annotation (Placement(transformation(extent={{40,-80},{60,-60}})));
+      Physiolibrary.Hydraulic.Components.Resistor R_TV(Resistance(displayUnit="(mmHg.s)/ml")=
+             1599868.64898) annotation (Placement(transformation(
+            extent={{10,-10},{-10,10}},
+            rotation=0,
+            origin={20,-70})));
+      Physiolibrary.Hydraulic.Components.Resistor R_SV(useConductanceInput=true,
+          Resistance(displayUnit="(Pa.s)/m3") = 78393563.80002)
+                             annotation (Placement(transformation(
+            extent={{10,-10},{-10,10}},
+            rotation=0,
+            origin={80,-70})));
+      Physiolibrary.Types.Constants.HydraulicComplianceConst C_SA_C0(k(displayUnit="ml/mmHg")=
+             7.6506280736257e-9)
+        annotation (Placement(transformation(extent={{34,74},{48,86}})));
+      Physiolibrary.Types.Constants.VolumeConst C_SA_V0(k(displayUnit="ml") = 0.0003)
+        annotation (Placement(transformation(extent={{34,54},{48,66}})));
+      Physiolibrary.Types.Constants.HydraulicConductanceConst R_SA_G0(k(displayUnit=
+             "ml/(mmHg.min)") = 1.3021902358432e-8)
+        annotation (Placement(transformation(extent={{62,-6},{76,6}})));
+        inner Physiolibrary.Types.Fraction phi_norm = baroreflex.phi/0.25;
+      Components.PhiEffect phiEffect
+        annotation (Placement(transformation(extent={{88,-6},{100,6}})));
+      Components.PhiEffect phiEffect1
+        annotation (Placement(transformation(extent={{56,54},{68,66}})));
+      Components.PhiEffect phiEffect2(factor=-1)
+        annotation (Placement(transformation(extent={{56,74},{68,86}})));
+      Physiolibrary.Types.Constants.HydraulicConductanceConst R_SV_G(k(displayUnit="ml/(mmHg.s)")=
+             1.2756149249076e-8)
+        annotation (Placement(transformation(extent={{40,-26},{54,-14}})));
+      Components.PhiEffect phiEffect3
+        annotation (Placement(transformation(extent={{64,-26},{76,-14}})));
+      Physiolibrary.Types.Constants.HydraulicComplianceConst C_SV_C0(k(displayUnit="ml/mmHg")=
+             4.5003694550739e-7)
+        annotation (Placement(transformation(extent={{86,-32},{100,-20}})));
+      Physiolibrary.Types.Constants.VolumeConst C_SV_V0(k(displayUnit="ml") = 0.0003)
+        annotation (Placement(transformation(extent={{86,-52},{100,-40}})));
+      Components.PhiEffect phiEffect4
+        annotation (Placement(transformation(extent={{108,-52},{120,-40}})));
+      Components.PhiEffect phiEffect5
+        annotation (Placement(transformation(extent={{108,-32},{120,-20}})));
+      Physiolibrary.Types.Constants.HydraulicComplianceConst C_PV_C0(k(displayUnit="ml/mmHg")=
+             7.5006157584566e-7)
+        annotation (Placement(transformation(extent={{-154,82},{-140,94}})));
+      Physiolibrary.Types.Constants.VolumeConst C_PV_V0(k(displayUnit="ml") = 0.0003)
+        annotation (Placement(transformation(extent={{-154,62},{-140,74}})));
+      Components.PhiEffect phiEffect6
+        annotation (Placement(transformation(extent={{-132,62},{-120,74}})));
+      Components.PhiEffect phiEffect7
+        annotation (Placement(transformation(extent={{-132,82},{-120,94}})));
+      Physiolibrary.Types.Constants.HydraulicConductanceConst R_PV_G0(k(displayUnit=
+             "ml/(mmHg.s)") = 3.676772430616e-8)
+        annotation (Placement(transformation(extent={{-148,-58},{-134,-46}})));
+      Components.PhiEffect phiEffect8
+        annotation (Placement(transformation(extent={{-124,-58},{-112,-46}})));
+    equation
+      connect(beatDrive.HR, HR.y) annotation (Line(points={{-100,-26},{-108,-26},{-108,
+              -25},{-106,-25}}, color={0,0,127}));
+      connect(beatDrive.beatTime, complianceDriver.beatTime) annotation (Line(
+            points={{-80,-16},{-70,-16},{-70,-6},{-60,-6}}, color={0,0,127}));
+      connect(idealValve.q_out, C_TA.q_in) annotation (Line(
+          points={{0,30},{20,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_TA.q_in, R_TA.q_in) annotation (Line(
+          points={{20,30},{40,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(R_TA.q_out, C_SA.q_in) annotation (Line(
+          points={{60,30},{80,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(idealValve.q_in, C_LV.q_in) annotation (Line(
+          points={{-20,30},{-26,30},{-26,10},{-30,10}},
+          color={0,0,0},
+          thickness=1));
+      connect(idealValve1.q_out, C_RV.q_in) annotation (Line(
+          points={{-20,-70},{-30,-70},{-30,-50}},
+          color={0,0,0},
+          thickness=1));
+      connect(idealValve.q_in, idealValve2.q_out) annotation (Line(
+          points={{-20,30},{-40,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(idealValve1.q_out, idealValve3.q_in) annotation (Line(
+          points={{-20,-70},{-40,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_PA.q_in, R_PA.q_in) annotation (Line(
+          points={{-80,-70},{-100,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_PV.q_in, R_PA.q_out) annotation (Line(
+          points={{-108,30},{-128,30},{-128,-70},{-120,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_PA.q_in, idealValve3.q_out) annotation (Line(
+          points={{-80,-70},{-60,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_PV.q_in, R_PV.q_in) annotation (Line(
+          points={{-108,30},{-90,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(complianceDriver.compliance, C_LV.compliance)
+        annotation (Line(points={{-40,-6},{-30,-6},{-30,2}}, color={0,0,127}));
+      connect(beatDrive.beatTime, complianceDriver1.beatTime) annotation (Line(
+            points={{-80,-16},{-70,-16},{-70,-34},{-60,-34}}, color={0,0,127}));
+      connect(complianceDriver1.compliance, C_RV.compliance) annotation (Line(
+            points={{-40,-34},{-30,-34},{-30,-42}}, color={0,0,127}));
+      connect(C_TA.externalPressure, ThoracicPressure.y) annotation (Line(points={{28,38},
+              {28,42},{-133.2,42},{-133.2,45}}, color={244,125,35}));
+      connect(C_PA.externalPressure, ThoracicPressure.y) annotation (Line(points={{-72,-62},
+              {-72,42},{-133.2,42},{-133.2,45}},  color={244,125,35}));
+      connect(C_LV.externalPressure, ThoracicPressure.y) annotation (Line(
+            points={{-22,2},{-22,42},{-133.2,42},{-133.2,45}},
+                                                           color={244,125,35}));
+      connect(C_RV.externalPressure, ThoracicPressure.y) annotation (Line(
+            points={{-22,-42},{-22,42},{-133.2,42},{-133.2,45}},
+                                                             color={244,125,35}));
+      connect(idealValve2.q_in, R_PV.q_out) annotation (Line(
+          points={{-60,30},{-70,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_SA.volume, volume2Distention.volume) annotation (Line(points={{86,20},
+              {96,20},{96,50},{100,50}}, color={0,0,127}));
+      connect(volume2Distention.dr, baroreceptor.d)
+        annotation (Line(points={{120,50},{128,50}}, color={0,0,127}));
+      connect(baroreceptor.fbr, baroreflex.aortic_BR) annotation (Line(points={{148,
+              50},{154,50},{154,60},{160,60}}, color={0,0,127}));
+      connect(baroreceptor.fbr, baroreflex.carotid_BR) annotation (Line(points={{148,
+              50},{154,50},{154,40},{160,40}}, color={0,0,127}));
+      connect(C_PV.externalPressure, ThoracicPressure.y) annotation (Line(points={{-100,
+              38},{-100,42},{-133.2,42},{-133.2,45}}, color={244,125,35}));
+      connect(C_SV.q_in,R_SA. q_out) annotation (Line(
+          points={{128,-70},{140,-70},{140,30},{120,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_SV.q_in,R_SV. q_in) annotation (Line(
+          points={{128,-70},{90,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_TV.q_in,R_TV. q_in) annotation (Line(
+          points={{50,-70},{30,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(R_SV.q_out,C_TV. q_in) annotation (Line(
+          points={{70,-70},{50,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(R_TV.q_out, idealValve1.q_in) annotation (Line(
+          points={{10,-70},{0,-70}},
+          color={0,0,0},
+          thickness=1));
+      connect(C_TV.externalPressure, ThoracicPressure.y) annotation (Line(points={{58,-62},
+              {58,-40},{-22,-40},{-22,42},{-133.2,42},{-133.2,45}},  color={244,125,
+              35}));
+      connect(C_SA.q_in, R_SA.q_in) annotation (Line(
+          points={{80,30},{100,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(R_SA_G0.y, phiEffect.u)
+        annotation (Line(points={{77.75,0},{88,0}}, color={0,0,127}));
+      connect(phiEffect.y, R_SA.cond)
+        annotation (Line(points={{100.12,0},{110,0},{110,24}}, color={0,0,127}));
+      connect(C_SA_V0.y, phiEffect1.u)
+        annotation (Line(points={{49.75,60},{56,60}}, color={0,0,127}));
+      connect(phiEffect1.y, C_SA.zeroPressureVolume)
+        annotation (Line(points={{68.12,60},{72,60},{72,38}}, color={0,0,127}));
+      connect(C_SA_C0.y, phiEffect2.u)
+        annotation (Line(points={{49.75,80},{56,80}}, color={0,0,127}));
+      connect(phiEffect2.y, C_SA.compliance)
+        annotation (Line(points={{68.12,80},{80,80},{80,38}}, color={0,0,127}));
+      connect(R_SV.cond, phiEffect3.y)
+        annotation (Line(points={{80,-64},{80,-20},{76.12,-20}}, color={0,0,127}));
+      connect(phiEffect3.u, R_SV_G.y)
+        annotation (Line(points={{64,-20},{55.75,-20}}, color={0,0,127}));
+      connect(C_SV_V0.y, phiEffect4.u)
+        annotation (Line(points={{101.75,-46},{108,-46}}, color={0,0,127}));
+      connect(C_SV_C0.y, phiEffect5.u)
+        annotation (Line(points={{101.75,-26},{108,-26}}, color={0,0,127}));
+      connect(C_SV.zeroPressureVolume, phiEffect4.y) annotation (Line(points={{120,-62},
+              {120,-54},{120,-46},{120.12,-46}}, color={0,0,127}));
+      connect(phiEffect5.y, C_SV.compliance) annotation (Line(points={{120.12,-26},{
+              128,-26},{128,-62}}, color={0,0,127}));
+      connect(C_PV_V0.y, phiEffect6.u)
+        annotation (Line(points={{-138.25,68},{-132,68}}, color={0,0,127}));
+      connect(C_PV_C0.y, phiEffect7.u)
+        annotation (Line(points={{-138.25,88},{-132,88}}, color={0,0,127}));
+      connect(phiEffect6.y, C_PV.zeroPressureVolume) annotation (Line(points={{-119.88,
+              68},{-116,68},{-116,38}}, color={0,0,127}));
+      connect(phiEffect7.y, C_PV.compliance) annotation (Line(points={{-119.88,88},{
+              -108,88},{-108,38}}, color={0,0,127}));
+      connect(phiEffect8.u, R_PV_G0.y)
+        annotation (Line(points={{-124,-52},{-132.25,-52}}, color={0,0,127}));
+      connect(phiEffect8.y, R_PA.cond) annotation (Line(points={{-111.88,-52},{-110,
+              -52},{-110,-64}}, color={0,0,127}));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {120,100}})), Diagram(coordinateSystem(preserveAspectRatio=false,
+              extent={{-100,-100},{120,100}})));
+    end simplestVS_control;
   end SimpleValsalva;
 
   package ADAN86_Safaei "Adan86 reduced arterial tree"
@@ -23352,6 +23706,62 @@ type"),         Text(
       connect(step1.y, Systemic1.phi_input) annotation (Line(points={{11,8},{-2,
               8},{-2,20},{-14,20}}, color={0,0,127}));
     end CVS_7af_normal_step_hr;
+
+    model CVS_7af_baro_simple
+      extends CVS_7af(
+        redeclare Components.AdanVenousRed.Systemic_baroreflex Systemic1(
+          UseThoracic_PressureInput=true,
+          UsePhi_Input=true,
+          baroreflex(resetAt=-1),
+          baroreceptor_aortic(epsilon_start=1.19),
+          baroreceptor_carotid(epsilon_start=1.06, s_start=0.96),
+          alphaC=0.5),
+        pulmonaryComponent(UseThoracic_PressureInput=true),
+        heartComponent(
+          Heart1(q_lv(displayUnit="ml", start=0.0003), q_rv(displayUnit="ml", start=
+                 0.0003)),
+          UseFrequencyInput=true,
+          UseThoracicPressureInput=true));
+      Components.ConditionalConnection conditionalConnection(
+          disconnectedValue=0.25,
+        disconnected=false)
+        annotation (Placement(transformation(extent={{8,4},{-4,10}})));
+      Components.ConditionalConnection conditionalConnection1(
+          disconnectedValue=1, disconnected=false)
+        annotation (Placement(transformation(extent={{0,50},{12,56}})));
+    Modelica.Blocks.Sources.Trapezoid           thoracic_pressure(
+        amplitude=5320,
+        rising=1,
+        width=20,
+        falling=1,
+        period=100,
+        nperiod=1,
+        offset=0,
+        startTime=20)
+        annotation (Placement(transformation(extent={{-98,-48},{-78,-28}})));
+    equation
+      connect(thoracic_pressure.y, Systemic1.thoracic_pressure_input)
+        annotation (Line(points={{-77,-38},{-54,-38},{-54,20},{-28,20}}, color=
+              {0,0,127}));
+      connect(pulmonaryComponent.thoracic_pressure_input, thoracic_pressure.y)
+        annotation (Line(points={{-26,-60},{-62,-60},{-62,-38},{-77,-38}},
+            color={0,0,127}));
+      connect(Systemic1.phi_input, conditionalConnection.y) annotation (Line(
+            points={{-14,20},{-10,20},{-10,8},{-9,8}},     color={0,0,127}));
+      connect(Systemic1.phi_baroreflex, conditionalConnection.u) annotation (
+          Line(points={{-27.4,45.4},{-27.4,28},{14,28},{14,8}}, color={0,0,127}));
+      connect(thoracic_pressure.y, heartComponent.thoracic_pressure_input)
+        annotation (Line(points={{-77,-38},{-26,-38},{-26,-32}}, color={0,0,127}));
+      connect(conditionalConnection1.u, Systemic1.HR) annotation (Line(points={{-6,54},
+              {-19.6,54},{-19.6,45.6}}, color={0,0,127}));
+      connect(conditionalConnection1.y, heartComponent.frequency_input) annotation (
+         Line(points={{17,54},{52,54},{52,-22},{-16,-22}}, color={0,0,127}));
+      annotation (experiment(
+          StopTime=80,
+          Interval=0.01,
+          Tolerance=1e-06,
+          __Dymola_Algorithm="Cvode"));
+    end CVS_7af_baro_simple;
   annotation(preferredView="info",
   version="2.3.2-beta",
   versionBuild=1,

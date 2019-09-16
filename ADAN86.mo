@@ -20595,8 +20595,8 @@ type"),         Text(
       ComplianceDriver complianceDriver1(ep=0.3, alphaF=1)
         annotation (Placement(transformation(extent={{-60,-44},{-40,-24}})));
       replaceable Physiolibrary.Types.Constants.PressureConst ThoracicPressure(k=0)
-        annotation (Placement(transformation(extent={{-118,62},{-102,76}})),
-          __Dymola_choicesAllMatching=true);
+        constrainedby Modelica.Blocks.Interfaces.SO
+        annotation (Placement(transformation(extent={{-118,62},{-102,76}})));
     equation
       connect(beatDrive.HR, HR.y) annotation (Line(points={{-100,-26},{-108,-26},{-108,
               -25},{-106,-25}}, color={0,0,127}));
@@ -20677,18 +20677,20 @@ type"),         Text(
       connect(complianceDriver1.compliance, C_RV.compliance) annotation (Line(
             points={{-40,-34},{-30,-34},{-30,-42}}, color={0,0,127}));
       connect(C_PV.externalPressure, ThoracicPressure.y)
-        annotation (Line(points={{-100,38},{-100,54},{-100,69},{-100,69}},
+        annotation (Line(points={{-100,38},{-100,54},{-100,69},{-101.2,69}},
                                                        color={244,125,35}));
       connect(C_TA.externalPressure, ThoracicPressure.y) annotation (Line(points={{28,38},
-              {28,42},{-100,42},{-100,69}},     color={244,125,35}));
+              {28,42},{-101.2,42},{-101.2,69}}, color={244,125,35}));
       connect(C_PA.externalPressure, ThoracicPressure.y) annotation (Line(points={{-72,-62},
-              {-72,42},{-100,42},{-100,69}},      color={244,125,35}));
+              {-72,42},{-101.2,42},{-101.2,69}},  color={244,125,35}));
       connect(C_LV.externalPressure, ThoracicPressure.y) annotation (Line(
-            points={{-22,2},{-22,42},{-100,42},{-100,69}}, color={244,125,35}));
+            points={{-22,2},{-22,42},{-101.2,42},{-101.2,69}},
+                                                           color={244,125,35}));
       connect(C_RV.externalPressure, ThoracicPressure.y) annotation (Line(
-            points={{-22,-42},{-22,42},{-100,42},{-100,69}}, color={244,125,35}));
+            points={{-22,-42},{-22,42},{-101.2,42},{-101.2,69}},
+                                                             color={244,125,35}));
       connect(C_TV.externalPressure, ThoracicPressure.y) annotation (Line(points={{58,-62},
-              {58,-40},{-22,-40},{-22,42},{-100,42},{-100,69}},      color={244,125,
+              {58,-40},{-22,-40},{-22,42},{-101.2,42},{-101.2,69}},  color={244,125,
               35}));
       connect(idealValve2.q_in, R_PV.q_out) annotation (Line(
           points={{-60,30},{-70,30}},
@@ -21228,11 +21230,14 @@ type"),         Text(
         startTime=140)
         annotation (Placement(transformation(extent={{-150,38},{-134,52}})),
           __Dymola_choicesAllMatching=true);
-      Components.Volume2Distention volume2Distention(v0=0.0001, l(displayUnit="cm"))
+      Components.Volume2Distention volume2Distention(v0=0.0004, l(displayUnit="cm"))
         annotation (Placement(transformation(extent={{100,40},{120,60}})));
-      Components.Auxiliary.Baroreflex baroreflex(resetAt=0)
+      Components.Auxiliary.Baroreflex baroreflex(resetAt=0, f1=0.0077)
         annotation (Placement(transformation(extent={{160,40},{180,60}})));
-      Components.Baroreceptor baroreceptor(Ts(displayUnit="s") = 3)
+      Components.Baroreceptor baroreceptor(Ts=3.0,
+        delta0=0.28,
+        epsilon_start=1.0,
+        s_start=0.92)
         annotation (Placement(transformation(extent={{128,40},{148,60}})));
       replaceable
       Physiolibrary.Hydraulic.Components.ElasticVessel C_SV(
@@ -21278,7 +21283,7 @@ type"),         Text(
         annotation (Placement(transformation(extent={{88,-6},{100,6}})));
       Components.PhiEffect phiEffect1
         annotation (Placement(transformation(extent={{56,54},{68,66}})));
-      Components.PhiEffect phiEffect2(factor=-1)
+      Components.PhiEffect phiEffect2(factor=0.0)
         annotation (Placement(transformation(extent={{56,74},{68,86}})));
       Physiolibrary.Types.Constants.HydraulicConductanceConst R_SV_G(k(displayUnit="ml/(mmHg.s)")=
              1.2756149249076e-8)
@@ -21452,8 +21457,39 @@ type"),         Text(
               -52},{-110,-64}}, color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {120,100}})), Diagram(coordinateSystem(preserveAspectRatio=false,
-              extent={{-100,-100},{120,100}})));
+              extent={{-100,-100},{120,100}})),
+        experiment(
+          StopTime=180,
+          Interval=0.01,
+          __Dymola_Algorithm="Dassl"));
     end simplestVS_control;
+
+    model simplestVS_cerebral
+      extends simplestVS(redeclare Modelica.Blocks.Sources.Trapezoid
+          ThoracicPressure(
+          amplitude=5320,
+          rising=1,
+          width=20,
+          falling=1,
+          period=200,
+          nperiod=1,
+          offset=0,
+          startTime=140));
+      Physiolibrary.Hydraulic.Components.Pump pump(SolutionFlow(displayUnit=
+              "ml/min") = 7.26667E-06) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={60,-10})));
+    equation
+      connect(pump.q_in, R_TA.q_out) annotation (Line(
+          points={{60,0},{60,30}},
+          color={0,0,0},
+          thickness=1));
+      connect(pump.q_out, R_SV.q_out) annotation (Line(
+          points={{60,-20},{60,-70},{70,-70}},
+          color={0,0,0},
+          thickness=1));
+    end simplestVS_cerebral;
   end SimpleValsalva;
 
   package ADAN86_Safaei "Adan86 reduced arterial tree"

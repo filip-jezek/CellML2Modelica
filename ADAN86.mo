@@ -1830,6 +1830,7 @@ type"),         Text(
       Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
 
     Modelica.SIunits.Diameter D(start = 2*r);
+    //Modelica.SIunits.Diameter D_inst(start = 2*r);
 
     parameter Real C_pass = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
     parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
@@ -1846,12 +1847,16 @@ type"),         Text(
     initial equation
     //  u_C = p0;
     equation
-      der(D) = ( u_C *D/2 - T_total) /(p0*tau);
+    //  T_total = u_C *D/2
+    //  der(D) = ( u_C *D/2 - T_total) /(p0*tau);
 
 
 
       if UseNonLinearCompliance then
-          T_total = u_C * D/2;
+         // T_total = u_C * D_inst /2;
+         // D_inst = D;
+          // tau*der(D) = D_inst - D;
+          der(D) = ( u_C *D/2 - T_total) /(p0*tau);
 
         if PV_variant == 1 then
           tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
@@ -1873,6 +1878,7 @@ type"),         Text(
         end if;
     else
          u_C = D;
+      //   D = D_inst;
          volume = (u_C) *C + zpv;
        end if;
 
@@ -16239,7 +16245,16 @@ type"),         Text(
     equation
       y = u*ee;
       ee = exp((phi_norm-1)*factor);
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+                                                                   Text(
+              extent={{-86,40},{94,100}},
+              lineColor={28,108,200},
+              textString="Effect"), Text(
+              extent={{-80,-100},{80,40}},
+              lineColor=DynamicSelect({28,108,200},
+     if factor > 0 then {0,140,72} elseif factor < 0 then {238,46,47} else {28,108,200}),
+              textString="%factor"),
+            Rectangle(extent={{-100,100},{100,-100}}, lineColor={28,108,200})}),                      Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end PhiEffect;
   end Components;
@@ -17740,7 +17755,7 @@ type"),         Text(
       inner parameter Physiolibrary.Types.Fraction cfactor = 1;
       inner Physiolibrary.Types.Pressure thoracic_pressure = 0;
 
-      parameter Physiolibrary.Types.Fraction phi_norm =  1 "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
+      Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
 
 
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(
@@ -17749,12 +17764,17 @@ type"),         Text(
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(
           usePressureInput=true)
         annotation (Placement(transformation(extent={{100,-10},{80,10}})));
-      Modelica.Blocks.Sources.Ramp ramp(
-        height=133*400,
-        duration=1100,
+      Modelica.Blocks.Sources.Trapezoid
+                                   trapezoid(
+        amplitude=133*60,
+        rising=60,
+        width=40,
+        falling=60,
+        period=1000,
+        nperiod=1,
         offset=133,
         startTime=100)
-        annotation (Placement(transformation(extent={{-80,-40},{-60,-20}})));
+        annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
         Components.Vessel_modules.vp_type
                       superior_vena_cava_C88(
         phi_norm=phi_norm,
@@ -17762,23 +17782,29 @@ type"),         Text(
         E=Parameters_Venous1.E_superior_vena_cava_C88,
         r=Parameters_Venous1.r_superior_vena_cava_C88,
         UseInertance=true,
-        PV_variant=-1)
+        PV_variant=4,
+        tau=6.0)
           annotation (Placement(transformation(extent={{26,-3},{46,2}})));
       Components.AdanVenousRed._b580e.Parameters_Venous_cellml.Parameters_Venous
         Parameters_Venous1
         annotation (Placement(transformation(extent={{-69,-87},{-49,-82}})));
-      Physiolibrary.Hydraulic.Components.Resistor resistor(Resistance=
-            7999343244.9)
+      Physiolibrary.Hydraulic.Components.Resistor resistor(Resistance(
+            displayUnit="(mmHg.s)/ml") = 133322387.415)
         annotation (Placement(transformation(extent={{-4,-10},{16,10}})));
-      Physiolibrary.Hydraulic.Components.Resistor resistor1(Resistance=
-            7999343244.9)
+      Physiolibrary.Hydraulic.Components.Resistor resistor1(Resistance(
+            displayUnit="(mmHg.s)/ml") = 133322387.415)
         annotation (Placement(transformation(extent={{52,-10},{72,10}})));
+      Modelica.Blocks.Sources.Ramp phi_ramp(
+        height=3,
+        duration=3.0,
+        offset=1,
+        startTime=200)
+        annotation (Placement(transformation(extent={{-100,66},{-80,86}})));
     equation
-      connect(unlimitedVolume.pressure, ramp.y) annotation (Line(points={{-40,0},{-50,
-              0},{-50,-30},{-59,-30}}, color={0,0,127}));
-      connect(unlimitedVolume1.pressure, ramp.y)
-        annotation (Line(points={{100,0},{100,-30},{-59,-30}},
-                                                             color={0,0,127}));
+      connect(unlimitedVolume.pressure, trapezoid.y) annotation (Line(points={{
+              -40,0},{-50,0},{-50,-30},{-79,-30}}, color={0,0,127}));
+      connect(unlimitedVolume1.pressure, trapezoid.y) annotation (Line(points={
+              {100,0},{100,-30},{-79,-30}}, color={0,0,127}));
       connect(unlimitedVolume.y, resistor.q_in) annotation (Line(
           points={{-20,0},{-16,0},{-16,-0.5},{-4,0}},
           color={0,0,0},
@@ -17796,7 +17822,11 @@ type"),         Text(
           color={0,0,0},
           thickness=1));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-            coordinateSystem(preserveAspectRatio=false)));
+            coordinateSystem(preserveAspectRatio=false)),
+        experiment(
+          StopTime=300,
+          Interval=0.01,
+          __Dymola_Algorithm="Dassl"));
     end testPVchars;
   end tests;
 
@@ -21156,7 +21186,7 @@ type"),         Text(
       BeatDrive beatDrive
         annotation (Placement(transformation(extent={{-100,-36},{-80,-16}})));
       Physiolibrary.Types.Constants.FrequencyConst HR(k=1)
-        annotation (Placement(transformation(extent={{-124,-32},{-108,-18}})));
+        annotation (Placement(transformation(extent={{-152,-20},{-138,-8}})));
       ComplianceDriver complianceDriver(ep=1, alphaF=1)
         annotation (Placement(transformation(extent={{-60,-16},{-40,4}})));
       Physiolibrary.Hydraulic.Components.Resistor R_TA(Resistance(displayUnit="(mmHg.s)/ml")=
@@ -21313,9 +21343,11 @@ type"),         Text(
         annotation (Placement(transformation(extent={{-148,-58},{-134,-46}})));
       Components.PhiEffect phiEffect8
         annotation (Placement(transformation(extent={{-124,-58},{-112,-46}})));
+      Modelica.Blocks.Logical.Switch switch1
+        annotation (Placement(transformation(extent={{-122,-32},{-110,-20}})));
+      Modelica.Blocks.Sources.BooleanConstant useConstantHR_bool
+        annotation (Placement(transformation(extent={{-174,-32},{-162,-20}})));
     equation
-      connect(beatDrive.HR, HR.y) annotation (Line(points={{-100,-26},{-108,-26},{-108,
-              -25},{-106,-25}}, color={0,0,127}));
       connect(beatDrive.beatTime, complianceDriver.beatTime) annotation (Line(
             points={{-80,-16},{-70,-16},{-70,-6},{-60,-6}}, color={0,0,127}));
       connect(idealValve.q_out, C_TA.q_in) annotation (Line(
@@ -21455,6 +21487,14 @@ type"),         Text(
         annotation (Line(points={{-124,-52},{-132.25,-52}}, color={0,0,127}));
       connect(phiEffect8.y, R_PA.cond) annotation (Line(points={{-111.88,-52},{-110,
               -52},{-110,-64}}, color={0,0,127}));
+      connect(switch1.y, beatDrive.HR)
+        annotation (Line(points={{-109.4,-26},{-100,-26}}, color={0,0,127}));
+      connect(HR.y, switch1.u1) annotation (Line(points={{-136.25,-14},{-124,
+              -14},{-124,-21.2},{-123.2,-21.2}}, color={0,0,127}));
+      connect(switch1.u2, useConstantHR_bool.y) annotation (Line(points={{
+              -123.2,-26},{-161.4,-26}}, color={255,0,255}));
+      connect(baroreflex.HR, switch1.u3) annotation (Line(points={{180,40.2},{
+              180,-98},{-152,-98},{-152,-30.8},{-123.2,-30.8}}, color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {120,100}})), Diagram(coordinateSystem(preserveAspectRatio=false,
               extent={{-100,-100},{120,100}})),
@@ -21464,7 +21504,7 @@ type"),         Text(
           __Dymola_Algorithm="Dassl"));
     end simplestVS_control;
 
-    model simplestVS_cerebral
+    model simplestVS_cerebral "This model demonstrates, that cerebral autoregulation would not have important effect on valsalva maneuver"
       extends simplestVS(redeclare Modelica.Blocks.Sources.Trapezoid
           ThoracicPressure(
           amplitude=5320,
@@ -21476,20 +21516,30 @@ type"),         Text(
           offset=0,
           startTime=140));
       Physiolibrary.Hydraulic.Components.Pump pump(SolutionFlow(displayUnit=
-              "ml/min") = 7.26667E-06) annotation (Placement(transformation(
+              "ml/min") = 0)
+                          annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
-            origin={60,-10})));
+            origin={60,-18})));
     equation
       connect(pump.q_in, R_TA.q_out) annotation (Line(
-          points={{60,0},{60,30}},
+          points={{60,-8},{60,30}},
           color={0,0,0},
           thickness=1));
       connect(pump.q_out, R_SV.q_out) annotation (Line(
-          points={{60,-20},{60,-70},{70,-70}},
+          points={{60,-28},{60,-70},{70,-70}},
           color={0,0,0},
           thickness=1));
     end simplestVS_cerebral;
+
+    model simplestVS_control_Important
+      extends simplestVS_control(
+        phiEffect3(factor=1),
+        phiEffect(factor=-1),
+        phiEffect5(factor=-1),
+        phiEffect4(factor=-1),
+        useConstantHR_bool(k=false));
+    end simplestVS_control_Important;
   end SimpleValsalva;
 
   package ADAN86_Safaei "Adan86 reduced arterial tree"

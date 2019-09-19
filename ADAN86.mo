@@ -1099,7 +1099,7 @@ type"),         Text(
       Integer z;
       constant Physiolibrary.Types.Pressure min_max = 1e5 "Maximal value of the diastolic pressure";
       parameter Boolean enable = true annotation(choices(checkBox=true));
-      Boolean triggerFunc[:] = if enable then {false, false} else {beat,B};
+      Boolean triggerFunc[:] = if not enable then {false, false} else {beat,B};
     equation
       when triggerFunc then
         if B and beat == pre(beat) then
@@ -20484,12 +20484,13 @@ type"),         Text(
 
     //Physiolibrary.Types.Time tr "total integrated rate";
     Physiolibrary.Types.Time t0 "time of the last revolution";
-
+    Integer cnt;
     equation
       beat = time > pre(t0) + 1/HR;
 
       when beat then
         t0 = time;
+        cnt = pre(cnt) + 1;
       end when;
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
@@ -20707,20 +20708,18 @@ type"),         Text(
       connect(complianceDriver1.compliance, C_RV.compliance) annotation (Line(
             points={{-40,-34},{-30,-34},{-30,-42}}, color={0,0,127}));
       connect(C_PV.externalPressure, ThoracicPressure.y)
-        annotation (Line(points={{-100,38},{-100,54},{-100,69},{-101.2,69}},
+        annotation (Line(points={{-100,38},{-100,54},{-100,69},{-100,69}},
                                                        color={244,125,35}));
       connect(C_TA.externalPressure, ThoracicPressure.y) annotation (Line(points={{28,38},
-              {28,42},{-101.2,42},{-101.2,69}}, color={244,125,35}));
+              {28,42},{-100,42},{-100,69}},     color={244,125,35}));
       connect(C_PA.externalPressure, ThoracicPressure.y) annotation (Line(points={{-72,-62},
-              {-72,42},{-101.2,42},{-101.2,69}},  color={244,125,35}));
+              {-72,42},{-100,42},{-100,69}},      color={244,125,35}));
       connect(C_LV.externalPressure, ThoracicPressure.y) annotation (Line(
-            points={{-22,2},{-22,42},{-101.2,42},{-101.2,69}},
-                                                           color={244,125,35}));
+            points={{-22,2},{-22,42},{-100,42},{-100,69}}, color={244,125,35}));
       connect(C_RV.externalPressure, ThoracicPressure.y) annotation (Line(
-            points={{-22,-42},{-22,42},{-101.2,42},{-101.2,69}},
-                                                             color={244,125,35}));
+            points={{-22,-42},{-22,42},{-100,42},{-100,69}}, color={244,125,35}));
       connect(C_TV.externalPressure, ThoracicPressure.y) annotation (Line(points={{58,-62},
-              {58,-40},{-22,-40},{-22,42},{-101.2,42},{-101.2,69}},  color={244,125,
+              {58,-40},{-22,-40},{-22,42},{-100,42},{-100,69}},      color={244,125,
               35}));
       connect(idealValve2.q_in, R_PV.q_out) annotation (Line(
           points={{-60,30},{-70,30}},
@@ -21251,7 +21250,7 @@ type"),         Text(
       ComplianceDriver complianceDriver1(ep=0.3, alphaF=1)
         annotation (Placement(transformation(extent={{-60,-44},{-40,-24}})));
       Modelica.Blocks.Sources.Trapezoid           ThoracicPressure(
-        amplitude=40*133,
+        amplitude=-36*133,
         rising=1,
         width=20,
         falling=1,
@@ -21534,11 +21533,25 @@ type"),         Text(
 
     model simplestVS_control_Important
       extends simplestVS_control(
-        phiEffect3(factor=1),
+        phiEffect3(factor=0),
         phiEffect(factor=-1),
         phiEffect5(factor=-1),
         phiEffect4(factor=-1),
-        useConstantHR_bool(k=false));
+        useConstantHR_bool(k=false),
+        ThoracicPressure(amplitude=-36.5*133));
+      Components.pressure_envelope pressure_envelope
+        annotation (Placement(transformation(extent={{-50,60},{-26,84}})));
+      Physiolibrary.Hydraulic.Sensors.PressureMeasure pressureMeasure
+        annotation (Placement(transformation(extent={{-2,66},{18,86}})));
+    equation
+      connect(C_TA.q_in, pressureMeasure.q_in) annotation (Line(
+          points={{20,30},{12,30},{12,70},{4,70}},
+          color={0,0,0},
+          thickness=1));
+      connect(pressureMeasure.pressure, pressure_envelope.p) annotation (Line(
+            points={{14,72},{-18,72},{-18,66},{-50,66}}, color={0,0,127}));
+      connect(pressure_envelope.beat, beatDrive.beat) annotation (Line(points={
+              {-50,78},{-50,20.25},{-80,20.25},{-80,-36}}, color={255,0,255}));
     end simplestVS_control_Important;
   end SimpleValsalva;
 
@@ -23816,9 +23829,9 @@ type"),         Text(
           disconnectedValue=1, disconnected=false)
         annotation (Placement(transformation(extent={{0,50},{12,56}})));
     Modelica.Blocks.Sources.Trapezoid           thoracic_pressure(
-        amplitude=5320,
+        amplitude=-36.5*133,
         rising=1,
-        width=20,
+        width=18,
         falling=1,
         period=100,
         nperiod=1,

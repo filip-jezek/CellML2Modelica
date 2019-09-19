@@ -1,4 +1,5 @@
-﻿ phiEffect.factor = 0; 
+﻿translateModel("ADAN_main.SimpleValsalva.simplestVS_control" );
+ phiEffect.factor = 0; 
 phiEffect1.factor = 0; 
 phiEffect2.factor = 0; 
 phiEffect3.factor = 0; 
@@ -9,12 +10,22 @@ phiEffect7.factor = 0;
 phiEffect8.factor = 0; 
 simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control");
 
- phiEffect.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control");  phiEffect.factor = 0; 
-phiEffect1.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect1.factor = 0; 
-phiEffect2.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect2.factor = 0; 
-phiEffect3.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect3.factor = 0; 
-phiEffect4.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect4.factor = 0; 
-phiEffect5.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect5.factor = 0; 
-phiEffect6.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect6.factor = 0; 
-phiEffect7.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect7.factor = 0; 
-phiEffect8.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect8.factor = 0; 
+//  phiEffect.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control");  phiEffect.factor = 0; 
+// phiEffect1.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect1.factor = 0; 
+// phiEffect2.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect2.factor = 0; 
+// phiEffect3.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect3.factor = 0; 
+// phiEffect4.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect4.factor = 0; 
+// phiEffect5.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect5.factor = 0; 
+// phiEffect6.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect6.factor = 0; 
+// phiEffect7.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect7.factor = 0; 
+// phiEffect8.factor = 1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect8.factor = 0; 
+
+ phiEffect.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control");  phiEffect.factor = 0; 
+phiEffect1.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect1.factor = 0; 
+phiEffect2.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect2.factor = 0; 
+phiEffect3.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect3.factor = 0; 
+phiEffect4.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect4.factor = 0; 
+phiEffect5.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect5.factor = 0; 
+phiEffect6.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect6.factor = 0; 
+phiEffect7.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect7.factor = 0; 
+phiEffect8.factor = -1; simulateModel("ADAN_main.SimpleValsalva.simplestVS_control", stopTime=200, numberOfIntervals=0, outputInterval=0.01, method="Cvode", tolerance=1e-06, resultFile="simplestVS_control"); phiEffect8.factor = 0; 

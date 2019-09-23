@@ -17750,12 +17750,24 @@ type"),         Text(
       inner Physiolibrary.Types.Fraction C_effect = 1/(1 + alphaC*(phi_norm-1));
 
 
-      inner parameter Physiolibrary.Types.Fraction venous_diameter_correction = 1.5;
-      inner parameter Physiolibrary.Types.Fraction C_fact = 1;
+      inner parameter Physiolibrary.Types.Fraction venous_diameter_correction=1.5;
+      inner parameter Physiolibrary.Types.Fraction C_fact=1;
       inner Modelica.SIunits.Angle Tilt = 0;
 
-      inner parameter Physiolibrary.Types.Fraction cfactor = 1;
+      inner parameter Physiolibrary.Types.Fraction cfactor=1;
       inner Physiolibrary.Types.Pressure thoracic_pressure = 0;
+
+
+      parameter Physiolibrary.Types.HydraulicCompliance totalCompliance=4.5003694550739e-07;
+      parameter Physiolibrary.Types.Volume totalVolume=0.0004;
+      parameter Physiolibrary.Types.Fraction thisVolumeFraction = superior_vena_cava_C88.V0/totalVolume;
+      parameter Physiolibrary.Types.HydraulicCompliance targetCompliance = totalCompliance*thisVolumeFraction;
+      Physiolibrary.Types.HydraulicCompliance thisCompliance = dV/dP;
+      Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
+
+      Real dP = der(superior_vena_cava_C88.u_C);
+      Real dV = der(superior_vena_cava_C88.V);
+
 
       Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
 
@@ -17768,14 +17780,14 @@ type"),         Text(
         annotation (Placement(transformation(extent={{100,-10},{80,10}})));
       Modelica.Blocks.Sources.Trapezoid
                                    trapezoid(
-        amplitude=133*60,
-        rising=60,
-        width=40,
-        falling=60,
-        period=1000,
+        amplitude=5320.0,
+        rising=1000.0,
+        width=0.0,
+        falling=1000.0,
+        period=2000.0,
         nperiod=1,
-        offset=133,
-        startTime=100)
+        offset=0.0,
+        startTime=0)
         annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
         Components.Vessel_modules.vp_type
                       superior_vena_cava_C88(
@@ -17783,25 +17795,30 @@ type"),         Text(
         l=Parameters_Venous1.l_superior_vena_cava_C88,
         E=Parameters_Venous1.E_superior_vena_cava_C88,
         r=Parameters_Venous1.r_superior_vena_cava_C88,
-        UseInertance=true,
+        UseInertance=false,
         PV_variant=4,
-        tau=6.0)
+        tau(displayUnit="s") = 0.01,
+        C_act=10.4)
           annotation (Placement(transformation(extent={{26,-3},{46,2}})));
       Components.AdanVenousRed._b580e.Parameters_Venous_cellml.Parameters_Venous
         Parameters_Venous1
         annotation (Placement(transformation(extent={{-69,-87},{-49,-82}})));
       Physiolibrary.Hydraulic.Components.Resistor resistor(Resistance(
-            displayUnit="(mmHg.s)/ml") = 133322387.415)
+            displayUnit="(mmHg.min)/l")=7999340.0)
         annotation (Placement(transformation(extent={{-4,-10},{16,10}})));
       Physiolibrary.Hydraulic.Components.Resistor resistor1(Resistance(
-            displayUnit="(mmHg.s)/ml") = 133322387.415)
+            displayUnit="(mmHg.min)/l")=7999340.0)
         annotation (Placement(transformation(extent={{52,-10},{72,10}})));
-      Modelica.Blocks.Sources.Ramp phi_ramp(
-        height=3,
-        duration=3.0,
-        offset=1,
-        startTime=200)
-        annotation (Placement(transformation(extent={{-100,66},{-80,86}})));
+      Modelica.Blocks.Sources.Trapezoid
+                                   phi_ramp(
+        rising=1,
+        width=900,
+        falling=1,
+        period=2000,
+        nperiod=1,
+        offset=0,
+        startTime=50.0)
+        annotation (Placement(transformation(extent={{-100,64},{-80,84}})));
     equation
       connect(unlimitedVolume.pressure, trapezoid.y) annotation (Line(points={{
               -40,0},{-50,0},{-50,-30},{-79,-30}}, color={0,0,127}));
@@ -17826,9 +17843,10 @@ type"),         Text(
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
-          StopTime=300,
+          StopTime=2000,
           Interval=0.01,
-          __Dymola_Algorithm="Dassl"));
+          Tolerance=1e-12,
+          __Dymola_Algorithm="Cvode"));
     end testPVchars;
   end tests;
 
@@ -24322,7 +24340,7 @@ type"),         Text(
     end Carlson2005_C24;
   end dev;
   annotation (uses(Physiolibrary(version="2.3.2-beta"), Modelica(version=
-            "3.2.2")), experiment(
+            "3.2.3")), experiment(
       StopTime=80,
       __Dymola_NumberOfIntervals=1500,
       Tolerance=0.0005,

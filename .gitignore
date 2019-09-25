@@ -9,3 +9,4 @@ dsfinal.txt
 dsin.txt
 dslog.txt
 dsmodel.c
+/__pycache__/*.pyc

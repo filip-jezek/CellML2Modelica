@@ -1559,7 +1559,7 @@ type"),         Text(
 
         Physiolibrary.Types.Volume volume(nominal = 1e-6);
       equation
-        assert(volume > 0, "Volume in %name is negative!", AssertionLevel.warning);
+        assert(volume > 0, "Volume is negative!", AssertionLevel.warning);
 
           annotation (Icon(coordinateSystem(extent={{-100,-20},{100,20}}), graphics={
               Text(
@@ -1703,6 +1703,27 @@ type"),         Text(
                 fillPattern=FillPattern.Solid,
                 pattern=LinePattern.None)}));
       end systemic_tissue_base;
+
+      partial model compliance_base
+        "A base model for pressure - volume characteristics"
+
+        import Physiolibrary.Types.*;
+        input VolumeFlowRate inflow;
+        Pressure pressure;
+        Volume volume;
+        Volume V0;
+
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+              coordinateSystem(preserveAspectRatio=false)));
+      end compliance_base;
+
+      model compliance_linear
+        extends compliance_base;
+        parameter Physiolibrary.Types.HydraulicCompliance C "compliance";
+        parameter Physiolibrary.Types.Volume zpv "Zero pressure volume";
+      equation
+        volume = pressure *C + zpv;
+      end compliance_linear;
     end Interfaces;
 
     model vv_type_thoracic
@@ -1787,6 +1808,7 @@ type"),         Text(
     model vp_type
 
       extends Interfaces.bg_vessel(
+      UseInertance = false,
       UseNonLinearCompliance = true,
       zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2),
       R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4)),
@@ -1818,23 +1840,34 @@ type"),         Text(
       // parameter Physiolibrary.Types.Volume init_volume = zpv + 2*2*zpv/Modelica.Constants.pi*atan(Modelica.Constants.pi*zpv/p0/2/(2*zpv)*(p0));
 
     Real A = phi_norm * 0.25 "denormalizing the normalized normal";
-    Real T_total = T_pass + A*T_act_max;
-    Real T_pass = C_pass*exp(T_pass_exp);
-      Real T_pass_exp=Cd_pass*(ll0 - 1);
-      Real T_act_max=C_act*exp(-((ll0 - Cd_act)/Cdd_act)^2);
+    Real T_total = T_pass + T_active;
+    Real T_active_inf = A*T_act_max;
+    Real T_active;
+
+    Real T_pass;
+    Real T_pass_exp;
+    Real T_act_max;
     parameter Physiolibrary.Types.Time tau = 0.1 "Time constant of the smooth muscle activation";
 
 
       Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
         "Circumferential wall length";
-      Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+      parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+      parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
+      parameter Real gamma = 1/2;
+      parameter Real alpha = 2.5;// = T_pass/(T_pass + T_act_max);
+      parameter Physiolibrary.Types.Pressure P_passiveBase = 2*133;
+      Real T_pass_nominal = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1);
+      Real T_max_nominal = (T_pass_nominal  + C_act);
+
 
     Modelica.SIunits.Diameter D(start = 2*r);
     //Modelica.SIunits.Diameter D_inst(start = 2*r);
 
-    parameter Real C_pass = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
+
+    Real C_pass;// = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
     parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
-    parameter Real C_act = 42 "(N/m)";
+    Real C_act;// = 10.4 "(N/m)";
     parameter Real Cd_act = 1;
     parameter Real Cdd_act = 0.4;
 
@@ -1846,40 +1879,66 @@ type"),         Text(
     Physiolibrary.Types.Fraction ll0( start = 1)=wall_L/wall_L0;
 
     initial equation
-
+    T_active = T_active_inf;
     //  u_C = p0;
     equation
+      // identify the c_act
+      alpha =   T_max_nominal/T_pass_nominal;
+      // identify the c_pass
+      P_passiveBase * r = T_pass_nominal;
+
     //  T_total = u_C *D/2
     //  der(D) = ( u_C *D/2 - T_total) /(p0*tau);
 
+    if PV_variant == 5 then
+      T_pass_exp= (wall_L - wall_L_min) /wall_L_min;
+      T_pass = C_pass*exp(T_pass_exp) - C_pass;
 
+      T_act_max=C_act*wall_L/wall_L0;
+      //der(T_active) = (T_active_inf - T_active)/tau;
+      0 = (T_active_inf - T_active);
+
+    else
+      T_pass_exp=Cd_pass*(ll0 - 1);
+      T_pass = C_pass*exp(T_pass_exp);
+
+      T_act_max=C_act*exp(-((ll0 - Cd_act)/Cdd_act)^2);
+      0 = (T_active_inf - T_active);
+
+    end if;
 
       if UseNonLinearCompliance then
          // T_total = u_C * D_inst /2;
          // D_inst = D;
           // tau*der(D) = D_inst - D;
-          der(D) = ( u_C *D/2 - T_total) /(p0*tau);
 
         if PV_variant == 1 then
           tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
+          D = r*2;
+
         elseif PV_variant == 2 then
           // Dan 1
           volume  = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*u_C/p0) + 1)/2;
+          D = r*2;
         elseif PV_variant == 3 then
           // Dan 2
           volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
+          D = r*2;
         elseif PV_variant == 4 then
           // Carslon&Secomb 2005
-          //      volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
           volume = V;
-
+          der(D) = ( u_C *D/2 - T_total) /(p0*tau);
+        elseif PV_variant == 5 then
+          volume = V;
+          u_C *D/2 = T_total;
         else
           // 0
           // default original relation
           volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
+          D = r*2;
         end if;
     else
-         u_C = D;
+          D = r*2;
       //   D = D_inst;
          volume = (u_C) *C + zpv;
        end if;
@@ -3283,6 +3342,100 @@ type"),         Text(
               arrow={Arrow.None,Arrow.Filled},
               thickness=0.5)}));
     end vp_type_phi_sensitive;
+
+    model vp_type2
+
+      extends Interfaces.bg_vessel(
+      UseInertance = false,
+      UseNonLinearCompliance = true,
+      zpv = l*Modelica.Constants.pi*((r)^2),
+      R = 8*mu*l/(Modelica.Constants.pi*((r)^4)),
+      I = rho*l/(Modelica.Constants.pi*(r)^2),
+      volume(start = init_volume*2, fixed = false));
+
+    //  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
+
+      Real u_C(unit = "Pa");
+      input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
+
+      Physiolibrary.Types.Pressure u_out_hs = u_out;
+
+      parameter Physiolibrary.Types.Volume init_volume = V0;
+      // parameter Physiolibrary.Types.Volume init_volume = zpv + 2*2*zpv/Modelica.Constants.pi*atan(Modelica.Constants.pi*zpv/p0/2/(2*zpv)*(p0));
+
+    Real A = phi_norm * 0.25 "denormalizing the normalized normal";
+    Real T_total = T_pass + T_active;
+    Real T_active_inf = A*T_act_max;
+    Real T_active;
+
+    Real T_pass;
+    Real T_pass_exp;
+    Real T_act_max;
+    parameter Physiolibrary.Types.Time tau = 0.1 "Time constant of the smooth muscle activation";
+
+      Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
+        "Circumferential wall length";
+      parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+      parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
+      parameter Real gamma = 1/2;
+      parameter Real alpha = 2.5;// = T_pass/(T_pass + T_act_max);
+      parameter Physiolibrary.Types.Pressure P_passiveBase = 2*133;
+      Real T_pass_nominal = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1);
+      Real T_max_nominal = (T_pass_nominal  + C_act);
+
+    Modelica.SIunits.Diameter D(start = 2*r);
+    //Modelica.SIunits.Diameter D_inst(start = 2*r);
+
+    Real C_pass;// = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
+    Real C_act;// = 10.4 "(N/m)";
+
+
+    parameter Modelica.SIunits.Length vessel_length = 11.3168e-2;
+    Physiolibrary.Types.Volume V = l * Modelica.Constants.pi * (D/2)^2;
+    parameter Physiolibrary.Types.Volume V0 = l * Modelica.Constants.pi * (r)^2;
+    //parameter Modelica.SIunits.Diameter D0 = 2*T_total/p0 ;
+
+    Physiolibrary.Types.Fraction ll0( start = 1)=wall_L/wall_L0;
+
+    initial equation
+    //  u_C = p0;
+    equation
+      // identify the c_act
+      alpha =   T_max_nominal/T_pass_nominal;
+      // identify the c_pass
+      P_passiveBase * r = T_pass_nominal;
+
+    //  T_total = u_C *D/2
+    //  der(D) = ( u_C *D/2 - T_total) /(p0*tau);
+
+      T_pass_exp= (wall_L - wall_L_min) /wall_L_min;
+      T_pass = C_pass*exp(T_pass_exp) - C_pass;
+
+      T_act_max=C_act*wall_L/wall_L0;
+      der(T_active) = (T_active_inf - T_active)/tau;
+      //0 = (T_active_inf - T_active);
+
+          volume = V;
+
+      u_C *D/2 = T_total;
+      0 = u_in-u_out_hs-R*v_out;
+      der(volume) = v_in-v_out;
+      u_in = u_C+R_v*(v_in-v_out);
+
+        annotation (Diagram(graphics={
+            Line(
+              points={{-100,0},{-60,0}},
+              color={28,108,200},
+              arrow={Arrow.None,Arrow.Open}),
+            Line(
+              points={{40,0},{80,0}},
+              color={28,108,200},
+              arrow={Arrow.None,Arrow.Open})}), Icon(graphics={Line(
+              points={{-80,0},{80,0}},
+              color={28,108,200},
+              arrow={Arrow.None,Arrow.Filled},
+              thickness=0.5)}));
+    end vp_type2;
   end Vessel_modules;
 
     package Adan86
@@ -17746,8 +17899,7 @@ type"),         Text(
 
       parameter Real alphaC = 2.5;
       parameter Real alphaZPV = 2.5;
-      inner Physiolibrary.Types.Fraction ZPV_effect = 1/ (1 + alphaZPV*(phi_norm-1));
-      inner Physiolibrary.Types.Fraction C_effect = 1/(1 + alphaC*(phi_norm-1));
+
 
 
       inner parameter Physiolibrary.Types.Fraction venous_diameter_correction=1.5;
@@ -17762,7 +17914,7 @@ type"),         Text(
       parameter Physiolibrary.Types.Volume totalVolume=0.0004;
       parameter Physiolibrary.Types.Fraction thisVolumeFraction = superior_vena_cava_C88.V0/totalVolume;
       parameter Physiolibrary.Types.HydraulicCompliance targetCompliance = totalCompliance*thisVolumeFraction;
-      Physiolibrary.Types.HydraulicCompliance thisCompliance = dV/dP;
+      Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
       Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
 
       Real dP = der(superior_vena_cava_C88.u_C);
@@ -17789,16 +17941,14 @@ type"),         Text(
         offset=0.0,
         startTime=0)
         annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
-        Components.Vessel_modules.vp_type
+        Components.Vessel_modules.vp_type2
                       superior_vena_cava_C88(
         phi_norm=phi_norm,
         l=Parameters_Venous1.l_superior_vena_cava_C88,
         E=Parameters_Venous1.E_superior_vena_cava_C88,
         r=Parameters_Venous1.r_superior_vena_cava_C88,
         UseInertance=false,
-        PV_variant=4,
-        tau(displayUnit="s") = 0.01,
-        C_act=10.4)
+        tau(displayUnit="s") = 0.01)
           annotation (Placement(transformation(extent={{26,-3},{46,2}})));
       Components.AdanVenousRed._b580e.Parameters_Venous_cellml.Parameters_Venous
         Parameters_Venous1
@@ -17811,7 +17961,8 @@ type"),         Text(
         annotation (Placement(transformation(extent={{52,-10},{72,10}})));
       Modelica.Blocks.Sources.Trapezoid
                                    phi_ramp(
-        rising=1,
+        amplitude=4,
+        rising=10,
         width=900,
         falling=1,
         period=2000,
@@ -17843,10 +17994,10 @@ type"),         Text(
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
-          StopTime=2000,
+          StopTime=60,
           Interval=0.01,
           Tolerance=1e-12,
-          __Dymola_Algorithm="Cvode"));
+          __Dymola_Algorithm="Dassl"));
     end testPVchars;
   end tests;
 
@@ -20729,18 +20880,20 @@ type"),         Text(
       connect(complianceDriver1.compliance, C_RV.compliance) annotation (Line(
             points={{-40,-34},{-30,-34},{-30,-42}}, color={0,0,127}));
       connect(C_PV.externalPressure, ThoracicPressure.y)
-        annotation (Line(points={{-100,38},{-100,54},{-100,69},{-100,69}},
+        annotation (Line(points={{-100,38},{-100,54},{-100,69},{-101.2,69}},
                                                        color={244,125,35}));
       connect(C_TA.externalPressure, ThoracicPressure.y) annotation (Line(points={{28,38},
-              {28,42},{-100,42},{-100,69}},     color={244,125,35}));
+              {28,42},{-101.2,42},{-101.2,69}}, color={244,125,35}));
       connect(C_PA.externalPressure, ThoracicPressure.y) annotation (Line(points={{-72,-62},
-              {-72,42},{-100,42},{-100,69}},      color={244,125,35}));
+              {-72,42},{-101.2,42},{-101.2,69}},  color={244,125,35}));
       connect(C_LV.externalPressure, ThoracicPressure.y) annotation (Line(
-            points={{-22,2},{-22,42},{-100,42},{-100,69}}, color={244,125,35}));
+            points={{-22,2},{-22,42},{-101.2,42},{-101.2,69}},
+                                                           color={244,125,35}));
       connect(C_RV.externalPressure, ThoracicPressure.y) annotation (Line(
-            points={{-22,-42},{-22,42},{-100,42},{-100,69}}, color={244,125,35}));
+            points={{-22,-42},{-22,42},{-101.2,42},{-101.2,69}},
+                                                             color={244,125,35}));
       connect(C_TV.externalPressure, ThoracicPressure.y) annotation (Line(points={{58,-62},
-              {58,-40},{-22,-40},{-22,42},{-100,42},{-100,69}},      color={244,125,
+              {58,-40},{-22,-40},{-22,42},{-101.2,42},{-101.2,69}},  color={244,125,
               35}));
       connect(idealValve2.q_in, R_PV.q_out) annotation (Line(
           points={{-60,30},{-70,30}},
@@ -23573,7 +23726,7 @@ type"),         Text(
           UseFrequencyInput=true,
           UseThoracicPressureInput=true));
       Components.ConditionalConnection conditionalConnection(
-          disconnectedValue=0.25, disconnected=true)
+          disconnectedValue=0.25, disconnected=false)
         annotation (Placement(transformation(extent={{8,4},{-4,10}})));
       Components.ConditionalConnection conditionalConnection1(
           disconnectedValue=1, disconnected=false)
@@ -24209,6 +24362,89 @@ type"),         Text(
           Tolerance=1e-06,
           __Dymola_Algorithm="Cvode"));
     end CVS_7af_baro_simple;
+
+    model Lumped_simple
+      Components.AdanVenousRed._7af7a4.HeartComponent heartComponent(HR=1)
+        annotation (Placement(transformation(extent={{0,-20},{-20,0}})));
+      Components.AdanVenousRed.PulmonaryComponent pulmonaryComponent
+        annotation (Placement(transformation(extent={{-20,-50},{0,-30}})));
+      Components.Vessel_modules.pv_type
+                      internal_carotid_R8_B(
+        v_in(start=1.2675836e-06, fixed=true),
+        u_C(start=9384.456, fixed=true),
+        l=Parameters_Systemic1.l_internal_carotid_R8_B,
+        E=Parameters_Systemic1.E_internal_carotid_R8_B,
+        r=Parameters_Systemic1.r_internal_carotid_R8_B)
+      annotation (Placement(transformation(extent={{-44,29},{-24,34}})));
+      Components.Vessel_modules.systemic_tissue
+                      internal_carotid_R8_C(
+        volume(start=7.479189e-05, fixed=true),
+        Ra=tissueParameters.Ra_internal_carotid_R8_C,
+        Rv=tissueParameters.Rv_internal_carotid_R8_C,
+        I=tissueParameters.I_internal_carotid_R8_C,
+        C=tissueParameters.C_internal_carotid_R8_C,
+        zpv=tissueParameters.Zpv_internal_carotid_R8_C)
+      annotation (Placement(transformation(extent={{-19,29},{1,34}})));
+      Components.Vessel_modules.vp_type
+                    internal_jugular_vein_R122(
+        v_out(start=4.1341805e-06, fixed=true),
+        volume(start=0.00014651944, fixed=true),
+        phi_norm=phi_norm,
+        l=Parameters_Venous1.l_internal_jugular_vein_R122,
+        E=Parameters_Venous1.E_internal_jugular_vein_R122,
+        r=Parameters_Venous1.r_internal_jugular_vein_R122)
+      annotation (Placement(transformation(extent={{7,29},{27,34}})));
+
+    parameter Real L_Systemic = 3.28 "Sum of all lengths";
+    parameter Real V_systemic = 216e-6 "Sum of all ZPV";
+    parameter Physiolibrary.Types.VolumeFlowRate CO "cardiac output";
+    parameter Real P_aortic;
+    parameter Real P_tissues;
+
+    Real r_Systemic;
+
+    Real Resistance_Systemic = dp_Systemic / CO;
+    Real dp_Systemic = 100 - 80 " Need to be calculated numerically from tissues.inflow.pressure";
+
+    equation
+
+      V_systemic = L_Systemic*Modelica.Constants.pi * r_Systemic^2;
+
+
+      connect(pulmonaryComponent.q_out, heartComponent.pv) annotation (Line(
+          points={{0,-40},{16,-40},{16,-20},{0,-20}},
+          color={0,0,0},
+          thickness=1));
+      connect(heartComponent.pa, pulmonaryComponent.q_in) annotation (Line(
+          points={{-20,-20},{-34,-20},{-34,-40},{-20,-40}},
+          color={0,0,0},
+          thickness=1));
+      connect(internal_jugular_vein_R122.port_b, heartComponent.sv) annotation (
+          Line(
+          points={{27,31.5},{30,31.5},{30,0},{0,0}},
+          color={0,0,0},
+          thickness=1));
+      connect(heartComponent.sa, internal_carotid_R8_B.port_a) annotation (Line(
+          points={{-20,0},{-50,0},{-50,31.5},{-44,31.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(internal_carotid_R8_B.port_b, internal_carotid_R8_C.port_a)
+        annotation (Line(
+          points={{-24,31.5},{-19,31.5}},
+          color={0,0,0},
+          thickness=1));
+      connect(internal_carotid_R8_C.port_b, internal_jugular_vein_R122.port_a)
+        annotation (Line(
+          points={{1,31.5},{7,31.5}},
+          color={0,0,0},
+          thickness=1));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)),
+        experiment(
+          StopTime=10,
+          Tolerance=1e-05,
+          __Dymola_Algorithm="Cvode"));
+    end Lumped_simple;
   annotation(preferredView="info",
   version="2.3.2-beta",
   versionBuild=1,

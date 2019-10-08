@@ -756,6 +756,23 @@ type"),         Text(
         volumeFlowRate = q_in.q;
         dp = q_in.pressure - q_out.pressure;
       end OnePort;
+
+      model OnePort_None
+        "A flow-through component. Does nothing. Used for redeclarations."
+        extends OnePort;
+      equation
+      //  dp = 0;
+        volume = 0;
+      //  q_in.q + q_out.q = 0;
+        connect(q_in, q_out) annotation (Line(
+            points={{-100,1.77636e-15},{1,1.77636e-15},{1,0},{100,0}},
+            color={0,0,0},
+            thickness=1));
+        annotation (Icon(graphics={Line(points={{-110,0},{88,0},{110,0}}, color={0,0,0}), Text(
+                extent={{-80,0},{80,60}},
+                lineColor={0,0,0},
+                textString="NIL")}));
+      end OnePort_None;
     end Auxiliary;
 
     model HeartSmith
@@ -1550,26 +1567,90 @@ type"),         Text(
             Placement(transformation(extent={{-110,-10},{-90,10}}),
               iconTransformation(extent={{-110,-10},{-90,10}})),
               Dialog(tab = "Redeclares"));
-        replaceable Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b if not terminator annotation (
+        public
+                    Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b if not
+          terminator                                                                            annotation (
             Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(
                 extent={{90,-10},{110,10}})),
               Dialog(tab = "Redeclares"));
+        public
         parameter Boolean terminator = false annotation(choices(checkBox=true));
         parameter Boolean UseInertance = true annotation(choices(checkBox=true));
-        parameter Boolean UseOuter_thoracic_pressure = false annotation(choices(checkBox=true));
+        parameter Boolean UseOuter_thoracic_pressure=false   annotation(choices(checkBox=true));
+        parameter Boolean LimitBackflow=false   "Inserts a one-way valve when true" annotation(choices(checkBox=true),Dialog(group = "Parameters"));
+
         outer Physiolibrary.Types.Pressure thoracic_pressure;
+        parameter Physiolibrary.Types.Fraction thoracic_pressure_ratio=1 annotation (Dialog(enable=UseOuter_thoracic_pressure));
 
-        Real u_in(unit = "Pa", nominal = 1000) = port_a.pressure;
-        Real v_in(unit = "m3.s-1", nominal = 1e-6) = port_a.q;
+        Physiolibrary.Types.Pressure u_in = port_a.pressure;
+        Physiolibrary.Types.VolumeFlowRate v_in = port_a.q;
 
-        Real u_out(unit = "Pa", nominal = 1000) = port_b.pressure if not terminator;
-        Real v_out(unit = "m3.s-1", nominal = 1e-6) = -port_b.q if not terminator;
+        Physiolibrary.Types.Pressure u_out_valved = port_b.pressure if not terminator;
+        Physiolibrary.Types.VolumeFlowRate v_out_valved = port_b.q if not terminator;
+
+        Physiolibrary.Types.Pressure u_out;
+        Physiolibrary.Types.VolumeFlowRate v_out;
 
         Physiolibrary.Types.Volume volume(nominal = 1e-6);
         parameter Physiolibrary.Types.Volume V_min = 0;
+      /*
+protected 
+              Physiolibrary.Hydraulic.Interfaces.HydraulicPort_b port_b_internal if not 
+    terminator
+    annotation (Placement(transformation(extent={{10,-10},{30,10}}),
+        iconTransformation(extent={{30,-10},{50,10}})), Dialog(tab="Redeclares"));
+public 
+  Physiolibrary.Hydraulic.Components.IdealValve idealValve if LimitBackflow
+    annotation (Placement(transformation(extent={{40,-20},{60,0}})));
+/*  Auxiliary.OnePort_None onePort_None if not LimitBackflow
+    annotation (Placement(transformation(extent={{40,0},{60,20}})));
+    */
+        Real passableVariable(start=0, final unit="1")
+          "Auxiliary variable for actual position on the ideal diode characteristic";
+        parameter Physiolibrary.Types.HydraulicResistance R_on(final min=0, displayUnit="l/(mmHg.min)") = 0
+          "Forward state-on conductance (open valve resistance)" annotation (Dialog(enable=LimitBackflow));
+        parameter Physiolibrary.Types.HydraulicConductance G_off(final min=0, displayUnit="l/(mmHg.min)") = 1.2501026264094e-12
+          "Backward state-off conductance (closed valve conductance)" annotation (Dialog(enable=LimitBackflow));
+        parameter Physiolibrary.Types.Pressure Pknee(final min=0) = 0
+          "Forward threshold pressure" annotation (Dialog(enable=LimitBackflow));
+        Boolean open(start = true);
+        Physiolibrary.Types.Pressure dp = u_out - u_out_valved;
+        protected
+        constant Physiolibrary.Types.Pressure unitPressure=1;
+        constant Physiolibrary.Types.VolumeFlowRate unitFlow=1;
       equation
-        assert(volume > 0, "Volume is negative!", AssertionLevel.warning);
+        v_out + v_out_valved = 0;
 
+        if LimitBackflow then
+          open = passableVariable > Modelica.Constants.eps;
+          dp = (passableVariable*unitFlow)*(if open then R_on else 1) + Pknee;
+          v_out = (passableVariable*unitPressure)*(if open then 1 else G_off) + G_off*Pknee;
+        else
+          // the valve is nonexistent, therefore permanently open
+          open = true;
+          dp = 0;
+          passableVariable = 0;
+        end if;
+
+        assert(volume > 0, "Volume is negative!", AssertionLevel.warning);
+      /*
+  connect(port_b_internal, idealValve.q_in) annotation (Line(
+      points={{20,0},{40,0},{40,-10}},
+      color={0,0,0},
+      thickness=1));
+  connect(port_b, idealValve.q_out) annotation (Line(
+      points={{100,0},{96,0},{96,-10},{60,-10}},
+      color={0,0,0},
+      thickness=1));
+/*  connect(port_b_internal, onePort_None.q_in) annotation (Line(
+      points={{20,0},{30,0},{30,10},{40,10}},
+      color={0,0,0},
+      thickness=1));
+  connect(port_b, onePort_None.q_out) annotation (Line(
+      points={{100,0},{80,0},{80,10},{60,10}},
+      color={0,0,0},
+      thickness=1));
+      */
           annotation (Icon(coordinateSystem(extent={{-100,-20},{100,20}}), graphics={
               Text(
                 extent={{-100,-20},{100,0}},
@@ -1577,14 +1658,30 @@ type"),         Text(
                 textString="%name"),
               Rectangle(extent={{-100,20},{100,-20}}, lineColor={28,108,200}),
                 Rectangle(extent={{-100,20},{100,-20}}, lineColor={0,140,72},
-                  lineThickness =                                                          0.5,
-                visible = DynamicSelect(false, UseOuter_thoracic_pressure))}),
-                                                  Diagram(coordinateSystem(extent={{-100,
+                  lineThickness =                                                          1,
+                visible = DynamicSelect(false, UseOuter_thoracic_pressure)),
+              Text(
+                extent={{-100,-40},{100,-20}},
+                lineColor={0,140,72},
+                textString="%thoracic_pressure_ratio",
+                visible = DynamicSelect(true, thoracic_pressure_ratio <> 1)),
+              Line(
+                points={{20,40},{50,10},{80,4}},
+                color={28,108,200},
+                smooth=Smooth.Bezier,
+                thickness=0.5,
+                visible = DynamicSelect(true, LimitBackflow)),
+              Line(
+                points={{20,-40},{50,-10},{80,-4}},
+                color={28,108,200},
+                smooth=Smooth.Bezier,
+                thickness=0.5,
+                visible = DynamicSelect(true, LimitBackflow))}),                 Diagram(coordinateSystem(extent={{-100,
                   -20},{100,20}})));
       end bg_base;
 
       partial model bg_vessel
-        extends bg_base(terminator=false);
+        extends bg_base(final terminator=false);
         parameter Boolean UseDistentionOutput = false annotation(choices(checkBox=true));
         parameter Boolean UseNonLinearCompliance = false annotation(choices(checkBox=true),Dialog(group = "Parameters"));
         parameter Boolean UseSinAlphaInput = false annotation(choices(checkBox=true),Dialog(group = "Parameters"));
@@ -1821,6 +1918,7 @@ type"),         Text(
     model vp_type
 
       extends Interfaces.bg_vessel(
+          UseOuter_thoracic_pressure=false,
       UseInertance = false,
       UseNonLinearCompliance = true,
       zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2),
@@ -1833,7 +1931,7 @@ type"),         Text(
 
       Real u_C(unit = "Pa", start = p0);
       input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
-      parameter Physiolibrary.Types.Pressure p0 = 665 "nominal venous pressure";
+      parameter Physiolibrary.Types.Pressure p0=665   "nominal venous pressure";
       outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
       outer parameter Physiolibrary.Types.Fraction C_effect;
       Physiolibrary.Types.HydraulicCompliance c0 = C_effect*zpv/p0 "nominal compliance";
@@ -1862,16 +1960,17 @@ type"),         Text(
     Real T_pass;
     Real T_pass_exp;
     Real T_act_max;
-    parameter Physiolibrary.Types.Time tau = 0.1 "Time constant of the smooth muscle activation";
+    parameter Physiolibrary.Types.Time tau=0.1   "Time constant of the smooth muscle activation";
 
 
       Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
         "Circumferential wall length";
       parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
       parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
-      outer parameter Real gamma = 1/2;
-      outer parameter Real alpha = 2.5;// = T_pass/(T_pass + T_act_max);
-      parameter Physiolibrary.Types.Pressure P_passiveBase = 6*133.32;
+      outer parameter Real gamma;// = 1/2;
+      outer parameter Real alpha;// = 2.5;// = T_pass/(T_pass + T_act_max);
+
+    //  parameter Physiolibrary.Types.Pressure P_passiveBase = p0;
       Real T_pass_base = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1);
       Real T_pass_nominal = T_pass_base + C_act*0.25;
       Real T_max_nominal = (T_pass_base  + C_act);
@@ -1884,6 +1983,7 @@ type"),         Text(
     Real C_pass(start = 1);// = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
     parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
     Real C_act(start = 1);// = 10.4 "(N/m)";
+    Real C_act_guess = p0*r*(gamma*(alpha-1)/(1+phi_norm/4*(alpha-1)));
     parameter Real Cd_act = 1;
     parameter Real Cdd_act = 0.4;
 
@@ -1901,14 +2001,15 @@ type"),         Text(
     parameter Boolean limitExternalPressure =  true;
     initial equation
       //  u_C = p0;
-    //  T_active = T_active_inf;
+      //  T_active = T_active_inf;
+      A = phi_norm * 0.25;
     equation
       der(A)*tau = A_inf - A;
 
       // identify the c_act
       alpha =   T_max_nominal/T_pass_base;
       // identify the c_pass
-      P_passiveBase * r = T_pass_nominal;
+      p0 * r = T_pass_nominal;
 
     //  T_total = u_C *D/2
     //  der(D) = ( u_C *D/2 - T_total) /(p0*tau);
@@ -1982,9 +2083,9 @@ type"),         Text(
 
 
       if UseOuter_thoracic_pressure and limitExternalPressure then
-          external_pressure = max(min(thoracic_pressure*V/V_min, 1), 0);
+          external_pressure = thoracic_pressure_ratio*thoracic_pressure*max(min(V/V_min, 1), 0);
       elseif UseOuter_thoracic_pressure then
-          external_pressure = thoracic_pressure;
+          external_pressure = thoracic_pressure_ratio*thoracic_pressure;
       else
         external_pressure = 0;
       end if;
@@ -1995,19 +2096,6 @@ type"),         Text(
           u_in = u_C + external_pressure;
       end if;
 
-        annotation (Diagram(graphics={
-            Line(
-              points={{-100,0},{-60,0}},
-              color={28,108,200},
-              arrow={Arrow.None,Arrow.Open}),
-            Line(
-              points={{40,0},{80,0}},
-              color={28,108,200},
-              arrow={Arrow.None,Arrow.Open})}), Icon(graphics={Line(
-              points={{-80,0},{80,0}},
-              color={28,108,200},
-              arrow={Arrow.None,Arrow.Filled},
-              thickness=0.5)}));
     end vp_type;
 
     model pp_vBC_type
@@ -16356,7 +16444,7 @@ type"),         Text(
           l=Parameters_Systemic1.l_internal_carotid_R8_B,
           E=Parameters_Systemic1.E_internal_carotid_R8_B,
           r=Parameters_Systemic1.r_internal_carotid_R8_B)
-        annotation (Placement(transformation(extent={{-20,-2.5},{0,2.5}})));
+        annotation (Placement(transformation(extent={{-50,-2.5},{-30,2.5}})));
         Vessel_modules.systemic_tissue
                         internal_carotid_R8_C(
           Ra=tissueParameters.Ra_internal_carotid_R8_C,
@@ -16364,36 +16452,48 @@ type"),         Text(
           I=tissueParameters.I_internal_carotid_R8_C,
           C=tissueParameters.C_internal_carotid_R8_C,
           zpv=tissueParameters.Zpv_internal_carotid_R8_C)
-        annotation (Placement(transformation(extent={{20,-2.5},{40,2.5}})));
+        annotation (Placement(transformation(extent={{-10,-2.5},{10,2.5}})));
         Vessel_modules.vp_type
                       internal_jugular_vein_R122(
           phi_norm=phi_norm,
           l=Parameters_Venous1.l_internal_jugular_vein_R122,
           E=Parameters_Venous1.E_internal_jugular_vein_R122,
           r=Parameters_Venous1.r_internal_jugular_vein_R122)
-        annotation (Placement(transformation(extent={{50,-2.5},{70,2.5}})));
+        annotation (Placement(transformation(extent={{20,-2.5},{40,2.5}})));
+        Vessel_modules.vp_type thoracic_vein(
+          UseOuter_thoracic_pressure=true,
+          phi_norm=phi_norm,
+          l=Parameters_Venous1.l_internal_jugular_vein_R122,
+          E=Parameters_Venous1.E_internal_jugular_vein_R122,
+          r=Parameters_Venous1.r_internal_jugular_vein_R122)
+          annotation (Placement(transformation(extent={{60,-2.5},{80,2.5}})));
       equation
-        connect(port_b, internal_jugular_vein_R122.port_b) annotation (Line(
-            points={{100,0},{70,0}},
-            color={0,0,0},
-            thickness=1));
         connect(internal_jugular_vein_R122.port_a, internal_carotid_R8_C.port_b)
           annotation (Line(
-            points={{50,0},{40,0}},
+            points={{20,0},{10,0}},
             color={0,0,0},
             thickness=1));
         connect(internal_carotid_R8_C.port_a, internal_carotid_R8_B.port_b)
           annotation (Line(
-            points={{20,0},{0,0}},
+            points={{-10,0},{-30,0}},
             color={0,0,0},
             thickness=1));
         connect(internal_carotid_R8_B.port_a, ascending_aorta_A.port_b)
           annotation (Line(
-            points={{-20,0},{-60,0}},
+            points={{-50,0},{-60,0}},
             color={0,0,0},
             thickness=1));
         connect(port_a, ascending_aorta_A.port_a) annotation (Line(
             points={{-100,0},{-80,0}},
+            color={0,0,0},
+            thickness=1));
+        connect(port_b, thoracic_vein.port_b) annotation (Line(
+            points={{100,0},{80,0}},
+            color={0,0,0},
+            thickness=1));
+        connect(thoracic_vein.port_a, internal_jugular_vein_R122.port_b)
+          annotation (Line(
+            points={{60,0},{40,0}},
             color={0,0,0},
             thickness=1));
       end Systemic_SimpleLumped;
@@ -16581,7 +16681,7 @@ type"),         Text(
       "start-collapsing sucking pressure, when external pressure is zero";
       parameter Boolean enabled = true;
     equation
-       q_in.pressure = if (enabled and q_out.pressure > (PR1LL+thoracic_pressure)) then q_out.pressure else (PR1LL+thoracic_pressure);
+       q_in.pressure = if (enabled or q_out.pressure > (PR1LL+thoracic_pressure)) then q_out.pressure else (PR1LL+thoracic_pressure);
 
       annotation (Icon(graphics={
             Text(
@@ -18072,19 +18172,8 @@ type"),         Text(
     end Mynard_heart;
 
     model testPVchars
+                      extends ADAN_main.Components.AdanVenousRed.Systemic_interfaces;
 
-
-      parameter Real alphaC = 2.5;
-      parameter Real alphaZPV = 2.5;
-
-
-
-      inner parameter Physiolibrary.Types.Fraction venous_diameter_correction=1.5;
-      inner parameter Physiolibrary.Types.Fraction C_fact=1;
-      inner Modelica.SIunits.Angle Tilt = 0;
-
-      inner parameter Physiolibrary.Types.Fraction cfactor=1;
-      inner Physiolibrary.Types.Pressure thoracic_pressure = 0;
 
 
       parameter Physiolibrary.Types.HydraulicCompliance totalCompliance=4.5003694550739e-07;
@@ -18098,7 +18187,7 @@ type"),         Text(
       Real dV = der(superior_vena_cava_C88.V);
 
 
-      Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
+    //  Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
 
 
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume(
@@ -18120,6 +18209,7 @@ type"),         Text(
         annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
         Components.Vessel_modules.vp_type
                       superior_vena_cava_C88(
+        UseOuter_thoracic_pressure=false,
         phi_norm=phi_norm,
         l=Parameters_Venous1.l_superior_vena_cava_C88,
         E=Parameters_Venous1.E_superior_vena_cava_C88,
@@ -18171,10 +18261,10 @@ type"),         Text(
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
-          StopTime=60,
+          StopTime=600,
           Interval=0.01,
-          Tolerance=1e-12,
-          __Dymola_Algorithm="Dassl"));
+          Tolerance=1e-07,
+          __Dymola_Algorithm="Cvode"));
     end testPVchars;
 
     model testCollapsiblePVChars
@@ -18206,6 +18296,7 @@ type"),         Text(
       Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
 
       Physiolibrary.Hydraulic.Sources.UnlimitedPump   unlimitedPump(
+          useSolutionFlowInput=true,
           SolutionFlow(displayUnit="l/min") = 1.6666666666667e-05)
         annotation (Placement(transformation(extent={{-100,-10},{-80,10}})));
       Physiolibrary.Hydraulic.Sources.UnlimitedVolume unlimitedVolume1(
@@ -18251,11 +18342,23 @@ type"),         Text(
         annotation (Placement(transformation(extent={{8,52},{28,72}})));
       Components.Vessel_modules.vp_type superior_vena_cava_C88(
         UseOuter_thoracic_pressure=false,
+        LimitBackflow=true,
         phi_norm=phi_norm,
         l=Parameters_Venous1.l_superior_vena_cava_C2,
         E=Parameters_Venous1.E_superior_vena_cava_C2,
         r=Parameters_Venous1.r_superior_vena_cava_C2)
         annotation (Placement(transformation(extent={{0,-2.5},{20,2.5}})));
+      Modelica.Blocks.Sources.Trapezoid
+                                   flow_ramp(
+        amplitude=2.5e-3/60,
+        rising=1,
+        width=1,
+        falling=1,
+        period=2000,
+        nperiod=1,
+        offset=2e-3/60,
+        startTime=40)
+        annotation (Placement(transformation(extent={{-128,16},{-108,36}})));
     equation
       connect(unlimitedVolume1.y, resistor1.q_out) annotation (Line(
           points={{70,0},{60,0}},
@@ -18272,6 +18375,10 @@ type"),         Text(
           points={{-80,0},{0,0}},
           color={0,0,0},
           thickness=1));
+      connect(flow_ramp.y, unlimitedPump.solutionFlow) annotation (Line(
+          points={{-107,26},{-90,26},{-90,7}},
+          color={0,0,127},
+          smooth=Smooth.Bezier));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
@@ -18323,7 +18430,7 @@ type"),         Text(
         falling=1000.0,
         period=2000.0,
         nperiod=1,
-        offset=0.0,
+        offset=20.0,
         startTime=0)
         annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
         Components.Vessel_modules.vp_type
@@ -18365,6 +18472,7 @@ type"),         Text(
       Components.Vessel_modules.vp_type
                     superior_vena_cava_C2(
         UseOuter_thoracic_pressure=true,
+        LimitBackflow=false,
         phi_norm=phi_norm,
         l=Parameters_Venous1.l_superior_vena_cava_C2,
         E=Parameters_Venous1.E_superior_vena_cava_C2,
@@ -18404,8 +18512,21 @@ type"),         Text(
           StopTime=60,
           Interval=0.01,
           Tolerance=1e-07,
-          __Dymola_Algorithm="Cvode"));
+          __Dymola_Algorithm="Dassl"));
     end testCollapsibleVeins;
+
+    model aplhaGamma
+            parameter Real p0 = 4*133, r = 5e-3, gamma = 0.5, phi_norm = 1;
+            Real alpha = time;
+        Real C_act_guess = p0*r*(gamma*(alpha-1)/(1+phi_norm/4*(alpha-1)));
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)),
+        experiment(
+          StartTime=1,
+          StopTime=20,
+          __Dymola_Algorithm="Dassl"));
+    end aplhaGamma;
   end tests;
 
   package Experiments
@@ -24082,13 +24203,61 @@ type"),         Text(
           UseThoracic_PressureInput=false, UsePhi_Input=false,
         redeclare
           Components.AdanVenousRed.SystemicTissueParameters.SystemicTissueParameters_Calculated
-          tissueParameters)                                    constrainedby
+          tissueParameters,
+        femoral_vein_R34(LimitBackflow=true),
+        femoral_vein_L64(LimitBackflow=true),
+        superior_vena_cava_C88(UseOuter_thoracic_pressure=true),
+        superior_vena_cava_C2(UseOuter_thoracic_pressure=true),
+        inferior_vena_cava_C8(UseOuter_thoracic_pressure=true),
+        hepatic_vein_T1_C10(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        splachnic_vein(UseOuter_thoracic_pressure=true, thoracic_pressure_ratio
+            =0.8),
+        renal_vein_T1_R18(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        internal_iliac_vein_T1_R30(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        internal_iliac_vein_T1_L60(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        renal_vein_T1_L22(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        inferior_vena_cava_C20(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        inferior_vena_cava_C16(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        inferior_vena_cava_C12(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        abdominal_aorta_C114(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        abdominal_aorta_C136(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        abdominal_aorta_C164(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        abdominal_aorta_C176(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        abdominal_aorta_C188(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        abdominal_aorta_C192(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        mesenteric_artery(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        common_iliac_R216(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8),
+        common_iliac_L194(UseOuter_thoracic_pressure=true,
+            thoracic_pressure_ratio=0.8))                      constrainedby
         Components.AdanVenousRed.Systemic_base annotation (Placement(
             transformation(extent={{-58,18},{18,48}})),
           __Dymola_choicesAllMatching=true);
       Components.AdanVenousRed._7af7a4.HeartComponent heartComponent(HR=1)
         annotation (Placement(transformation(extent={{-16,-32},{-36,-12}})));
-      Components.AdanVenousRed.PulmonaryComponent pulmonaryComponent
+      Components.AdanVenousRed.PulmonaryComponent pulmonaryComponent(pulmonary(
+          u_pas(start=3871.5508),
+          u_pat(start=3871.314),
+          u_par(start=3863.3025),
+          u_pcp(start=3634.0552),
+          u_pvn(start=1266.1965),
+          v_pas(start=1.0003076e-06),
+          v_pat(start=2.2090626e-05)))
         annotation (Placement(transformation(extent={{-34,-62},{-14,-42}})));
     equation
       connect(Systemic1.port_b, heartComponent.sv) annotation (Line(
@@ -24125,14 +24294,16 @@ type"),         Text(
           baroreceptor_carotid(epsilon_start=1.06, s_start=0.96),
           alphaC=0.5,
           coronary_veins(
-            UseOuter_thoracic_pressure=false,
-            collapseAtV_min=false,
+            UseOuter_thoracic_pressure=true,
             UseNonLinearCompliance=true,
             l(displayUnit="cm") = 0.05,
             r(displayUnit="mm") = 0.005),
-          cardiac_tissue(UseOuter_thoracic_pressure=false),
-          superior_vena_cava_C2(UseOuter_thoracic_pressure=false),
-          inferior_vena_cava_C8(UseOuter_thoracic_pressure=false)),
+          cardiac_tissue(UseOuter_thoracic_pressure=true),
+          superior_vena_cava_C2(UseOuter_thoracic_pressure=true),
+          inferior_vena_cava_C8(UseOuter_thoracic_pressure=true),
+          superior_vena_cava_C88(UseOuter_thoracic_pressure=true),
+          inferior_vena_cava_C12(UseOuter_thoracic_pressure=true),
+          inferior_vena_cava_C16(UseOuter_thoracic_pressure=false)),
         pulmonaryComponent(UseThoracic_PressureInput=true),
         heartComponent(
           Heart1(q_lv(displayUnit="ml", start=0.0003), q_rv(displayUnit="ml",
@@ -24148,7 +24319,7 @@ type"),         Text(
     Modelica.Blocks.Sources.Trapezoid           thoracic_pressure(
         amplitude=40*133,
         rising=2,
-        width=10,
+        width=20,
         falling=2,
         period=200,
         nperiod=1,
@@ -24174,7 +24345,8 @@ type"),         Text(
          Line(points={{17,54},{52,54},{52,-22},{-16,-22}}, color={0,0,127}));
       annotation (experiment(
           StopTime=80,
-          Interval=0.05,
+          Interval=0.02,
+          Tolerance=1e-07,
           __Dymola_Algorithm="Cvode"));
     end CVS_7af_baro;
 

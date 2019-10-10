@@ -1818,22 +1818,108 @@ public
         "A base model for pressure - volume characteristics"
 
         import Physiolibrary.Types.*;
-        input VolumeFlowRate inflow;
-        Pressure pressure;
-        Volume volume;
-        Volume V0;
+        input Volume V "Volume";
+        input Fraction phi;
+        parameter Modelica.SIunits.Length l;
+        parameter Volume V0 "Initial volume";
+        parameter Volume V_min "minimal collapsing pressure";
+        parameter Pressure p0 "Nominal pressure for initialization";
+        Pressure p "Fluid pressure";
+
 
         annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
               coordinateSystem(preserveAspectRatio=false)));
       end compliance_base;
 
       model compliance_linear
-        extends compliance_base;
+        extends compliance_base(V_min = zpv/2);
         parameter Physiolibrary.Types.HydraulicCompliance C "compliance";
         parameter Physiolibrary.Types.Volume zpv "Zero pressure volume";
+      initial equation
+        p = p0;
       equation
-        volume = pressure *C + zpv;
+        V = p * C + zpv;
       end compliance_linear;
+
+      model compliance_nonLinear
+        "Non-linear compliance model by Melchiort"
+        extends compliance_base(V_min = zpv/2);
+        parameter Physiolibrary.Types.HydraulicCompliance C "compliance";
+        parameter Physiolibrary.Types.Volume zpv "Zero pressure V";
+        parameter Boolean explicitVolumeRelation=false
+          "if the equation should be inverted (solely for numerical reasons)";
+        parameter Physiolibrary.Types.Volume Vmax = 2*zpv;
+        parameter Physiolibrary.Types.Pressure p0=665 "nominal venous pressure";
+
+        outer Physiolibrary.Types.Fraction C_effect;
+        outer Physiolibrary.Types.Fraction ZPV_effect;
+
+        Physiolibrary.Types.HydraulicCompliance c0 = C_effect*zpv/p0 "nominal compliance";
+        Physiolibrary.Types.Volume zpvs = zpv *ZPV_effect;
+      equation
+        if explicitVolumeRelation then
+            tan(V - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*p);
+        else
+          V = zpvs + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*p);
+        end if;
+      end compliance_nonLinear;
+
+      model compliance_tensionBased
+        "Exponential tension-based compliance with linear tension muscle activation. Idea based on Carlson, Secomb 2015"
+        extends compliance_base(V( start = V0, fixed = true), V0 = l * Modelica.Constants.pi * (r)^2, V_min = Modelica.Constants.pi *(wall_L_min/Modelica.Constants.pi/2)^2 *l);
+        parameter Modelica.SIunits.Radius r "Vessel inner radius";
+        Modelica.SIunits.Diameter D(start = 2*r) "Vessel actual (inner) diameter";
+
+        Physiolibrary.Types.Fraction ll0( start = 1)=wall_L/wall_L0;
+        Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
+          "Circumferential wall length";
+        parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+        parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
+        parameter Real gamma = 1/2 "fraction of nominal diameter to minimal zero-pressure diameter";
+        parameter Real alpha = 5 "how many times the tension is larger for maximal activation from resting activation at nominal diameter";
+
+        Physiolibrary.Types.Fraction A_inf = phi "Instant muscle activation coefficient";
+        Physiolibrary.Types.Fraction A "Delayed muscle activation coefficient";
+        parameter Physiolibrary.Types.Time tau=5   "Time constant of the smooth muscle activation";
+
+        Real T_total = T_pass + T_active "Total vessel wall tension";
+        Real T_pass = C_pass*(exp(T_pass_exp) - 1) "Passive part of the waqll tension";
+        Real T_pass_exp= (wall_L - wall_L_min) /wall_L_min;
+        Real T_active = A*T_act_max "Active part of the wall tension";
+        Real T_act_max= C_act*wall_L/wall_L0 "Tension at maximal muscle activation";
+
+      // Calculation of primary parameters
+        Real T_pass_base = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1) "passive tension at nominal l = l0";
+        Real T_nominal = T_pass_base + C_act*0.25 "Total tension at nominal (l = l0) and resting activation";
+        Real T_nominal_max=T_pass_base + C_act
+          "Total tension at nominal and maximal activation";
+
+
+        Real C_pass(start = 1) "Primary parameter for passive tension";
+        Real C_act(start = 1) "Primary parameter for active tension";
+        Real C_act_max = p0*r*4;
+        Real C_act_guess = p0*r*(gamma*(alpha-1)/(1+phi*(alpha-1))) "Analytically expressed equation";
+        Real C_pass_guess = (p0*r - C_act/4)/(exp((1-gamma)/gamma) - 1);
+
+
+      initial equation
+        A = A_inf;
+      equation
+        assert(C_pass > 0, "C_pass is negative - change alpha or gamma parameters");
+
+        V = l * Modelica.Constants.pi * (D/2)^2;
+        der(A)*tau = A_inf - A;
+
+        // identify the c_act
+        alpha =T_nominal_max / T_pass_base;
+        // identify the c_pass - the vessel must exhibit the given p0 at nominal diameter
+        p0 * r = T_nominal;
+
+
+        // governing equation - tension to pressure
+        p * D/2 = T_total;
+
+      end compliance_tensionBased;
     end Interfaces;
 
     model vv_type_thoracic
@@ -1924,157 +2010,39 @@ public
       zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2),
       R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4)),
       I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2),
-      volume(start = init_volume, fixed = false),
-      V_min = Modelica.Constants.pi *(wall_L_min/Modelica.Constants.pi/2)^2 *l);
+      V_min = compliant_vessel.V_min);
 
-    //  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
-
-      Real u_C(unit = "Pa", start = p0);
-      input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
-      parameter Physiolibrary.Types.Pressure p0=665   "nominal venous pressure";
-      outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
-      outer parameter Physiolibrary.Types.Fraction C_effect;
-      Physiolibrary.Types.HydraulicCompliance c0 = C_effect*zpv/p0 "nominal compliance";
-      outer Physiolibrary.Types.Fraction ZPV_effect;
-      Physiolibrary.Types.Volume zpvs = zpv *ZPV_effect;
-
-      Physiolibrary.Types.Volume Vmax = 2*zpv;
-
+      input Physiolibrary.Types.Fraction phi "a systemic acitvation fraction, 1 being maximal possible. Normal resting is believed to be 1/4 of the maximum (0.25)";
       outer Modelica.SIunits.Angle Tilt;
+      outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
+      outer parameter Real gamma;
+      outer parameter Real alpha;
+
+      parameter Physiolibrary.Types.Pressure p0=665   "nominal venous pressure";
+      parameter Boolean ignoreViscosityResistance = true;
+      parameter Boolean limitExternalPressure =  true;
+
+
       Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
       Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
 
-      parameter Integer PV_variant = 5;
+      Physiolibrary.Types.Pressure external_pressure;
+      Physiolibrary.Types.VolumeFlowRate netFlow = v_in-v_out;
+
+      Physiolibrary.Types.Pressure p = compliant_vessel.p;
 
 
+      replaceable Interfaces.compliance_tensionBased compliant_vessel(
+        l=l,
+        alpha = alpha,
+        gamma = gamma,
+        r=r) constrainedby Interfaces.compliance_base(l=l, p0=p0, phi = phi, V = volume)
+        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
-      parameter Physiolibrary.Types.Volume init_volume = V0;
-      // parameter Physiolibrary.Types.Volume init_volume = zpv + 2*2*zpv/Modelica.Constants.pi*atan(Modelica.Constants.pi*zpv/p0/2/(2*zpv)*(p0));
-
-    Real A_inf = phi_norm * 0.25 "denormalizing the normalized normal";
-    Real A;
-    Real T_total = T_pass + T_active;
-    Real T_active_inf = A*T_act_max;
-    Real T_active;
-
-    Real T_pass;
-    Real T_pass_exp;
-    Real T_act_max;
-    parameter Physiolibrary.Types.Time tau=0.1   "Time constant of the smooth muscle activation";
-
-
-      Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
-        "Circumferential wall length";
-      parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
-      parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
-      outer parameter Real gamma;// = 1/2;
-      outer parameter Real alpha;// = 2.5;// = T_pass/(T_pass + T_act_max);
-
-    //  parameter Physiolibrary.Types.Pressure P_passiveBase = p0;
-      Real T_pass_base = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1);
-      Real T_pass_nominal = T_pass_base + C_act*0.25;
-      Real T_max_nominal = (T_pass_base  + C_act);
-
-
-    Modelica.SIunits.Diameter D(start = 2*r);
-    //Modelica.SIunits.Diameter D_inst(start = 2*r);
-
-
-    Real C_pass(start = 1);// = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
-    parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
-    Real C_act(start = 1);// = 10.4 "(N/m)";
-    Real C_act_guess = p0*r*(gamma*(alpha-1)/(1+phi_norm/4*(alpha-1)));
-    parameter Real Cd_act = 1;
-    parameter Real Cdd_act = 0.4;
-
-    parameter Modelica.SIunits.Length vessel_length = 11.3168e-2;
-    Physiolibrary.Types.Volume V = l * Modelica.Constants.pi * (D/2)^2;
-    parameter Physiolibrary.Types.Volume V0 = l * Modelica.Constants.pi * (r)^2;
-    //parameter Modelica.SIunits.Diameter D0 = 2*T_total/p0 ;
-
-    Physiolibrary.Types.Fraction ll0( start = 1)=wall_L/wall_L0;
-
-    Physiolibrary.Types.VolumeFlowRate netFlow = v_in-v_out;
-
-    parameter Boolean ignoreViscosityResistance = true;
-    Physiolibrary.Types.Pressure external_pressure;
-    parameter Boolean limitExternalPressure =  true;
-    initial equation
-      //  u_C = p0;
-      //  T_active = T_active_inf;
-      A = phi_norm * 0.25;
     equation
-      der(A)*tau = A_inf - A;
-
-      // identify the c_act
-      alpha =   T_max_nominal/T_pass_base;
-      // identify the c_pass
-      p0 * r = T_pass_nominal;
-
-    //  T_total = u_C *D/2
-    //  der(D) = ( u_C *D/2 - T_total) /(p0*tau);
-
-    if PV_variant == 5 then
-      T_pass_exp= (wall_L - wall_L_min) /wall_L_min;
-      T_pass = C_pass*exp(T_pass_exp) - C_pass;
-
-      T_act_max=C_act*wall_L/wall_L0;
-    //   der(T_active) = (T_active_inf - T_active)/tau;
-    0 = (T_active_inf - T_active);
-
-    else
-      T_pass_exp=Cd_pass*(ll0 - 1);
-      T_pass = C_pass*exp(T_pass_exp);
-
-      T_act_max=C_act*exp(-((ll0 - Cd_act)/Cdd_act)^2);
-      0 = (T_active_inf - T_active);
-
-    end if;
-
-      if UseNonLinearCompliance then
-         // T_total = u_C * D_inst /2;
-         // D_inst = D;
-          // tau*der(D) = D_inst - D;
-
-        if PV_variant == 1 then
-          tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
-          D = r*2;
-
-        elseif PV_variant == 2 then
-          // Dan 1
-          volume  = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*u_C/p0) + 1)/2;
-          D = r*2;
-        elseif PV_variant == 3 then
-          // Dan 2
-          volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
-          D = r*2;
-        elseif PV_variant == 4 then
-          // Carslon&Secomb 2005
-          volume = V;
-          der(D) = ( u_C *D/2 - T_total) /(p0*tau);
-        elseif PV_variant == 5 then
-          volume = V;
-          u_C *D/2 = T_total;
-        else
-          // 0
-          // default original relation
-          volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
-          D = r*2;
-        end if;
-    else
-          D = r*2;
-      //   D = D_inst;
-         volume = (u_C) *C + zpv;
-       end if;
 
       if E == 0 or not UseInertance then
-        // 0 = u_in-u_out_hs-R*v_out;
-        if true or V > V_min or (u_in-u_out_hs) < 0 then
           (u_in-u_out_hs)/R = v_out;
-        else
-          v_out = 0;
-        end if;
-
       else
         der(v_out) = (u_in-u_out_hs-R*v_out)/I;
       end if;
@@ -2083,17 +2051,19 @@ public
 
 
       if UseOuter_thoracic_pressure and limitExternalPressure then
-          external_pressure = thoracic_pressure_ratio*thoracic_pressure*max(min(V/V_min, 1), 0);
+        external_pressure =
+          thoracic_pressure_ratio*thoracic_pressure
+          *max(min(compliant_vessel.V /compliant_vessel.V_min, 1), 0);
       elseif UseOuter_thoracic_pressure then
-          external_pressure = thoracic_pressure_ratio*thoracic_pressure;
+        external_pressure = thoracic_pressure_ratio*thoracic_pressure;
       else
         external_pressure = 0;
       end if;
 
       if not ignoreViscosityResistance then
-          u_in = u_C+R_v*(v_in-v_out) + external_pressure;
+          u_in = p + R_v*(v_in - v_out) + external_pressure;
         else
-          u_in = u_C + external_pressure;
+          u_in = p + external_pressure;
       end if;
 
     end vp_type;
@@ -3567,6 +3537,182 @@ public
               arrow={Arrow.None,Arrow.Filled},
               thickness=0.5)}));
     end vp_type2;
+
+    model vp_type_backup
+
+      extends Interfaces.bg_vessel(
+          UseOuter_thoracic_pressure=false,
+      UseInertance = false,
+      UseNonLinearCompliance = true,
+      zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2),
+      R = 8*mu*l/(Modelica.Constants.pi*((r*venous_diameter_correction)^4)),
+      I = rho*l/(Modelica.Constants.pi*(r*venous_diameter_correction)^2),
+      volume(start = init_volume, fixed = false),
+      V_min = Modelica.Constants.pi *(wall_L_min/Modelica.Constants.pi/2)^2 *l);
+
+    //  Physiolibrary.Types.Volume zpv = l*Modelica.Constants.pi*((r*venous_diameter_correction)^2);
+
+      Real u_C(unit = "Pa", start = p0);
+      input Physiolibrary.Types.Fraction phi_norm "phi normalized to 1 for normal conditions (phi = 0.25, phi_norm = 1)";
+      parameter Physiolibrary.Types.Pressure p0=665   "nominal venous pressure";
+      outer parameter Physiolibrary.Types.Fraction venous_diameter_correction;
+      outer parameter Physiolibrary.Types.Fraction C_effect;
+      Physiolibrary.Types.HydraulicCompliance c0 = C_effect*zpv/p0 "nominal compliance";
+      outer Physiolibrary.Types.Fraction ZPV_effect;
+      Physiolibrary.Types.Volume zpvs = zpv *ZPV_effect;
+
+      Physiolibrary.Types.Volume Vmax = 2*zpv;
+
+      outer Modelica.SIunits.Angle Tilt;
+      Physiolibrary.Types.Pressure P_hs = sin(Tilt)*height*rho*Modelica.Constants.g_n "Hydrostatic pressure";
+      Physiolibrary.Types.Pressure u_out_hs = u_out + P_hs "Output pressure including the hydrostatic pressure";
+
+      parameter Integer PV_variant = 5;
+
+      parameter Physiolibrary.Types.Volume init_volume = V0;
+      // parameter Physiolibrary.Types.Volume init_volume = zpv + 2*2*zpv/Modelica.Constants.pi*atan(Modelica.Constants.pi*zpv/p0/2/(2*zpv)*(p0));
+
+    Real A_inf = phi_norm * 0.25 "denormalizing the normalized normal";
+    Real A;
+    Real T_total = T_pass + T_active;
+    Real T_active_inf = A*T_act_max;
+    Real T_active;
+
+    Real T_pass;
+    Real T_pass_exp;
+    Real T_act_max;
+    parameter Physiolibrary.Types.Time tau=0.1   "Time constant of the smooth muscle activation";
+
+      Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
+        "Circumferential wall length";
+      parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+      parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
+      outer parameter Real gamma;// = 1/2;
+      outer parameter Real alpha;// = 2.5;// = T_pass/(T_pass + T_act_max);
+
+    //  parameter Physiolibrary.Types.Pressure P_passiveBase = p0;
+      Real T_pass_base = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1);
+      Real T_pass_nominal = T_pass_base + C_act*0.25;
+      Real T_max_nominal = (T_pass_base  + C_act);
+
+    Modelica.SIunits.Diameter D(start = 2*r);
+    //Modelica.SIunits.Diameter D_inst(start = 2*r);
+
+    Real C_pass(start = 1);// = 2.52 "Fitted to have 2 mmHg @ l=l0, orig 0.459";//0.459;
+    parameter Real Cd_pass = 7.7 "Fitted to have compliance of 60 for whole vascular tree (60*0.08 for the test component) at l=l0. Orig 13";
+    Real C_act(start = 1);// = 10.4 "(N/m)";
+    Real C_act_guess = p0*r*(gamma*(alpha-1)/(1+phi_norm/4*(alpha-1)));
+    parameter Real Cd_act = 1;
+    parameter Real Cdd_act = 0.4;
+
+    parameter Modelica.SIunits.Length vessel_length = 11.3168e-2;
+    Physiolibrary.Types.Volume V = l * Modelica.Constants.pi * (D/2)^2;
+    parameter Physiolibrary.Types.Volume V0 = l * Modelica.Constants.pi * (r)^2;
+    //parameter Modelica.SIunits.Diameter D0 = 2*T_total/p0 ;
+
+    Physiolibrary.Types.Fraction ll0( start = 1)=wall_L/wall_L0;
+
+    Physiolibrary.Types.VolumeFlowRate netFlow = v_in-v_out;
+
+    parameter Boolean ignoreViscosityResistance = true;
+    Physiolibrary.Types.Pressure external_pressure;
+    parameter Boolean limitExternalPressure =  true;
+    initial equation
+      //  u_C = p0;
+      //  T_active = T_active_inf;
+      A = phi_norm * 0.25;
+    equation
+      der(A)*tau = A_inf - A;
+
+      // identify the c_act
+      alpha =   T_max_nominal/T_pass_base;
+      // identify the c_pass
+      p0 * r = T_pass_nominal;
+
+    //  T_total = u_C *D/2
+    //  der(D) = ( u_C *D/2 - T_total) /(p0*tau);
+
+    if PV_variant == 5 then
+      T_pass_exp= (wall_L - wall_L_min) /wall_L_min;
+      T_pass = C_pass*exp(T_pass_exp) - C_pass;
+
+      T_act_max=C_act*wall_L/wall_L0;
+    //   der(T_active) = (T_active_inf - T_active)/tau;
+    0 = (T_active_inf - T_active);
+
+    else
+      T_pass_exp=Cd_pass*(ll0 - 1);
+      T_pass = C_pass*exp(T_pass_exp);
+
+      T_act_max=C_act*exp(-((ll0 - Cd_act)/Cdd_act)^2);
+      0 = (T_active_inf - T_active);
+
+    end if;
+
+      if UseNonLinearCompliance then
+         // T_total = u_C * D_inst /2;
+         // D_inst = D;
+          // tau*der(D) = D_inst - D;
+
+        if PV_variant == 1 then
+          tan(volume - zpvs)/(2*Vmax/Modelica.Constants.pi) = (Modelica.Constants.pi*c0/2/Vmax*u_C);
+          D = r*2;
+
+        elseif PV_variant == 2 then
+          // Dan 1
+          volume  = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*u_C/p0) + 1)/2;
+          D = r*2;
+        elseif PV_variant == 3 then
+          // Dan 2
+          volume = ZPV_effect*Vmax*(tanh(Modelica.Constants.pi/4.*(exp(u_C/p0)-1)) + 1)/2;
+          D = r*2;
+        elseif PV_variant == 4 then
+          // Carslon&Secomb 2005
+          volume = V;
+          der(D) = ( u_C *D/2 - T_total) /(p0*tau);
+        elseif PV_variant == 5 then
+          volume = V;
+          u_C *D/2 = T_total;
+        else
+          // 0
+          // default original relation
+          volume = zpv + 2*Vmax/Modelica.Constants.pi*atan(Modelica.Constants.pi*c0/2/Vmax*(u_C));
+          D = r*2;
+        end if;
+    else  D = r*2;
+      //   D = D_inst;
+         volume = (u_C) *C + zpv;
+       end if;
+
+      if E == 0 or not UseInertance then
+        // 0 = u_in-u_out_hs-R*v_out;
+        if true or V > V_min or (u_in-u_out_hs) < 0 then
+          (u_in-u_out_hs)/R = v_out;
+        else
+          v_out = 0;
+        end if;
+
+      else
+        der(v_out) = (u_in-u_out_hs-R*v_out)/I;
+      end if;
+
+      der(volume) = netFlow;
+
+      if UseOuter_thoracic_pressure and limitExternalPressure then
+          external_pressure = thoracic_pressure_ratio*thoracic_pressure*max(min(V/V_min, 1), 0);
+      elseif UseOuter_thoracic_pressure then
+          external_pressure = thoracic_pressure_ratio*thoracic_pressure;
+      else
+        external_pressure = 0;
+      end if;
+
+      if not ignoreViscosityResistance then
+          u_in = u_C+R_v*(v_in-v_out) + external_pressure;
+        else
+          u_in = u_C + external_pressure;
+      end if;
+
+    end vp_type_backup;
   end Vessel_modules;
 
     package Adan86
@@ -14169,8 +14315,8 @@ public
       partial model Systemic_interfaces
         parameter Real alphaC = 2.5;
         parameter Real alphaZPV = 2.5;
-        inner Physiolibrary.Types.Fraction ZPV_effect = 1/ (1 + alphaZPV*(phi_norm-1));
-        inner Physiolibrary.Types.Fraction C_effect = 1/(1 + alphaC*(phi_norm-1));
+        inner Physiolibrary.Types.Fraction ZPV_effect = alphaZPV*(phi-0.25);
+        inner Physiolibrary.Types.Fraction C_effect = alphaC*(phi-0.25);
 
 
         inner parameter Physiolibrary.Types.Fraction venous_diameter_correction = 1.5;
@@ -14183,7 +14329,7 @@ public
         inner parameter Real alpha = 5;// = T_pass/(T_pass + T_act_max);
 
         parameter Physiolibrary.Types.Fraction phi0 = 0.25 "default value of phi. Also used for normalization";
-        Physiolibrary.Types.Fraction phi_norm "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
+        Physiolibrary.Types.Fraction phi "a systemic acitvation fraction, 1 being maximal possible. Normal resting is believed to be 1/4 of the maximum (0.25)";
 
         parameter Boolean UseThoracic_PressureInput = false annotation(choices(checkBox=true));
         parameter Boolean UsePhi_Input = false annotation(choices(checkBox=true));
@@ -14226,7 +14372,7 @@ public
             transformation(extent={{-320,-90},{-280,-50}}),
                                                           iconTransformation(extent={{-40,
                   -100},{0,-60}})));
-        Physiolibrary.Types.RealIO.FractionInput phi_input = phi_norm*phi0 if UsePhi_Input annotation (Placement(
+        Physiolibrary.Types.RealIO.FractionInput phi_input = phi if UsePhi_Input annotation (Placement(
             transformation(extent={{-280,-50},{-240,-10}}),
                                                           iconTransformation(extent={{100,
                   -100},{140,-60}})));
@@ -14242,7 +14388,7 @@ public
           thoracic_pressure = 0;
         end if;
         if not UsePhi_Input then
-          phi_norm = phi0/0.25;
+          phi = phi0;
         end if;
         if not UseTiltInput then
           Tilt = 0;
@@ -14703,385 +14849,385 @@ public
             zpv =  tissueParameters.Zpv_vertebral_R272)
         annotation (Placement(transformation(extent={{35,143},{55,148}})));
         Systemic_vein superior_vena_cava_C2(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_superior_vena_cava_C2,
             E = Parameters_Venous1.E_superior_vena_cava_C2,
             r = Parameters_Venous1.r_superior_vena_cava_C2)
         annotation (Placement(transformation(extent={{297,163},{317,168}})));
           Systemic_vein superior_vena_cava_C88(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_superior_vena_cava_C88,
             E=Parameters_Venous1.E_superior_vena_cava_C88,
             r=Parameters_Venous1.r_superior_vena_cava_C88)
             annotation (Placement(transformation(extent={{272,163},{292,168}})));
           Systemic_vein inferior_vena_cava_C8(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_inferior_vena_cava_C8,
             E=Parameters_Venous1.E_inferior_vena_cava_C8,
             r=Parameters_Venous1.r_inferior_vena_cava_C8)
             annotation (Placement(transformation(extent={{409,-5},{429,0}})));
         Systemic_vein hepatic_vein_T1_C10(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_hepatic_vein_T1_C10,
             E = Parameters_Venous1.E_hepatic_vein_T1_C10,
             r = Parameters_Venous1.r_hepatic_vein_T1_C10)
         annotation (Placement(transformation(extent={{60,57},{80,62}})));
         Systemic_vein inferior_vena_cava_C12(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_inferior_vena_cava_C12,
             E = Parameters_Venous1.E_inferior_vena_cava_C12,
             r = Parameters_Venous1.r_inferior_vena_cava_C12)
         annotation (Placement(transformation(extent={{383,-5},{403,0}})));
           Systemic_vein inferior_vena_cava_C16(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_inferior_vena_cava_C16,
             E=Parameters_Venous1.E_inferior_vena_cava_C16,
             r=Parameters_Venous1.r_inferior_vena_cava_C16)
             annotation (Placement(transformation(extent={{360,-5},{380,0}})));
         Systemic_vein renal_vein_T1_R18(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_renal_vein_T1_R18,
             E = Parameters_Venous1.E_renal_vein_T1_R18,
             r = Parameters_Venous1.r_renal_vein_T1_R18)
         annotation (Placement(transformation(extent={{60,37},{80,42}})));
           Systemic_vein inferior_vena_cava_C20(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_inferior_vena_cava_C20,
             E=Parameters_Venous1.E_inferior_vena_cava_C20,
             r=Parameters_Venous1.r_inferior_vena_cava_C20)
             annotation (Placement(transformation(extent={{336,-5},{356,0}})));
         Systemic_vein renal_vein_T1_L22(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_renal_vein_T1_L22,
             E = Parameters_Venous1.E_renal_vein_T1_L22,
             r = Parameters_Venous1.r_renal_vein_T1_L22)
         annotation (Placement(transformation(extent={{60,-67},{80,-62}})));
           Systemic_vein inferior_vena_cava_C24(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_inferior_vena_cava_C24,
             E=Parameters_Venous1.E_inferior_vena_cava_C24,
             r=Parameters_Venous1.r_inferior_vena_cava_C24)
             annotation (Placement(transformation(extent={{312,-5},{332,0}})));
         Systemic_vein common_iliac_vein_L56(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_common_iliac_vein_L56,
             E = Parameters_Venous1.E_common_iliac_vein_L56,
             r = Parameters_Venous1.r_common_iliac_vein_L56)
         annotation (Placement(transformation(extent={{287,-23},{307,-18}})));
         Systemic_vein common_iliac_vein_R26(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_common_iliac_vein_R26,
             E = Parameters_Venous1.E_common_iliac_vein_R26,
             r = Parameters_Venous1.r_common_iliac_vein_R26)
         annotation (Placement(transformation(extent={{288,-5},{308,0}})));
           Systemic_vein external_iliac_vein_R28(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_external_iliac_vein_R28,
             E=Parameters_Venous1.E_external_iliac_vein_R28,
             r=Parameters_Venous1.r_external_iliac_vein_R28)
             annotation (Placement(transformation(extent={{263,-5},{283,0}})));
         Systemic_vein internal_iliac_vein_T1_R30(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_internal_iliac_vein_T1_R30,
             E = Parameters_Venous1.E_internal_iliac_vein_T1_R30,
             r = Parameters_Venous1.r_internal_iliac_vein_T1_R30)
         annotation (Placement(transformation(extent={{60,27},{80,32}})));
         Systemic_vein external_iliac_vein_R32(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_external_iliac_vein_R32,
             E = Parameters_Venous1.E_external_iliac_vein_R32,
             r = Parameters_Venous1.r_external_iliac_vein_R32)
         annotation (Placement(transformation(extent={{237,-5},{257,0}})));
         Systemic_vein femoral_vein_R34(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_femoral_vein_R34,
             E = Parameters_Venous1.E_femoral_vein_R34,
             r = Parameters_Venous1.r_femoral_vein_R34)
         annotation (Placement(transformation(extent={{212,-5},{232,0}})));
           Systemic_vein femoral_vein_R38(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_femoral_vein_R38,
             E=Parameters_Venous1.E_femoral_vein_R38,
             r=Parameters_Venous1.r_femoral_vein_R38)
             annotation (Placement(transformation(extent={{189,-5},{209,0}})));
         Systemic_vein profunda_femoris_vein_T2_R40(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_profunda_femoris_vein_T2_R40,
             E = Parameters_Venous1.E_profunda_femoris_vein_T2_R40,
             r = Parameters_Venous1.r_profunda_femoris_vein_T2_R40)
         annotation (Placement(transformation(extent={{60,17},{80,22}})));
         Systemic_vein femoral_vein_R42(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_femoral_vein_R42,
             E = Parameters_Venous1.E_femoral_vein_R42,
             r = Parameters_Venous1.r_femoral_vein_R42)
         annotation (Placement(transformation(extent={{163,-5},{183,0}})));
         Systemic_vein femoral_vein_R46(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_femoral_vein_R46,
             E = Parameters_Venous1.E_femoral_vein_R46,
             r = Parameters_Venous1.r_femoral_vein_R46)
         annotation (Placement(transformation(extent={{138,-5},{158,0}})));
           Systemic_vein popliteal_vein_R48(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_popliteal_vein_R48,
             E=Parameters_Venous1.E_popliteal_vein_R48,
             r=Parameters_Venous1.r_popliteal_vein_R48)
             annotation (Placement(transformation(extent={{113,-5},{133,0}})));
         Systemic_vein anterior_tibial_vein_T4_R50(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_anterior_tibial_vein_T4_R50,
             E = Parameters_Venous1.E_anterior_tibial_vein_T4_R50,
             r = Parameters_Venous1.r_anterior_tibial_vein_T4_R50)
         annotation (Placement(transformation(extent={{60,7},{80,12}})));
         Systemic_vein popliteal_vein_R52(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_popliteal_vein_R52,
             E = Parameters_Venous1.E_popliteal_vein_R52,
             r = Parameters_Venous1.r_popliteal_vein_R52)
         annotation (Placement(transformation(extent={{87,-5},{107,0}})));
         Systemic_vein posterior_tibial_vein_T6_R54(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_posterior_tibial_vein_T6_R54,
             E = Parameters_Venous1.E_posterior_tibial_vein_T6_R54,
             r = Parameters_Venous1.r_posterior_tibial_vein_T6_R54)
         annotation (Placement(transformation(extent={{60,-5},{80,0}})));
           Systemic_vein external_iliac_vein_L58(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_external_iliac_vein_L58,
             E=Parameters_Venous1.E_external_iliac_vein_L58,
             r=Parameters_Venous1.r_external_iliac_vein_L58)
             annotation (Placement(transformation(extent={{263,-23},{283,-18}})));
         Systemic_vein internal_iliac_vein_T1_L60(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_internal_iliac_vein_T1_L60,
             E = Parameters_Venous1.E_internal_iliac_vein_T1_L60,
             r = Parameters_Venous1.r_internal_iliac_vein_T1_L60)
         annotation (Placement(transformation(extent={{60,-55},{80,-50}})));
         Systemic_vein external_iliac_vein_L62(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_external_iliac_vein_L62,
             E = Parameters_Venous1.E_external_iliac_vein_L62,
             r = Parameters_Venous1.r_external_iliac_vein_L62)
         annotation (Placement(transformation(extent={{237,-23},{257,-18}})));
         Systemic_vein femoral_vein_L64(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_femoral_vein_L64,
             E = Parameters_Venous1.E_femoral_vein_L64,
             r = Parameters_Venous1.r_femoral_vein_L64)
         annotation (Placement(transformation(extent={{212,-23},{232,-18}})));
           Systemic_vein femoral_vein_L68(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_femoral_vein_L68,
             E=Parameters_Venous1.E_femoral_vein_L68,
             r=Parameters_Venous1.r_femoral_vein_L68)
             annotation (Placement(transformation(extent={{189,-23},{209,-18}})));
         Systemic_vein profunda_femoris_vein_T2_L70(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_profunda_femoris_vein_T2_L70,
             E = Parameters_Venous1.E_profunda_femoris_vein_T2_L70,
             r = Parameters_Venous1.r_profunda_femoris_vein_T2_L70)
         annotation (Placement(transformation(extent={{60,-43},{80,-38}})));
         Systemic_vein femoral_vein_L72(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_femoral_vein_L72,
             E = Parameters_Venous1.E_femoral_vein_L72,
             r = Parameters_Venous1.r_femoral_vein_L72)
         annotation (Placement(transformation(extent={{163,-23},{183,-18}})));
         Systemic_vein femoral_vein_L76(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_femoral_vein_L76,
             E = Parameters_Venous1.E_femoral_vein_L76,
             r = Parameters_Venous1.r_femoral_vein_L76)
         annotation (Placement(transformation(extent={{138,-23},{158,-18}})));
           Systemic_vein popliteal_vein_L78(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_popliteal_vein_L78,
             E=Parameters_Venous1.E_popliteal_vein_L78,
             r=Parameters_Venous1.r_popliteal_vein_L78)
             annotation (Placement(transformation(extent={{113,-23},{133,-18}})));
         Systemic_vein anterior_tibial_vein_T4_L80(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_anterior_tibial_vein_T4_L80,
             E = Parameters_Venous1.E_anterior_tibial_vein_T4_L80,
             r = Parameters_Venous1.r_anterior_tibial_vein_T4_L80)
         annotation (Placement(transformation(extent={{60,-33},{80,-28}})));
         Systemic_vein popliteal_vein_L82(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_popliteal_vein_L82,
             E = Parameters_Venous1.E_popliteal_vein_L82,
             r = Parameters_Venous1.r_popliteal_vein_L82)
         annotation (Placement(transformation(extent={{87,-23},{107,-18}})));
         Systemic_vein posterior_tibial_vein_T6_L84(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_posterior_tibial_vein_T6_L84,
             E = Parameters_Venous1.E_posterior_tibial_vein_T6_L84,
             r = Parameters_Venous1.r_posterior_tibial_vein_T6_L84)
         annotation (Placement(transformation(extent={{60,-23},{80,-18}})));
           Systemic_vein brachiocephalic_vein_R90(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_brachiocephalic_vein_R90,
             E=Parameters_Venous1.E_brachiocephalic_vein_R90,
             r=Parameters_Venous1.r_brachiocephalic_vein_R90)
             annotation (Placement(transformation(extent={{247,163},{267,168}})));
           Systemic_vein brachiocephalic_vein_L124(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_brachiocephalic_vein_L124,
             E=Parameters_Venous1.E_brachiocephalic_vein_L124,
             r=Parameters_Venous1.r_brachiocephalic_vein_L124)
             annotation (Placement(transformation(extent={{248,109},{268,114}})));
         Systemic_vein vertebral_vein_R92(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_vertebral_vein_R92,
             E = Parameters_Venous1.E_vertebral_vein_R92,
             r = Parameters_Venous1.r_vertebral_vein_R92)
         annotation (Placement(transformation(extent={{61,143},{81,148}})));
           Systemic_vein brachiocephalic_vein_R94(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_brachiocephalic_vein_R94,
             E=Parameters_Venous1.E_brachiocephalic_vein_R94,
             r=Parameters_Venous1.r_brachiocephalic_vein_R94)
             annotation (Placement(transformation(extent={{222,163},{242,168}})));
           Systemic_vein subclavian_vein_R96(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_subclavian_vein_R96,
             E=Parameters_Venous1.E_subclavian_vein_R96,
             r=Parameters_Venous1.r_subclavian_vein_R96)
             annotation (Placement(transformation(extent={{197,163},{217,168}})));
         Systemic_vein internal_jugular_vein_R122(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_internal_jugular_vein_R122,
             E = Parameters_Venous1.E_internal_jugular_vein_R122,
             r = Parameters_Venous1.r_internal_jugular_vein_R122)
         annotation (Placement(transformation(extent={{61,187},{81,192}})));
         Systemic_vein external_jugular_vein_R98(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_external_jugular_vein_R98,
             E = Parameters_Venous1.E_external_jugular_vein_R98,
             r = Parameters_Venous1.r_external_jugular_vein_R98)
         annotation (Placement(transformation(extent={{61,175},{81,180}})));
         Systemic_vein subclavian_vein_R100(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_subclavian_vein_R100,
             E = Parameters_Venous1.E_subclavian_vein_R100,
             r = Parameters_Venous1.r_subclavian_vein_R100)
         annotation (Placement(transformation(extent={{168,163},{188,168}})));
           Systemic_vein axillary_vein_R102(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_axillary_vein_R102,
             E=Parameters_Venous1.E_axillary_vein_R102,
             r=Parameters_Venous1.r_axillary_vein_R102)
             annotation (Placement(transformation(extent={{141,163},{161,168}})));
         Systemic_vein brachial_vein_R104(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_R104,
             E = Parameters_Venous1.E_brachial_vein_R104,
             r = Parameters_Venous1.r_brachial_vein_R104)
         annotation (Placement(transformation(extent={{114,163},{134,168}})));
         Systemic_vein brachial_vein_R114(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_R114,
             E = Parameters_Venous1.E_brachial_vein_R114,
             r = Parameters_Venous1.r_brachial_vein_R114)
         annotation (Placement(transformation(extent={{113,153},{133,158}})));
         Systemic_vein brachial_vein_R108(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_R108,
             E = Parameters_Venous1.E_brachial_vein_R108,
             r = Parameters_Venous1.r_brachial_vein_R108)
         annotation (Placement(transformation(extent={{88,163},{108,168}})));
         Systemic_vein ulnar_vein_T7_R110(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_ulnar_vein_T7_R110,
             E = Parameters_Venous1.E_ulnar_vein_T7_R110,
             r = Parameters_Venous1.r_ulnar_vein_T7_R110)
         annotation (Placement(transformation(extent={{61,163},{81,168}})));
         Systemic_vein brachial_vein_R118(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_R118,
             E = Parameters_Venous1.E_brachial_vein_R118,
             r = Parameters_Venous1.r_brachial_vein_R118)
         annotation (Placement(transformation(extent={{88,153},{108,158}})));
         Systemic_vein radial_vein_T3_R120(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_radial_vein_T3_R120,
             E = Parameters_Venous1.E_radial_vein_T3_R120,
             r = Parameters_Venous1.r_radial_vein_T3_R120)
         annotation (Placement(transformation(extent={{61,153},{81,158}})));
         Systemic_vein vertebral_vein_L126(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_vertebral_vein_L126,
             E = Parameters_Venous1.E_vertebral_vein_L126,
             r = Parameters_Venous1.r_vertebral_vein_L126)
         annotation (Placement(transformation(extent={{60,87},{80,92}})));
           Systemic_vein brachiocephalic_vein_L128(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_brachiocephalic_vein_L128,
             E=Parameters_Venous1.E_brachiocephalic_vein_L128,
             r=Parameters_Venous1.r_brachiocephalic_vein_L128)
             annotation (Placement(transformation(extent={{219,109},{239,114}})));
           Systemic_vein subclavian_vein_L130(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_subclavian_vein_L130,
             E=Parameters_Venous1.E_subclavian_vein_L130,
             r=Parameters_Venous1.r_subclavian_vein_L130)
             annotation (Placement(transformation(extent={{192,109},{212,114}})));
         Systemic_vein internal_jugular_vein_L156(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_internal_jugular_vein_L156,
             E = Parameters_Venous1.E_internal_jugular_vein_L156,
             r = Parameters_Venous1.r_internal_jugular_vein_L156)
         annotation (Placement(transformation(extent={{61,127},{81,132}})));
         Systemic_vein external_jugular_vein_L132(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_external_jugular_vein_L132,
             E = Parameters_Venous1.E_external_jugular_vein_L132,
             r = Parameters_Venous1.r_external_jugular_vein_L132)
         annotation (Placement(transformation(extent={{61,119},{81,124}})));
         Systemic_vein subclavian_vein_L134(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_subclavian_vein_L134,
             E = Parameters_Venous1.E_subclavian_vein_L134,
             r = Parameters_Venous1.r_subclavian_vein_L134)
         annotation (Placement(transformation(extent={{167,109},{187,114}})));
           Systemic_vein axillary_vein_L136(
-            phi_norm=phi_norm,
+            phi = phi,
             l=Parameters_Venous1.l_axillary_vein_L136,
             E=Parameters_Venous1.E_axillary_vein_L136,
             r=Parameters_Venous1.r_axillary_vein_L136)
             annotation (Placement(transformation(extent={{142,109},{162,114}})));
         Systemic_vein brachial_vein_L138(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_L138,
             E = Parameters_Venous1.E_brachial_vein_L138,
             r = Parameters_Venous1.r_brachial_vein_L138)
         annotation (Placement(transformation(extent={{115,109},{135,114}})));
         Systemic_vein brachial_vein_L148(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_L148,
             E = Parameters_Venous1.E_brachial_vein_L148,
             r = Parameters_Venous1.r_brachial_vein_L148)
         annotation (Placement(transformation(extent={{114,97},{134,102}})));
         Systemic_vein brachial_vein_L142(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_L142,
             E = Parameters_Venous1.E_brachial_vein_L142,
             r = Parameters_Venous1.r_brachial_vein_L142)
         annotation (Placement(transformation(extent={{88,109},{108,114}})));
         Systemic_vein ulnar_vein_T7_L144(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_ulnar_vein_T7_L144,
             E = Parameters_Venous1.E_ulnar_vein_T7_L144,
             r = Parameters_Venous1.r_ulnar_vein_T7_L144)
         annotation (Placement(transformation(extent={{61,109},{81,114}})));
         Systemic_vein brachial_vein_L152(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_brachial_vein_L152,
             E = Parameters_Venous1.E_brachial_vein_L152,
             r = Parameters_Venous1.r_brachial_vein_L152)
         annotation (Placement(transformation(extent={{88,97},{108,102}})));
         Systemic_vein radial_vein_T3_L154(
-            phi_norm = phi_norm,
+            phi = phi,
             l = Parameters_Venous1.l_radial_vein_T3_L154,
             E = Parameters_Venous1.E_radial_vein_T3_L154,
             r = Parameters_Venous1.r_radial_vein_T3_L154)
@@ -15110,7 +15256,7 @@ public
           zpv=tissueParameters.Zpv_splachnic_tissue)
           annotation (Placement(transformation(extent={{35,47},{55,52}})));
         Systemic_vein                    splachnic_vein(
-          phi_norm=phi_norm,
+          phi = phi,
           l=1.00E-01,
           r=7.50E-03) annotation (Placement(transformation(extent={{60,47},{80,52}})));
         Systemic_artery_thoracic                  coronary_arteries(
@@ -15128,7 +15274,7 @@ public
           annotation (Placement(transformation(extent={{36,74},{56,78}})));
         replaceable
         Systemic_vein coronary_veins(
-          phi_norm = phi_norm,
+          phi = phi,
           UseOuter_thoracic_pressure=true,
           UseNonLinearCompliance=false,
           C(displayUnit="m3/Pa") = 7e-10,
@@ -18172,19 +18318,19 @@ public
     end Mynard_heart;
 
     model testPVchars
-                      extends ADAN_main.Components.AdanVenousRed.Systemic_interfaces;
+      extends ADAN_main.Components.AdanVenousRed.Systemic_interfaces;
 
-
-
-      parameter Physiolibrary.Types.HydraulicCompliance totalCompliance=4.5003694550739e-07;
-      parameter Physiolibrary.Types.Volume totalVolume=0.0004;
-      parameter Physiolibrary.Types.Fraction thisVolumeFraction = superior_vena_cava_C88.V0/totalVolume;
-      parameter Physiolibrary.Types.HydraulicCompliance targetCompliance = totalCompliance*thisVolumeFraction;
-      Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
-      Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
-
-      Real dP = der(superior_vena_cava_C88.u_C);
-      Real dV = der(superior_vena_cava_C88.V);
+      /*
+  parameter Physiolibrary.Types.HydraulicCompliance totalCompliance=4.5003694550739e-07;
+  parameter Physiolibrary.Types.Volume totalVolume=0.0004;
+  parameter Physiolibrary.Types.Fraction thisVolumeFraction = superior_vena_cava_C88.compliant_vessel.V0/totalVolume;
+  parameter Physiolibrary.Types.HydraulicCompliance targetCompliance = totalCompliance*thisVolumeFraction;
+  */
+    //   Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
+    //   Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
+    //
+    //   Real dP=der(superior_vena_cava_C88.p);
+    //   Real dV = der(superior_vena_cava_C88.compliant_vessel.V);
 
 
     //  Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
@@ -18210,12 +18356,11 @@ public
         Components.Vessel_modules.vp_type
                       superior_vena_cava_C88(
         UseOuter_thoracic_pressure=false,
-        phi_norm=phi_norm,
+        phi=phi_ramp.y,
         l=Parameters_Venous1.l_superior_vena_cava_C88,
         E=Parameters_Venous1.E_superior_vena_cava_C88,
         r=Parameters_Venous1.r_superior_vena_cava_C88,
-        UseInertance=false,
-        tau(displayUnit="s") = 0.01)
+        UseInertance=false)
           annotation (Placement(transformation(extent={{26,-3},{46,2}})));
       Components.AdanVenousRed._b580e.Parameters_Venous_cellml.Parameters_Venous
         Parameters_Venous1
@@ -18234,7 +18379,7 @@ public
         falling=1,
         period=2000,
         nperiod=1,
-        offset=0,
+        offset=0.25,
         startTime=50.0)
         annotation (Placement(transformation(extent={{-100,64},{-80,84}})));
     equation
@@ -18290,7 +18435,7 @@ public
       Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
       Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
 
-      Real dP = der(superior_vena_cava_C88.u_C);
+      Real dP=der(superior_vena_cava_C88.p);
       Real dV = der(superior_vena_cava_C88.V);
 
       Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
@@ -18411,7 +18556,7 @@ public
       Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
       Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
 
-      Real dP = der(superior_vena_cava_C88.u_C);
+      Real dP=der(superior_vena_cava_C88.p);
       Real dV = der(superior_vena_cava_C88.V);
 
       Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
@@ -24199,8 +24344,10 @@ public
     end Experiments;
 
     model CVS_7af
-      replaceable Components.AdanVenousRed.Systemic_con Systemic1(
-          UseThoracic_PressureInput=false, UsePhi_Input=false,
+      replaceable Components.AdanVenousRed.Systemic_baroreflex
+                                                        Systemic1(
+          UseThoracic_PressureInput=false,
+        UsePhi_Input=true,
         redeclare
           Components.AdanVenousRed.SystemicTissueParameters.SystemicTissueParameters_Calculated
           tissueParameters,
@@ -24211,8 +24358,8 @@ public
         inferior_vena_cava_C8(UseOuter_thoracic_pressure=true),
         hepatic_vein_T1_C10(UseOuter_thoracic_pressure=true,
             thoracic_pressure_ratio=0.8),
-        splachnic_vein(UseOuter_thoracic_pressure=true, thoracic_pressure_ratio
-            =0.8),
+        splachnic_vein(UseOuter_thoracic_pressure=true, thoracic_pressure_ratio=
+             0.8),
         renal_vein_T1_R18(UseOuter_thoracic_pressure=true,
             thoracic_pressure_ratio=0.8),
         internal_iliac_vein_T1_R30(UseOuter_thoracic_pressure=true,
@@ -24259,6 +24406,16 @@ public
           v_pas(start=1.0003076e-06),
           v_pat(start=2.2090626e-05)))
         annotation (Placement(transformation(extent={{-34,-62},{-14,-42}})));
+    Modelica.Blocks.Sources.Trapezoid phi(
+        amplitude=0.75,
+        rising=2,
+        width=20,
+        falling=2,
+        period=200,
+        nperiod=1,
+        offset=0.25,
+        startTime=20)
+        annotation (Placement(transformation(extent={{-70,-6},{-50,14}})));
     equation
       connect(Systemic1.port_b, heartComponent.sv) annotation (Line(
           points={{18,28},{38,28},{38,-12},{-16,-12}},
@@ -24276,17 +24433,19 @@ public
           points={{-36,-32},{-50,-32},{-50,-52},{-34,-52}},
           color={0,0,0},
           thickness=1));
+      connect(phi.y, Systemic1.phi_input)
+        annotation (Line(points={{-49,4},{-14,4},{-14,20}}, color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
-          StopTime=10,
-          Tolerance=1e-05,
+          StopTime=60,
+          Interval=0.02,
           __Dymola_Algorithm="Cvode"));
     end CVS_7af;
 
     model CVS_7af_baro
       extends CVS_7af(
-        redeclare Components.AdanVenousRed.Systemic_baroreflex Systemic1(
+        Systemic1(
           UseThoracic_PressureInput=true,
           UsePhi_Input=true,
           baroreflex(resetAt=-1),
@@ -24297,13 +24456,7 @@ public
             UseOuter_thoracic_pressure=true,
             UseNonLinearCompliance=true,
             l(displayUnit="cm") = 0.05,
-            r(displayUnit="mm") = 0.005),
-          cardiac_tissue(UseOuter_thoracic_pressure=true),
-          superior_vena_cava_C2(UseOuter_thoracic_pressure=true),
-          inferior_vena_cava_C8(UseOuter_thoracic_pressure=true),
-          superior_vena_cava_C88(UseOuter_thoracic_pressure=true),
-          inferior_vena_cava_C12(UseOuter_thoracic_pressure=true),
-          inferior_vena_cava_C16(UseOuter_thoracic_pressure=false)),
+            r(displayUnit="mm") = 0.005)),
         pulmonaryComponent(UseThoracic_PressureInput=true),
         heartComponent(
           Heart1(q_lv(displayUnit="ml", start=0.0003), q_rv(displayUnit="ml",
@@ -24327,18 +24480,16 @@ public
         startTime=20)
         annotation (Placement(transformation(extent={{-98,-48},{-78,-28}})));
     equation
-      connect(thoracic_pressure.y, Systemic1.thoracic_pressure_input)
-        annotation (Line(points={{-77,-38},{-54,-38},{-54,20},{-28,20}}, color=
-              {0,0,127}));
-      connect(pulmonaryComponent.thoracic_pressure_input, thoracic_pressure.y)
-        annotation (Line(points={{-26,-60},{-62,-60},{-62,-38},{-77,-38}},
-            color={0,0,127}));
+      connect(phi.y, Systemic1.thoracic_pressure_input) annotation (Line(points=
+             {{-77,-38},{-54,-38},{-54,20},{-28,20}}, color={0,0,127}));
+      connect(pulmonaryComponent.thoracic_pressure_input, phi.y) annotation (
+          Line(points={{-26,-60},{-62,-60},{-62,-38},{-77,-38}}, color={0,0,127}));
       connect(Systemic1.phi_input, conditionalConnection.y) annotation (Line(
             points={{-14,20},{-10,20},{-10,8},{-9,8}},     color={0,0,127}));
       connect(Systemic1.phi_baroreflex, conditionalConnection.u) annotation (
           Line(points={{-27.4,45.4},{-27.4,28},{14,28},{14,8}}, color={0,0,127}));
-      connect(thoracic_pressure.y, heartComponent.thoracic_pressure_input)
-        annotation (Line(points={{-77,-38},{-26,-38},{-26,-32}}, color={0,0,127}));
+      connect(phi.y, heartComponent.thoracic_pressure_input) annotation (Line(
+            points={{-77,-38},{-26,-38},{-26,-32}}, color={0,0,127}));
       connect(conditionalConnection1.u, Systemic1.HR) annotation (Line(points={{-6,54},
               {-19.6,54},{-19.6,45.6}}, color={0,0,127}));
       connect(conditionalConnection1.y, heartComponent.frequency_input) annotation (
@@ -24346,7 +24497,6 @@ public
       annotation (experiment(
           StopTime=80,
           Interval=0.02,
-          Tolerance=1e-07,
           __Dymola_Algorithm="Cvode"));
     end CVS_7af_baro;
 
@@ -24925,18 +25075,16 @@ public
         startTime=20)
         annotation (Placement(transformation(extent={{-98,-48},{-78,-28}})));
     equation
-      connect(thoracic_pressure.y, Systemic1.thoracic_pressure_input)
-        annotation (Line(points={{-77,-38},{-54,-38},{-54,20},{-28,20}}, color=
-              {0,0,127}));
-      connect(pulmonaryComponent.thoracic_pressure_input, thoracic_pressure.y)
-        annotation (Line(points={{-26,-60},{-62,-60},{-62,-38},{-77,-38}},
-            color={0,0,127}));
+      connect(phi.y, Systemic1.thoracic_pressure_input) annotation (Line(points=
+             {{-77,-38},{-54,-38},{-54,20},{-28,20}}, color={0,0,127}));
+      connect(pulmonaryComponent.thoracic_pressure_input, phi.y) annotation (
+          Line(points={{-26,-60},{-62,-60},{-62,-38},{-77,-38}}, color={0,0,127}));
       connect(Systemic1.phi_input, conditionalConnection.y) annotation (Line(
             points={{-14,20},{-10,20},{-10,8},{-9,8}},     color={0,0,127}));
       connect(Systemic1.phi_baroreflex, conditionalConnection.u) annotation (
           Line(points={{-27.4,45.4},{-27.4,28},{14,28},{14,8}}, color={0,0,127}));
-      connect(thoracic_pressure.y, heartComponent.thoracic_pressure_input)
-        annotation (Line(points={{-77,-38},{-26,-38},{-26,-32}}, color={0,0,127}));
+      connect(phi.y, heartComponent.thoracic_pressure_input) annotation (Line(
+            points={{-77,-38},{-26,-38},{-26,-32}}, color={0,0,127}));
       connect(conditionalConnection1.u, Systemic1.HR) annotation (Line(points={{-6,54},
               {-19.6,54},{-19.6,45.6}}, color={0,0,127}));
       connect(conditionalConnection1.y, heartComponent.frequency_input) annotation (
@@ -24977,7 +25125,8 @@ public
         startTime=20)
         annotation (Placement(transformation(extent={{-80,-42},{-60,-22}})));
       Components.AdanVenousRed.Systemic_SimpleLumped systemic_SimpleLumped(
-          UseThoracic_PressureInput=true)
+          UseThoracic_PressureInput=true, internal_jugular_vein_R122(
+            LimitBackflow=true))
         annotation (Placement(transformation(extent={{-20,40},{0,60}})));
       Components.AdanVenousRed.PulmonaryComponent pulmonaryComponent(
           UseThoracic_PressureInput=true)
@@ -25016,7 +25165,7 @@ public
         experiment(
           StopTime=100,
           Interval=0.01,
-          Tolerance=1e-07,
+          Tolerance=1e-05,
           __Dymola_Algorithm="Cvode"));
     end Lumped_simple;
   annotation(preferredView="info",

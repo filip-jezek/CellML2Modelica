@@ -1774,13 +1774,23 @@ public
         Real Rvis(unit="J.s.m-6") "Elastic viscosity using Voigt model of in-series resistance";
         Real I_e(unit = "J.s2.m-6");
         parameter Real Rv(unit="J.s.m-6") "venule resistance";
-        parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume scaled by the phi input";
+
+        parameter Physiolibrary.Types.Volume zpv = 0 "Zero-pressure volume";
         parameter Physiolibrary.Types.Pressure nominal_pressure = 2666.4;
         Real u_C(unit = "Pa", start = nominal_pressure, nominal = 1000, fixed = true);
 
         Real u(unit = "Pa", nominal = 1000);
 
         Physiolibrary.Types.Pressure u_out_hs "Output pressure including the hydrostatic pressure";
+
+       Physiolibrary.Types.Fraction Ra_factor = 0 "Exponential factor affecting arterioles resistance";
+       Physiolibrary.Types.Fraction Rv_factor = 0 "Exponential factor affecting arterioles resistance";
+       input Physiolibrary.Types.Fraction phi;
+       parameter Physiolibrary.Types.Fraction phi0 = 0.25;
+
+        Physiolibrary.Types.HydraulicResistance Ra_phi = Ra*exp((phi-phi0)*Ra_factor) "Arterioles resistance dependent on phi";
+        Physiolibrary.Types.HydraulicResistance Rv_phi = Rv*exp((phi-phi0)*Rv_factor) "Arterioles resistance dependent on phi";
+
       initial equation
       //  volume = nominal_pressure*C + zpv;
       equation
@@ -1789,18 +1799,18 @@ public
             Rvis = 0.01/C;
 
             if UseInertance then
-              der(v_in) =(u_in - u - Ra*v_in)/I;
-              der(v_out) =(u - u_out_hs - Rv*v_out)/I_e;
+              der(v_in) =(u_in - u - Ra_phi*v_in)/I;
+              der(v_out) =(u - u_out_hs - Rv_phi*v_out)/I_e;
             else
-              0 =(u_in - u - Ra*v_in);
-              0 =(u - u_out_hs - Rv*v_out);
+              0 =(u_in - u - Ra_phi *v_in);
+              0 =(u - u_out_hs - Rv_phi *v_out);
             end if;
 
             der(volume) = (v_in-v_out);
             if UseOuter_thoracic_pressure then
-            u =u_C + Rvis*(v_in - v_out) + thoracic_pressure;
+              u =u_C + Rvis*(v_in - v_out) + thoracic_pressure;
             else
-                  u =u_C + Rvis*(v_in - v_out);
+              u =u_C + Rvis*(v_in - v_out);
             end if;
 
         volume = (u_C) *C + zpv;
@@ -1881,6 +1891,7 @@ public
         Physiolibrary.Types.Fraction A_inf = phi "Instant muscle activation coefficient";
         Physiolibrary.Types.Fraction A "Delayed muscle activation coefficient";
         parameter Physiolibrary.Types.Time tau=5   "Time constant of the smooth muscle activation";
+        parameter Physiolibrary.Types.Fraction phi_resting = 0.25;
 
         Real T_total = T_pass + T_active "Total vessel wall tension";
         Real T_pass = C_pass*(exp(T_pass_exp) - 1) "Passive part of the waqll tension";
@@ -1890,7 +1901,7 @@ public
 
       // Calculation of primary parameters
         Real T_pass_base = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1) "passive tension at nominal l = l0";
-        Real T_nominal = T_pass_base + C_act*0.25 "Total tension at nominal (l = l0) and resting activation";
+        Real T_nominal = T_pass_base + C_act*phi_resting "Total tension at nominal (l = l0) and resting activation";
         Real T_nominal_max=T_pass_base + C_act
           "Total tension at nominal and maximal activation";
 
@@ -14035,6 +14046,7 @@ public
       package SystemicTissueParameters
       model SystemicTissueParameters
         import Physiolibrary.Types.*;
+        parameter Pressure tissue_pressure=2666.4;
         parameter HydraulicResistance Ra_celiac_trunk_C116 = 8.65E+08 annotation(Dialog(tab="Tissue parametrization", group="Arterioles resistance"));
         parameter HydraulicResistance Rv_celiac_trunk_C116 = 1.62E+08 annotation(Dialog(tab="Tissue parametrization", group="Venules resistance"));
         parameter HydraulicInertance I_celiac_trunk_C116 = 5.21E+05 annotation(Dialog(tab="Tissue parametrization", group="Inertances"));
@@ -14251,7 +14263,6 @@ public
 
         parameter Pressure arterioles_pressure=13332;
         parameter Pressure venules_pressure=666.6;
-        parameter Pressure tissue_pressure=2666.4;
         parameter Volume total_zpv=0.002304;
         parameter Volume stressed_volume=0.000795;
         parameter VolumeFlowRate cardiac_output=9.98e-5;
@@ -14531,21 +14542,27 @@ public
             Rv = tissueParameters.Rv_celiac_trunk_C116,
             I = tissueParameters.I_celiac_trunk_C116,
             C = tissueParameters.C_celiac_trunk_C116,
-            zpv =  tissueParameters.Zpv_celiac_trunk_C116)
+            zpv =  tissueParameters.Zpv_celiac_trunk_C116,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,57},{55,62}})));
         Systemic_tissue renal_L166(
             Ra = tissueParameters.Ra_renal_L166,
             Rv = tissueParameters.Rv_renal_L166,
             I = tissueParameters.I_renal_L166,
             C = tissueParameters.C_renal_L166,
-            zpv =  tissueParameters.Zpv_renal_L166)
+            zpv =  tissueParameters.Zpv_renal_L166,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,-67},{55,-62}})));
         Systemic_tissue renal_R178(
             Ra = tissueParameters.Ra_renal_R178,
             Rv = tissueParameters.Rv_renal_R178,
             I = tissueParameters.I_renal_R178,
             C = tissueParameters.C_renal_R178,
-            zpv =  tissueParameters.Zpv_renal_R178)
+            zpv =  tissueParameters.Zpv_renal_R178,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,37},{55,42}})));
           Systemic_artery common_iliac_R216(
             l=Parameters_Systemic1.l_common_iliac_R216,
@@ -14557,7 +14574,9 @@ public
             Rv = tissueParameters.Rv_internal_iliac_T1_R218,
             I = tissueParameters.I_internal_iliac_T1_R218,
             C = tissueParameters.C_internal_iliac_T1_R218,
-            zpv =  tissueParameters.Zpv_internal_iliac_T1_R218)
+            zpv =  tissueParameters.Zpv_internal_iliac_T1_R218,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,27},{55,32}})));
         Systemic_artery external_iliac_R220(
             l = Parameters_Systemic1.l_external_iliac_R220,
@@ -14574,7 +14593,9 @@ public
             Rv = tissueParameters.Rv_profundus_T2_R224,
             I = tissueParameters.I_profundus_T2_R224,
             C = tissueParameters.C_profundus_T2_R224,
-            zpv =  tissueParameters.Zpv_profundus_T2_R224)
+            zpv =  tissueParameters.Zpv_profundus_T2_R224,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,17},{55,22}})));
         Systemic_artery femoral_R226(
             l = Parameters_Systemic1.l_femoral_R226,
@@ -14591,7 +14612,9 @@ public
             Rv = tissueParameters.Rv_anterior_tibial_T3_R230,
             I = tissueParameters.I_anterior_tibial_T3_R230,
             C = tissueParameters.C_anterior_tibial_T3_R230,
-            zpv =  tissueParameters.Zpv_anterior_tibial_T3_R230)
+            zpv =  tissueParameters.Zpv_anterior_tibial_T3_R230,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,7},{55,12}})));
         Systemic_artery popliteal_R232(
             l = Parameters_Systemic1.l_popliteal_R232,
@@ -14608,7 +14631,9 @@ public
             Rv = tissueParameters.Rv_posterior_tibial_T4_R236,
             I = tissueParameters.I_posterior_tibial_T4_R236,
             C = tissueParameters.C_posterior_tibial_T4_R236,
-            zpv =  tissueParameters.Zpv_posterior_tibial_T4_R236)
+            zpv =  tissueParameters.Zpv_posterior_tibial_T4_R236,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,-5},{55,0}})));
           Systemic_artery common_iliac_L194(
             l=Parameters_Systemic1.l_common_iliac_L194,
@@ -14620,7 +14645,9 @@ public
             Rv = tissueParameters.Rv_internal_iliac_T1_L196,
             I = tissueParameters.I_internal_iliac_T1_L196,
             C = tissueParameters.C_internal_iliac_T1_L196,
-            zpv =  tissueParameters.Zpv_internal_iliac_T1_L196)
+            zpv =  tissueParameters.Zpv_internal_iliac_T1_L196,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,-55},{55,-50}})));
         Systemic_artery external_iliac_L198(
             l = Parameters_Systemic1.l_external_iliac_L198,
@@ -14637,7 +14664,9 @@ public
             Rv = tissueParameters.Rv_profundus_T2_L202,
             I = tissueParameters.I_profundus_T2_L202,
             C = tissueParameters.C_profundus_T2_L202,
-            zpv =  tissueParameters.Zpv_profundus_T2_L202)
+            zpv =  tissueParameters.Zpv_profundus_T2_L202,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,-43},{55,-38}})));
         Systemic_artery femoral_L204(
             l = Parameters_Systemic1.l_femoral_L204,
@@ -14654,7 +14683,9 @@ public
             Rv = tissueParameters.Rv_anterior_tibial_T3_L208,
             I = tissueParameters.I_anterior_tibial_T3_L208,
             C = tissueParameters.C_anterior_tibial_T3_L208,
-            zpv =  tissueParameters.Zpv_anterior_tibial_T3_L208)
+            zpv =  tissueParameters.Zpv_anterior_tibial_T3_L208,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,-33},{55,-28}})));
         Systemic_artery popliteal_L210(
             l = Parameters_Systemic1.l_popliteal_L210,
@@ -14671,7 +14702,9 @@ public
             Rv = tissueParameters.Rv_posterior_tibial_T4_L214,
             I = tissueParameters.I_posterior_tibial_T4_L214,
             C = tissueParameters.C_posterior_tibial_T4_L214,
-            zpv =  tissueParameters.Zpv_posterior_tibial_T4_L214)
+            zpv =  tissueParameters.Zpv_posterior_tibial_T4_L214,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,-23},{55,-18}})));
           Systemic_artery subclavian_R28(
             l=Parameters_Systemic1.l_subclavian_R28,
@@ -14703,14 +14736,18 @@ public
             Rv = tissueParameters.Rv_ulnar_T2_R42,
             I = tissueParameters.I_ulnar_T2_R42,
             C = tissueParameters.C_ulnar_T2_R42,
-            zpv =  tissueParameters.Zpv_ulnar_T2_R42)
+            zpv =  tissueParameters.Zpv_ulnar_T2_R42,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,163},{55,168}})));
         Systemic_tissue radial_T1_R44(
             Ra = tissueParameters.Ra_radial_T1_R44,
             Rv = tissueParameters.Rv_radial_T1_R44,
             I = tissueParameters.I_radial_T1_R44,
             C = tissueParameters.C_radial_T1_R44,
-            zpv =  tissueParameters.Zpv_radial_T1_R44)
+            zpv =  tissueParameters.Zpv_radial_T1_R44,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,153},{55,158}})));
           Systemic_artery subclavian_L66(
             l=Parameters_Systemic1.l_subclavian_L66,
@@ -14742,14 +14779,18 @@ public
             Rv = tissueParameters.Rv_ulnar_T2_L90,
             I = tissueParameters.I_ulnar_T2_L90,
             C = tissueParameters.C_ulnar_T2_L90,
-            zpv =  tissueParameters.Zpv_ulnar_T2_L90)
+            zpv =  tissueParameters.Zpv_ulnar_T2_L90,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,109},{55,114}})));
         Systemic_tissue radial_T1_L92(
             Ra = tissueParameters.Ra_radial_T1_L92,
             Rv = tissueParameters.Rv_radial_T1_L92,
             I = tissueParameters.I_radial_T1_L92,
             C = tissueParameters.C_radial_T1_L92,
-            zpv =  tissueParameters.Zpv_radial_T1_L92)
+            zpv =  tissueParameters.Zpv_radial_T1_L92,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,97},{55,102}})));
         Systemic_artery common_carotid_R6_A(
             l = Parameters_Systemic1.l_common_carotid_R6_A,
@@ -14781,14 +14822,18 @@ public
             Rv = tissueParameters.Rv_internal_carotid_R8_C,
             I = tissueParameters.I_internal_carotid_R8_C,
             C = tissueParameters.C_internal_carotid_R8_C,
-            zpv =  tissueParameters.Zpv_internal_carotid_R8_C)
+            zpv =  tissueParameters.Zpv_internal_carotid_R8_C,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,187},{55,192}})));
         Systemic_tissue external_carotid_T2_R26(
             Ra = tissueParameters.Ra_external_carotid_T2_R26,
             Rv = tissueParameters.Rv_external_carotid_T2_R26,
             I = tissueParameters.I_external_carotid_T2_R26,
             C = tissueParameters.C_external_carotid_T2_R26,
-            zpv =  tissueParameters.Zpv_external_carotid_T2_R26)
+            zpv =  tissueParameters.Zpv_external_carotid_T2_R26,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,175},{55,180}})));
         Systemic_artery common_carotid_L48_A(
             l = Parameters_Systemic1.l_common_carotid_L48_A,
@@ -14825,28 +14870,36 @@ public
             Rv = tissueParameters.Rv_internal_carotid_L50_C,
             I = tissueParameters.I_internal_carotid_L50_C,
             C = tissueParameters.C_internal_carotid_L50_C,
-            zpv =  tissueParameters.Zpv_internal_carotid_L50_C)
+            zpv =  tissueParameters.Zpv_internal_carotid_L50_C,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,127},{55,132}})));
         Systemic_tissue external_carotid_T2_L62(
             Ra = tissueParameters.Ra_external_carotid_T2_L62,
             Rv = tissueParameters.Rv_external_carotid_T2_L62,
             I = tissueParameters.I_external_carotid_T2_L62,
             C = tissueParameters.C_external_carotid_T2_L62,
-            zpv =  tissueParameters.Zpv_external_carotid_T2_L62)
+            zpv =  tissueParameters.Zpv_external_carotid_T2_L62,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,119},{55,124}})));
         Systemic_tissue vertebral_L2(
             Ra = tissueParameters.Ra_vertebral_L2,
             Rv = tissueParameters.Rv_vertebral_L2,
             I = tissueParameters.I_vertebral_L2,
             C = tissueParameters.C_vertebral_L2,
-            zpv =  tissueParameters.Zpv_vertebral_L2)
+            zpv =  tissueParameters.Zpv_vertebral_L2,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,87},{55,92}})));
         Systemic_tissue vertebral_R272(
             Ra = tissueParameters.Ra_vertebral_R272,
             Rv = tissueParameters.Rv_vertebral_R272,
             I = tissueParameters.I_vertebral_R272,
             C = tissueParameters.C_vertebral_R272,
-            zpv =  tissueParameters.Zpv_vertebral_R272)
+            zpv =  tissueParameters.Zpv_vertebral_R272,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
         annotation (Placement(transformation(extent={{35,143},{55,148}})));
         Systemic_vein superior_vena_cava_C2(
             phi = phi,
@@ -15253,7 +15306,9 @@ public
           Rv=tissueParameters.Rv_splachnic_tissue,
           I=tissueParameters.I_splachnic_tissue,
           C=tissueParameters.C_splachnic_tissue,
-          zpv=tissueParameters.Zpv_splachnic_tissue)
+          zpv=tissueParameters.Zpv_splachnic_tissue,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
           annotation (Placement(transformation(extent={{35,47},{55,52}})));
         Systemic_vein                    splachnic_vein(
           phi = phi,
@@ -15270,7 +15325,9 @@ public
           C=tissueParameters.C_cardiac_tissue,
           Ra=tissueParameters.Ra_cardiac_tissue,
           Rv=tissueParameters.Rv_cardiac_tissue,
-          zpv=tissueParameters.Zpv_cardiac_tissue)
+          zpv=tissueParameters.Zpv_cardiac_tissue,
+          nominal_pressure=tissueParameters.tissue_pressure,
+          phi=phi)
           annotation (Placement(transformation(extent={{36,74},{56,78}})));
         replaceable
         Systemic_vein coronary_veins(
@@ -18320,17 +18377,16 @@ public
     model testPVchars
       extends ADAN_main.Components.AdanVenousRed.Systemic_interfaces;
 
-      /*
-  parameter Physiolibrary.Types.HydraulicCompliance totalCompliance=4.5003694550739e-07;
-  parameter Physiolibrary.Types.Volume totalVolume=0.0004;
-  parameter Physiolibrary.Types.Fraction thisVolumeFraction = superior_vena_cava_C88.compliant_vessel.V0/totalVolume;
-  parameter Physiolibrary.Types.HydraulicCompliance targetCompliance = totalCompliance*thisVolumeFraction;
-  */
-    //   Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
+
+    //   parameter Physiolibrary.Types.HydraulicCompliance totalCompliance=4.5003694550739e-07;
+      parameter Physiolibrary.Types.Volume totalVolume=908e-6;
+      parameter Physiolibrary.Types.Fraction thisVolumeFraction = superior_vena_cava_C88.compliant_vessel.V0/totalVolume;
+    //   parameter Physiolibrary.Types.HydraulicCompliance targetCompliance = totalCompliance*thisVolumeFraction;
+      Physiolibrary.Types.HydraulicCompliance thisCompliance = if noEvent( dP > 1e-6 or dP < -1e-6) then dV/dP else dV/1e-6;
     //   Physiolibrary.Types.HydraulicCompliance thisTotalCompliance = thisCompliance/thisVolumeFraction;
     //
-    //   Real dP=der(superior_vena_cava_C88.p);
-    //   Real dV = der(superior_vena_cava_C88.compliant_vessel.V);
+       Real dP=der(superior_vena_cava_C88.compliant_vessel.p);
+       Real dV = der(superior_vena_cava_C88.compliant_vessel.V);
 
 
     //  Physiolibrary.Types.Fraction phi_norm = phi_ramp.y "Normalized phi value to 1 by phi0 if UsePhi_input = true or by 0.25 otherwise";
@@ -18344,10 +18400,10 @@ public
         annotation (Placement(transformation(extent={{100,-10},{80,10}})));
       Modelica.Blocks.Sources.Trapezoid
                                    trapezoid(
-        amplitude=-5320.0*2,
-        rising=1000.0,
-        width=0.0,
-        falling=1000.0,
+        amplitude=-5320.0 - 5320,
+        rising=100.0,
+        width=100.0,
+        falling=100.0,
         period=2000.0,
         nperiod=1,
         offset=5320.0,
@@ -18380,7 +18436,7 @@ public
         period=2000,
         nperiod=1,
         offset=0.25,
-        startTime=50.0)
+        startTime=150.0)
         annotation (Placement(transformation(extent={{-100,64},{-80,84}})));
     equation
       connect(unlimitedVolume.pressure, trapezoid.y) annotation (Line(points={{
@@ -18406,7 +18462,7 @@ public
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
-          StopTime=600,
+          StopTime=300,
           Interval=0.01,
           Tolerance=1e-07,
           __Dymola_Algorithm="Cvode"));
@@ -24433,8 +24489,6 @@ public
           points={{-36,-32},{-50,-32},{-50,-52},{-34,-52}},
           color={0,0,0},
           thickness=1));
-      connect(phi.y, Systemic1.phi_input)
-        annotation (Line(points={{-49,4},{-14,4},{-14,20}}, color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)),
         experiment(
@@ -24463,11 +24517,11 @@ public
                 start=0.0009)),
           UseFrequencyInput=true,
           UseThoracicPressureInput=true));
-      Components.ConditionalConnection conditionalConnection(
-          disconnectedValue=0.25, disconnected=false)
+      Components.ConditionalConnection conditionalConnection(disconnectedValue=
+            0, disconnected=true)
         annotation (Placement(transformation(extent={{8,4},{-4,10}})));
       Components.ConditionalConnection conditionalConnection1(
-          disconnectedValue=1, disconnected=false)
+          disconnectedValue=1, disconnected=true)
         annotation (Placement(transformation(extent={{0,50},{12,56}})));
     Modelica.Blocks.Sources.Trapezoid           thoracic_pressure(
         amplitude=40*133,
@@ -24480,20 +24534,23 @@ public
         startTime=20)
         annotation (Placement(transformation(extent={{-98,-48},{-78,-28}})));
     equation
-      connect(phi.y, Systemic1.thoracic_pressure_input) annotation (Line(points=
-             {{-77,-38},{-54,-38},{-54,20},{-28,20}}, color={0,0,127}));
-      connect(pulmonaryComponent.thoracic_pressure_input, phi.y) annotation (
-          Line(points={{-26,-60},{-62,-60},{-62,-38},{-77,-38}}, color={0,0,127}));
       connect(Systemic1.phi_input, conditionalConnection.y) annotation (Line(
             points={{-14,20},{-10,20},{-10,8},{-9,8}},     color={0,0,127}));
       connect(Systemic1.phi_baroreflex, conditionalConnection.u) annotation (
           Line(points={{-27.4,45.4},{-27.4,28},{14,28},{14,8}}, color={0,0,127}));
-      connect(phi.y, heartComponent.thoracic_pressure_input) annotation (Line(
-            points={{-77,-38},{-26,-38},{-26,-32}}, color={0,0,127}));
       connect(conditionalConnection1.u, Systemic1.HR) annotation (Line(points={{-6,54},
               {-19.6,54},{-19.6,45.6}}, color={0,0,127}));
       connect(conditionalConnection1.y, heartComponent.frequency_input) annotation (
          Line(points={{17,54},{52,54},{52,-22},{-16,-22}}, color={0,0,127}));
+      connect(Systemic1.thoracic_pressure_input, thoracic_pressure.y)
+        annotation (Line(points={{-28,20},{-52,20},{-52,-38},{-77,-38}}, color=
+              {0,0,127}));
+      connect(heartComponent.thoracic_pressure_input, thoracic_pressure.y)
+        annotation (Line(points={{-26,-32},{-32,-32},{-32,-38},{-77,-38}},
+            color={0,0,127}));
+      connect(pulmonaryComponent.thoracic_pressure_input, thoracic_pressure.y)
+        annotation (Line(points={{-26,-60},{-52,-60},{-52,-38},{-77,-38}},
+            color={0,0,127}));
       annotation (experiment(
           StopTime=80,
           Interval=0.02,

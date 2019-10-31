@@ -1897,7 +1897,7 @@ public
         Real T_pass = C_pass*(exp(T_pass_exp) - 1) "Passive part of the waqll tension";
         Real T_pass_exp= (wall_L - wall_L_min) /wall_L_min;
         Real T_active = A*T_act_max "Active part of the wall tension";
-        Real T_act_max= C_act*wall_L/wall_L0 "Tension at maximal muscle activation";
+        Real T_act_max= C_act*(wall_L - wall_L_min)/wall_L_min "Tension at maximal muscle activation";
 
       // Calculation of primary parameters
         Real T_pass_base = C_pass*(exp((wall_L0 - wall_L_min) /wall_L_min) - 1) "passive tension at nominal l = l0";
@@ -1931,6 +1931,94 @@ public
         p * D/2 = T_total;
 
       end compliance_tensionBased;
+
+      model compliance_dataFit1
+        "Fit of venous PV data from Moreno 1970 by Ben (ebrandal@umich.edu)"
+        extends compliance_base( V0 = Modelica.Constants.pi*r_n^2*l, V_min = 0);
+        type Tension = Real(quantity = "Tension", unit="N/m");
+        parameter Boolean useViscoElasticDelay = false;
+
+        // TENSIONS
+        Tension T = T_p + T_a;
+        Tension T_p = a*f_L + b*g_L "Passive vessel wall tension";
+        Tension T_a = A*h_L "Active vessel wall tension";
+        Tension f_L = L*(L - L0)/ L0^2 "Tension function on circumferential wall length";
+        Tension g_L = exp(c*(L-L0)/L0) - 1 "Tension function on circumferential wall length";
+        Tension h_L = (L-L0) / L0 "Tension function on circumferential wall length";
+        // TENSION PARAMETERS
+      //   parameter Real a;
+      //   parameter Real b;
+         constant Real c = 11.5 "identified by Matlab's cftool and fixed";
+      //   parameter Real d;
+
+      // DIAMETERS AND LENGTHS
+        parameter Modelica.SIunits.Radius r_n "nominal vessel radius";
+        Modelica.SIunits.Radius r(start=r_n, fixed=false) "Actual vessel radius";
+        Modelica.SIunits.Length L = r / (2*Modelica.Constants.pi) "Actual circumferential wall length";
+        parameter Modelica.SIunits.Length L_n = r_n/(2*Modelica.Constants.pi) "nominal circumferential wall length";
+        parameter Modelica.SIunits.Length L0 = L_n*gamma;
+        parameter Physiolibrary.Types.Fraction gamma "Fraction of minimal collapsing diameter to nominal diameter";
+
+      // ACTIVE REGULATION
+        Physiolibrary.Types.Fraction A(start = A_nominal) "Activation fraction";
+        parameter Physiolibrary.Types.Fraction A_nominal = 0.25 "nominal activation fraction";
+        parameter Modelica.SIunits.Time tau = 0.1;
+
+        // ASSUMPTIONS used for parameter identification
+        parameter Tension T_n = p0 * r_n "Tension at nominal pressure pf p0";
+        parameter Physiolibrary.Types.Pressure P_dm = 30*133.32 "Data point - maximal pressure";
+        parameter Physiolibrary.Types.Volume V_dm = 4*V0 "Volume data point, corresponding to P_dm";
+        parameter Modelica.SIunits.Length L_dm = 2*Modelica.Constants.pi*r_dm;
+        parameter Modelica.SIunits.Radius r_dm = sqrt(V_dm/Modelica.Constants.pi/l);
+        parameter Tension T_dm = P_dm * r_dm;
+        parameter Physiolibrary.Types.Fraction alpha = 2.5;
+
+        function f
+          input Modelica.SIunits.Length L_i;
+          input Modelica.SIunits.Length L0;
+          output Tension T;
+        algorithm
+          T := L_i*(L_i - L0)/ L0^2;
+        end f;
+
+        function g
+          input Modelica.SIunits.Length L_i;
+          input Modelica.SIunits.Length L0;
+          output Tension T;
+        algorithm
+          T := exp(c*(L_i-L0)/L0) - 1;
+        end g;
+
+        function h
+          input Modelica.SIunits.Length L_i;
+          input Modelica.SIunits.Length L0;
+          output Tension T;
+        algorithm
+          T := (L_i-L0) / L0;
+        end h;
+
+        Real a = (T_n/(1 + A_nominal*(alpha - 1)) - b*g(L_n, L0))/f(L_n, L0);
+        Real b = (T_dm - T_n/(1 + A_nominal*(alpha - 1))*f(L_dm, L0)/f(L_n, L0)) /
+          (g(L_dm, L0) - g(L_n, L0)*f(L_dm, L0)/f(L_n, L0));
+        Real d = T_n *(alpha - 1)/ (h(L_n, L0)*(1 + A_nominal*(alpha -1)));
+      //  Real helper = T_n/(1+ A_nominal*(alpha -1));
+      //  Real helper2 = f(L_dm)/f(L_n);
+
+      equation
+
+        if useViscoElasticDelay then
+          der(A)*tau = phi - A;
+        else
+          A = phi;
+        end if;
+
+        Modelica.Constants.pi * r^2 * l = V;
+        p*r = T;
+
+      // Assumptions
+
+
+      end compliance_dataFit1;
     end Interfaces;
 
     model vv_type_thoracic
@@ -3724,6 +3812,11 @@ public
       end if;
 
     end vp_type_backup;
+
+    model vp_type_dataFit "Extension of datafit"
+        extends vp_type(redeclare Interfaces.compliance_dataFit1
+            compliant_vessel(r_n=r, gamma=gamma));
+    end vp_type_dataFit;
   end Vessel_modules;
 
     package Adan86
@@ -18409,7 +18502,7 @@ public
         offset=5320.0,
         startTime=0)
         annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
-        Components.Vessel_modules.vp_type
+        Components.Vessel_modules.vp_type_dataFit
                       superior_vena_cava_C88(
         UseOuter_thoracic_pressure=false,
         phi=phi_ramp.y,
@@ -18464,7 +18557,7 @@ public
         experiment(
           StopTime=300,
           Interval=0.01,
-          Tolerance=1e-07,
+          Tolerance=1e-09,
           __Dymola_Algorithm="Cvode"));
     end testPVchars;
 

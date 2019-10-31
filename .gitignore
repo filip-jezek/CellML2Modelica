@@ -27,3 +27,4 @@ dsmodel.c
 /modelDescription.xml
 /request
 /status
+*.asv

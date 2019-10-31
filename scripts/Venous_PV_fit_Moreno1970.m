@@ -6,24 +6,28 @@
 
 %% Constants 
 
-l = 100;        %Vessel length
+l = 0.0206549;        %nominal length of vena_cava_C88 segment
 phibar = 0.25;  %Baseline phi
 alpha = 2.5;    %Assigned alpha value 
+gamma = 0.5;
+
+r_n = 0.00975; % nominal radius of vena_cava_C88
+r_0 = gamma*r_n;
 
 %Zero pressure values 
-V0 = 500; 
-L0 = 2*pi*sqrt(V0/pi/l);  
-D0 = 2*sqrt(V0/pi/l); 
+V0 = l*pi*r_0^2; 
+L0 = 2*pi*r_0;  
+D0 = 2*r_0; 
 
 %Nominal pressure values 
-Pn = 4; 
-Vn = 2*V0; 
-Ln = 2*pi*sqrt(Vn/pi/l);
-Tn = Pn*Ln/(2*pi);
+Pn = 4*133; 
+Vn = l*pi*r_n^2;
+Ln = 2*pi*r_n;
+Tn = Pn*r_n;
 
 %Maximal pressure values 
-PM = 30; 
-VM = 4*V0;  
+PM = 30*133; 
+VM = 4*V0;  % GUESS from the picture ?? Is there a reason why not to take the actual data lasst point?
 LM = 2*pi*sqrt(VM/pi/l); 
 TM = PM*LM/(2*pi); 
 

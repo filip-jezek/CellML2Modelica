@@ -1876,14 +1876,18 @@ public
 
       model compliance_tensionBased
         "Exponential tension-based compliance with linear tension muscle activation. Idea based on Carlson, Secomb 2015"
-        extends compliance_base(V( start = V0, fixed = true), V0 = l * Modelica.Constants.pi * (r)^2, V_min = Modelica.Constants.pi *(wall_L_min/Modelica.Constants.pi/2)^2 *l);
-        parameter Modelica.SIunits.Radius r "Vessel inner radius";
-        Modelica.SIunits.Diameter D(start = 2*r) "Vessel actual (inner) diameter";
+        extends compliance_base(
+          V(start=V0, fixed=true),
+          V0=l*Modelica.Constants.pi*(r_n)^2,
+          V_min=Modelica.Constants.pi*(wall_L_min/Modelica.Constants.pi/2)^2*l);
+        parameter Modelica.SIunits.Radius r_n "Nominal vessel inner radius";
+        Modelica.SIunits.Diameter D(start=2*r_n) "Vessel actual (inner) diameter";
 
         Physiolibrary.Types.Fraction ll0( start = 1)=wall_L/wall_L0;
         Modelica.SIunits.Length wall_L=Modelica.Constants.pi*D
           "Circumferential wall length";
-        parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r*2 "Circumferential wall length at nominal";
+        parameter Modelica.SIunits.Length wall_L0=Modelica.Constants.pi*r_n*2
+          "Circumferential wall length at nominal";
         parameter Modelica.SIunits.Length wall_L_min=wall_L0*gamma "Minimal circumferential length";
         parameter Real gamma = 1/2 "fraction of nominal diameter to minimal zero-pressure diameter";
         parameter Real alpha = 5 "how many times the tension is larger for maximal activation from resting activation at nominal diameter";
@@ -1908,9 +1912,10 @@ public
 
         Real C_pass(start = 1) "Primary parameter for passive tension";
         Real C_act(start = 1) "Primary parameter for active tension";
-        Real C_act_max = p0*r*4;
-        Real C_act_guess = p0*r*(gamma*(alpha-1)/(1+phi*(alpha-1))) "Analytically expressed equation";
-        Real C_pass_guess = (p0*r - C_act/4)/(exp((1-gamma)/gamma) - 1);
+        Real C_act_max=p0*r_n*4;
+        Real C_act_guess=p0*r_n*(gamma*(alpha - 1)/(1 + phi*(alpha - 1)))
+          "Analytically expressed equation";
+        Real C_pass_guess=(p0*r_n - C_act/4)/(exp((1 - gamma)/gamma) - 1);
 
 
       initial equation
@@ -1924,7 +1929,7 @@ public
         // identify the c_act
         alpha =T_nominal_max / T_pass_base;
         // identify the c_pass - the vessel must exhibit the given p0 at nominal diameter
-        p0 * r = T_nominal;
+        p0*r_n = T_nominal;
 
 
         // governing equation - tension to pressure
@@ -1934,17 +1939,21 @@ public
 
       model compliance_dataFit1
         "Fit of venous PV data from Moreno 1970 by Ben (ebrandal@umich.edu)"
-        extends compliance_base( V0 = Modelica.Constants.pi*r_n^2*l, V_min = 0);
+        extends compliance_base( V0 = Modelica.Constants.pi*r_n^2*l, V_min = Modelica.Constants.pi*r_0^2*l);
         type Tension = Real(quantity = "Tension", unit="N/m");
+        // GENERAL INPUT PARAMETERS
         parameter Boolean useViscoElasticDelay = false;
+        parameter Physiolibrary.Types.Fraction gamma "Fraction of minimal collapsing diameter to nominal diameter";
 
         // TENSIONS
         Tension T = T_p + T_a;
         Tension T_p = a*f_L + b*g_L "Passive vessel wall tension";
         Tension T_a = A*h_L "Active vessel wall tension";
-        Tension f_L = L*(L - L0)/ L0^2 "Tension function on circumferential wall length";
-        Tension g_L = exp(c*(L-L0)/L0) - 1 "Tension function on circumferential wall length";
-        Tension h_L = (L-L0) / L0 "Tension function on circumferential wall length";
+        Tension f_L=L*(L - L_0)/L_0^2
+          "Tension function on circumferential wall length";
+        Tension g_L=exp(c*(L - L_0)/L_0) - 1
+          "Tension function on circumferential wall length";
+        Tension h_L=(L - L_0)/L_0 "Tension function on circumferential wall length";
         // TENSION PARAMETERS
       //   parameter Real a;
       //   parameter Real b;
@@ -1952,12 +1961,12 @@ public
       //   parameter Real d;
 
       // DIAMETERS AND LENGTHS
-        parameter Modelica.SIunits.Radius r_n "nominal vessel radius";
         Modelica.SIunits.Radius r(start=r_n, fixed=false) "Actual vessel radius";
+        parameter Modelica.SIunits.Radius r_n "nominal vessel radius";
+        parameter Modelica.SIunits.Radius r_0 = gamma*r_n "Zero-pressure vessel radius";
         Modelica.SIunits.Length L = r / (2*Modelica.Constants.pi) "Actual circumferential wall length";
         parameter Modelica.SIunits.Length L_n = r_n/(2*Modelica.Constants.pi) "nominal circumferential wall length";
-        parameter Modelica.SIunits.Length L0 = L_n*gamma;
-        parameter Physiolibrary.Types.Fraction gamma "Fraction of minimal collapsing diameter to nominal diameter";
+        parameter Modelica.SIunits.Length L_0= r_0/(2*Modelica.Constants.pi);
 
       // ACTIVE REGULATION
         Physiolibrary.Types.Fraction A(start = A_nominal) "Activation fraction";
@@ -1965,7 +1974,7 @@ public
         parameter Modelica.SIunits.Time tau = 0.1;
 
         // ASSUMPTIONS used for parameter identification
-        parameter Tension T_n = p0 * r_n "Tension at nominal pressure pf p0";
+        parameter Tension T_n = p0 * r_n "Tension at nominal pressure of p0";
         parameter Physiolibrary.Types.Pressure P_dm = 30*133.32 "Data point - maximal pressure";
         parameter Physiolibrary.Types.Volume V_dm = 4*V0 "Volume data point, corresponding to P_dm";
         parameter Modelica.SIunits.Length L_dm = 2*Modelica.Constants.pi*r_dm;
@@ -1997,10 +2006,10 @@ public
           T := (L_i-L0) / L0;
         end h;
 
-        Real a = (T_n/(1 + A_nominal*(alpha - 1)) - b*g(L_n, L0))/f(L_n, L0);
-        Real b = (T_dm - T_n/(1 + A_nominal*(alpha - 1))*f(L_dm, L0)/f(L_n, L0)) /
-          (g(L_dm, L0) - g(L_n, L0)*f(L_dm, L0)/f(L_n, L0));
-        Real d = T_n *(alpha - 1)/ (h(L_n, L0)*(1 + A_nominal*(alpha -1)));
+        Real a=(T_n/(1 + A_nominal*(alpha - 1)) - b*g(L_n, L_0))/f(L_n, L_0);
+        Real b=(T_dm - T_n/(1 + A_nominal*(alpha - 1))*f(L_dm, L_0)/f(L_n, L_0))/(g(
+            L_dm, L_0) - g(L_n, L_0)*f(L_dm, L_0)/f(L_n, L_0));
+        Real d=T_n*(alpha - 1)/(h(L_n, L_0)*(1 + A_nominal*(alpha - 1)));
       //  Real helper = T_n/(1+ A_nominal*(alpha -1));
       //  Real helper2 = f(L_dm)/f(L_n);
 
@@ -2012,11 +2021,11 @@ public
           A = phi;
         end if;
 
+        // VOLUME equation
         Modelica.Constants.pi * r^2 * l = V;
+
+        // pressure-tension equation
         p*r = T;
-
-      // Assumptions
-
 
       end compliance_dataFit1;
     end Interfaces;
@@ -2131,12 +2140,16 @@ public
       Physiolibrary.Types.Pressure p = compliant_vessel.p;
 
 
-      replaceable Interfaces.compliance_tensionBased compliant_vessel(
-        l=l,
-        alpha = alpha,
-        gamma = gamma,
-        r=r) constrainedby Interfaces.compliance_base(l=l, p0=p0, phi = phi, V = volume)
-        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+        replaceable Interfaces.compliance_tensionBased compliant_vessel(
+          l=l,
+          alpha=alpha,
+          gamma=gamma,
+          r_n=r) constrainedby Interfaces.compliance_base(
+          l=l,
+          p0=p0,
+          phi=phi,
+          V=volume)
+          annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
     equation
 

@@ -3,7 +3,8 @@
 % Script by Eric B. Randall ebrandall@umich.edu
 % Modified by Filip Ježek fjezek@umich.edu
 
-% clear all
+clear all
+close all
 
 %% Constants 
 usePngOutput = false;
@@ -11,8 +12,8 @@ showGraphs = true;
 
 mmHg2Pa = 133.32;
 l = 0.0206549;        %nominal length of vena_cava_C88 segment
-phibar = 0.25;  %Baseline phi
-alpha = 2.5;    %Assigned alpha value 
+phibar = 0;  %Baseline phi
+alpha = 2;    %Assigned alpha value 
 gamma = 0.92; % ratio of sqrt(V0/V)
 
 r_n = 0.00975; % nominal radius of vena_cava_C88
@@ -134,8 +135,11 @@ if showGraphs
 end
 %% T_P
 
-i_set = 1:0.1:20;
-i_set = 11.5;
+showGraphs = true;
+% phibar = 0;
+% i_set = 5:0.1:50;
+i_set = 10.8;
+Ccs = [0, 0];
 for i = i_set,
 % c = 11.5; %Dimensionless constant determined from cftool - 11.5
 c = i;
@@ -146,6 +150,10 @@ g = @(L) exp(c.*(L - L0)./L0) - 1;  %Exponential term
 b = (TM - Tn/(1 + phibar*(alpha - 1))*f(LM)/f(Ln)) / ... 
     (g(LM) - g(Ln)*f(LM)/f(Ln));
 a = (Tn/(1 + phibar*(alpha - 1)) - b*g(Ln))/f(Ln); 
+
+% b = (Tn - T0/(1 + phibar*(alpha - 1))*f(Ln)) / ... 
+%     (g(Ln)*f(Ln));
+% a = (Tn/(1 + phibar*(alpha - 1)) - b*g(L0)); 
 
 T_P = @(L) a*f(L) + b*g(L); 
 
@@ -166,8 +174,8 @@ if showGraphs
     
     
     plot(L,T_P(L),'r') 
-%     ylim([min(Tdata) max(Tdata)+5])
-%     xlim([0 LM+1])
+    ylim([min(Tdata) max(Tdata)])
+    xlim([0 LM])
     xlabel('Length')
     ylabel('Tension')
 
@@ -196,6 +204,8 @@ if showGraphs
     plot(linspace(min(xData), max(xData), 10), ones(10, 1)*Vn_rel, 'b:');
     
     plot(P(L),(V(L) - V0)/V0,'b')
+    ylim([min(plotData) max(plotData)])
+    xlim([min(Pdata) max(Pdata)])    
     xlabel('P (Pa)')
     ylabel('(V - V_0/V_0') 
 
@@ -210,14 +220,23 @@ SStot = sum((Pdata - Pdatabar).^2);
 p = (P1 - Pdata).^2;
 SSres = sum(p);
 R2 = 1 - SSres/SStot;
-disp([num2str(i) ': ' num2str(R2)])
-pause(0.05);
+disp([num2str(i) ': ' num2str(R2)]);
+Ccs = [Ccs; [i, SSres]];
+% pause(0.05);
 end
 
-
+if length(i_set) > 1
+    % plot the optimal c param
+    [cmax, cpos] = min(Ccs(2:end, 2));
+    figure(111);clf;hold on;
+    plotData = Ccs(2:end, 2);
+    plot(Ccs(2:end, 1), plotData);
+    plot(i_set(cpos)*ones(10,1), linspace(min(plotData), max(plotData), 10), 'r:')
+end 
 %% T_A
-
-h = @(L) (L - L0)./L0;      %Linear term
+% phibar = 1
+% h = @(L) (L - L0)./L0;      %Linear term
+h = @(L) L/L0;      %Linear term
 
 d = Tn*(alpha - 1)/(h(Ln)*(1 + phibar*(alpha - 1))); 
 
@@ -227,33 +246,42 @@ T_A = @(L) d*h(L);
 T = @(L) T_P(L) + phibar*T_A(L); 
 
 %Plot T vs L with data
-figure(106)
-clf 
-plot([0 LM+1],zeros(2,1),'k')
-hold on 
-plot(L0*ones(2,1),[-10 75],'k:')
-plot(L,T(L),'r') 
-%ylim([min(Tdata)-5 max(Tdata)+5])
-xlim([0 LM+1])
-xlabel('Length')
-ylabel('Tension')
+% figure(106)
+% clf 
+% plot([0 LM],zeros(2,1),'k')
+% hold on 
+% plot(L0*ones(2,1),[-10 75],'k:')
+% plot(L,T(L),'r') 
+% %ylim([min(Tdata)-5 max(Tdata)+5])
+% xlim([0 LM])
+% xlabel('Length')
+% ylabel('Tension')
+figure(103)
+plot(L,T(L),'m', 'LineWidth', 2);
+plot(L,T_A(L),'b:', 'LineWidth', 1);
 
-print -dpng TvsL_final.png
+if usePngOutput
+    print -dpng TvsL_final.png
+end
 
 %Calculate V and P 
 V = @(L) pi.*(L./(2*pi)).^2*l; 
 P = @(L) T(L).*(2*pi)./L; 
 
 %Plot V vs P with data 
-figure(107)
-clf
-%plot(Pdata,Vscaleddata,'k*','Markersize',5)
-hold on 
-plot([-20 30],zeros(2,1),'k')
-plot(zeros(2,1),[-1 3.5],'k')
-plot(P(L),(V(L) - V0)/V0,'b')
-xlim([-20 30])
-xlabel('P (mmHg)')
-ylabel('(V - V_0/V_0') 
+% figure(107)
+% clf
+% %plot(Pdata,Vscaleddata,'k*','Markersize',5)
+% hold on 
+% plot([-20 30],zeros(2,1),'k')
+% plot(zeros(2,1),[-1 3.5],'k')
+% plot(P(L),(V(L) - V0)/V0,'b')
+% xlim([-20 30])
+% xlabel('P (mmHg)')
+% ylabel('(V - V_0/V_0') 
+figure(100)
+plot(P(L),(V(L) - V0)/V0,'m', 'LineWidth', 2)
 
-print -dpng VvsP_final.png
+if usePngOutput
+    print -dpng VvsP_final.png
+end

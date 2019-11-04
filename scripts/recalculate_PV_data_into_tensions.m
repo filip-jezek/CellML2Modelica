@@ -3,7 +3,8 @@ plot(B(:, 1), B(:, 2), '*-', 'LineWidth', 2);xlabel('Pressure [Pa]');ylabel('(V-
 
 
 %% Data from 
-RestRaw = [0.0000, -0.1339   ;
+RestRaw = [
+    0.0000, -0.1339   ;
 0.0513, 2.2763    ;
 0.1018, 2.3607    ;
 0.1508, 2.5774    ;
@@ -17,7 +18,8 @@ RestRaw = [0.0000, -0.1339   ;
 0.5503, 32.2871   ;
 0.6010, 41.3416   ]
 				  
-ActRaw = [-0.0007, 3.1882   ;
+ActRaw = [
+    0.000, 3.1882   ;
 0.0504, 26.6614   ;
 0.1027, 35.4507   ;
 0.1505, 47.8929   ;
@@ -30,43 +32,110 @@ ActRaw = [-0.0007, 3.1882   ;
 0.4997, 56.4552   ;
 0.5517, 56.8723   ;
 0.6023, 59.8802   ]
+
+% conversion to mL
+mL2m3 = 1e-6;
+RestRaw(:, 1) = RestRaw(:, 1)*mL2m3;
+ActRaw(:, 1) = ActRaw(:, 1)*mL2m3;
 %%
 cmH2o2Pa = 98.0665;
-conversion = cmH2o2Pa/133.32; % to mmHg
+conversion = cmH2o2Pa;%/133.32; % to mmHg
+
 figure(1);clf;hold on; title('Pressure to volume - passive, active and total')
-plot(RestRaw(:, 1), RestRaw(:, 2)*conversion, 'r*', 'LineWidth', 1);xlabel('Volume [ml]');ylabel('pressure mmHg');
+plot(RestRaw(:, 1), RestRaw(:, 2)*conversion, 'r*', 'LineWidth', 1);xlabel('Volume [m3]');ylabel('pressure Pa');
 plot(ActRaw(:, 1), ActRaw(:, 2)*conversion, 'b*', 'LineWidth', 1);
 
-x_samples_v = linspace(0, 0.6, 100);
-resRes = interp1(RestRaw(:, 1), RestRaw(:, 2)*conversion, x_samples_v, 'pchip');
+x_samples_v = linspace(0.05, 0.6, 100)*1e-6;
+totRes = interp1(RestRaw(:, 1), RestRaw(:, 2)*conversion, x_samples_v, 'pchip');
 actRes = interp1(ActRaw(:, 1), ActRaw(:, 2)*conversion, x_samples_v, 'pchip');
-plot(x_samples_v, resRes, 'r.-');
+plot(x_samples_v, totRes, 'r.-');
 plot(x_samples_v, actRes, 'b.-');
 
-act_Alone = actRes - resRes;
+act_Alone = actRes - totRes;
 plot(x_samples_v, act_Alone, 'm.-');
-act_normal = resRes + 0.25*act_Alone;
+act_normal = totRes + 0.25*act_Alone;
 % plot(x_samples_v, act_normal, 'k.-');
 
-
 %%
-length = 20e-3; % the paper is not specific about lengths of the venous segments. Lets have a guess here [m]
+length = 10e-3; % the paper is not specific about lengths of the venous segments. Lets have a guess here [m]
 
 x_samples_r = sqrt(x_samples_v/pi/length);
+x_samples_L = x_samples_r*2*pi;
+x_data_r = sqrt(ActRaw(:, 1)/pi/length);
 
 figure(2);clf; hold on; title('Pressure per diameter - active, passive and total')
-plot(x_samples_r, resRes, 'r.-');
-plot(x_samples_r, act_Alone , 'm.-');
-plot(x_samples_r, act_normal, 'k.-');
+plot(x_samples_L, totRes, 'r.-');
+plot(x_samples_L, act_Alone , 'b.-');
+plot(x_samples_L, act_normal, 'k.-');
 
 %%
-pass_tension = resRes.*x_samples_r;
+% tension = pressure*radius
+pass_tension = totRes.*x_samples_r;
 act_tension = act_Alone .* x_samples_r;
 total = actRes.*x_samples_r;
 total_check = pass_tension + act_tension;
 
 figure(3);clf; hold on; title('Tension per diameter')
-plot(x_samples_r, pass_tension, 'r.-');
-plot(x_samples_r, act_tension, 'b.-');
-plot(x_samples_r, total, 'm.-');
-plot(x_samples_r, total_check, 'k.-');
+plot(x_samples_L, pass_tension, 'r.-');
+plot(x_samples_L, act_tension, 'b.-');
+plot(x_samples_L, total, 'm.-');
+plot(x_samples_L, total_check, 'k.-');
+
+act_tension_data = interp1(x_samples_L, act_tension, x_data_L, 'pchip');
+plot(x_data_L, act_tension_data, 'b*');
+
+%% plot the identified active tensions curve
+% General model:
+%      f(x) = x*a1*exp(-((x-b1)/c1)^2)
+% Coefficients (with 95% confidence bounds):
+%        a1 =       823.8  (809.4, 838.2)
+%        b1 =     0.01824  (0.01803, 0.01845)
+%        c1 =   -0.009899  (-0.01025, -0.009547)
+% 
+% Goodness of fit:
+%   SSE: 63.01
+%   R-square: 0.9555
+%   Adjusted R-square: 0.9546
+%   RMSE: 0.806
+
+A_T = @(x) x*823.8.*exp(-((x-0.01824 )/(-0.009899)).^2);
+
+figure(3); plot(x_samples_L, A_T(x_samples_L), 'm')
+
+figure(2); % pressures
+plot(x_samples_L, A_T(x_samples_L)./x_samples_r, 'm')
+%% plot the identified passive tension curve
+% General model:
+%      f(L) = a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1)
+% Coefficients (with 95% confidence bounds):
+%        L0 =     0.01471  (0.01383, 0.01558)
+%        a =        4.29  (3.39, 5.189)
+%        b =   0.0006391  (-0.0001632, 0.001441)
+% 
+% Goodness of fit:
+%   SSE: 86.75
+%   R-square: 0.9631
+%   Adjusted R-square: 0.9623
+%   RMSE: 0.9457
+L0 = 0.01455;
+a =        4.29;
+b =   0.0006391;
+
+P_T_fit =@(L) a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1);
+V0 = length*pi*(L0/2/pi)^2;
+x_samples_rel = (x_samples_v - V0)/V0;
+
+figure(4); clf; hold on;
+plot(x_samples_rel, pass_tension, 'r-');
+plot(x_samples_rel, P_T_fit(x_samples_L), 'r.');
+
+plot(x_samples_rel, act_tension, 'b-');
+plot(x_samples_rel, A_T(x_samples_L), 'b.');
+
+plot(x_samples_rel, P_T_fit(x_samples_L) + A_T(x_samples_L), 'k.');
+
+%% tests
+
+dx_samples_r = diff(diff(x_samples_r));
+dpass_tension = diff(diff(pass_tension));
+figure(4); plot(x_samples_r(3:end), dpass_tension./dx_samples_r, 'b.-')

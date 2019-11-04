@@ -156,6 +156,7 @@ a = (Tn/(1 + phibar*(alpha - 1)) - b*g(Ln))/f(Ln);
 % a = (Tn/(1 + phibar*(alpha - 1)) - b*g(L0)); 
 
 T_P = @(L) a*f(L) + b*g(L); 
+T_P_datafit = @(L) a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1);
 
 if showGraphs
     %Plot T_P vs L with data from fig(103)

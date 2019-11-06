@@ -136,11 +136,11 @@ end
 %% T_P
 
 showGraphs = true;
-% phibar = 0;
+phibar = 0;
 % i_set = 5:0.1:50;
-i_set = 10.8;
+i_set = 11.5;
 Ccs = [0, 0];
-for i = i_set,
+for i = i_set
 % c = 11.5; %Dimensionless constant determined from cftool - 11.5
 c = i;
 
@@ -151,12 +151,16 @@ b = (TM - Tn/(1 + phibar*(alpha - 1))*f(LM)/f(Ln)) / ...
     (g(LM) - g(Ln)*f(LM)/f(Ln));
 a = (Tn/(1 + phibar*(alpha - 1)) - b*g(Ln))/f(Ln); 
 
-% b = (Tn - T0/(1 + phibar*(alpha - 1))*f(Ln)) / ... 
-%     (g(Ln)*f(Ln));
-% a = (Tn/(1 + phibar*(alpha - 1)) - b*g(L0)); 
+% b = (TM - Tn)*f(LM)/f(Ln) / ... 
+%     (g(LM) - g(Ln)*f(LM)/f(Ln));
+% a = (Tn - b*g(Ln))/f(Ln); 
+
+
 
 T_P = @(L) a*f(L) + b*g(L); 
-T_P_datafit = @(L) a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1);
+
+% a = 7.0545; b = 2.9106e-04;
+% T_P_datafit = @(L) a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1);
 
 if showGraphs
     %Plot T_P vs L with data from fig(103)
@@ -223,10 +227,10 @@ SSres = sum(p);
 R2 = 1 - SSres/SStot;
 disp([num2str(i) ': ' num2str(R2)]);
 Ccs = [Ccs; [i, SSres]];
-% pause(0.05);
+pause(0.05);
 end
 
-if length(i_set) > 1
+if size(i_set, 2) > 1
     % plot the optimal c param
     [cmax, cpos] = min(Ccs(2:end, 2));
     figure(111);clf;hold on;

@@ -1,6 +1,6 @@
-B = A; B(:, 1) = A(:, 1)*133.32;
-plot(B(:, 1), B(:, 2), '*-', 'LineWidth', 2);xlabel('Pressure [Pa]');ylabel('(V-V0)/V0');
-
+% B = A; B(:, 1) = A(:, 1)*133.32;
+% plot(B(:, 1), B(:, 2), '*-', 'LineWidth', 2);xlabel('Pressure [Pa]');ylabel('(V-V0)/V0');
+% 
 
 %% Data from 
 RestRaw = [
@@ -41,7 +41,7 @@ ActRaw(:, 1) = ActRaw(:, 1)*mL2m3;
 cmH2o2Pa = 98.0665;
 conversion = cmH2o2Pa;%/133.32; % to mmHg
 
-figure(1);clf;hold on; title('Pressure to volume - passive, active and total')
+figure(1);clf;hold on; title('I. Pressure to volume - passive, active and total - original data')
 plot(RestRaw(:, 1), RestRaw(:, 2)*conversion, 'r*', 'LineWidth', 1);xlabel('Volume [m3]');ylabel('pressure Pa');
 plot(ActRaw(:, 1), ActRaw(:, 2)*conversion, 'b*', 'LineWidth', 1);
 
@@ -62,20 +62,23 @@ length = 10e-3; % the paper is not specific about lengths of the venous segments
 x_samples_r = sqrt(x_samples_v/pi/length);
 x_samples_L = x_samples_r*2*pi;
 x_data_r = sqrt(ActRaw(:, 1)/pi/length);
+x_data_L = x_data_r*2*pi;
 
-figure(2);clf; hold on; title('Pressure per diameter - active, passive and total')
+figure(2);clf; hold on; title('II. Pressure per circ. length - active, passive and total')
 plot(x_samples_L, totRes, 'r.-');
 plot(x_samples_L, act_Alone , 'b.-');
-plot(x_samples_L, act_normal, 'k.-');
+plot(x_samples_L, actRes, 'k.-');
+plot(x_samples_L, act_normal, 'k-');
 
 %%
 % tension = pressure*radius
 pass_tension = totRes.*x_samples_r;
+pass_tension_data = RestRaw(:, 2)*conversion.*x_data_r;
 act_tension = act_Alone .* x_samples_r;
 total = actRes.*x_samples_r;
 total_check = pass_tension + act_tension;
 
-figure(3);clf; hold on; title('Tension per diameter')
+figure(3);clf; hold on; title('III. Tension per circ. length')
 plot(x_samples_L, pass_tension, 'r.-');
 plot(x_samples_L, act_tension, 'b.-');
 plot(x_samples_L, total, 'm.-');
@@ -83,6 +86,7 @@ plot(x_samples_L, total_check, 'k.-');
 
 act_tension_data = interp1(x_samples_L, act_tension, x_data_L, 'pchip');
 plot(x_data_L, act_tension_data, 'b*');
+plot(x_data_L, pass_tension_data, 'r*');
 
 %% plot the identified active tensions curve
 % General model:
@@ -99,6 +103,7 @@ plot(x_data_L, act_tension_data, 'b*');
 %   RMSE: 0.806
 
 A_T = @(x) x*823.8.*exp(-((x-0.01824 )/(-0.009899)).^2);
+% x*a1*exp(-((x-b1)/c1)^2)
 
 figure(3); plot(x_samples_L, A_T(x_samples_L), 'm')
 
@@ -122,20 +127,61 @@ a =        4.29;
 b =   0.0006391;
 
 P_T_fit =@(L) a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1);
+
+% 7.0545*(L.*(L - L0)./L0.^2)  + (2.91e-4)*(exp(11.5*(L - L0)./L0) - 1)
+
 V0 = length*pi*(L0/2/pi)^2;
 x_samples_rel = (x_samples_v - V0)/V0;
 
 figure(4); clf; hold on;
-plot(x_samples_rel, pass_tension, 'r-');
-plot(x_samples_rel, P_T_fit(x_samples_L), 'r.');
+plot(x_samples_rel, pass_tension, 'r.');
 
-plot(x_samples_rel, act_tension, 'b-');
-plot(x_samples_rel, A_T(x_samples_L), 'b.');
+plot(x_samples_rel, act_tension, 'b.');
 
-plot(x_samples_rel, P_T_fit(x_samples_L) + A_T(x_samples_L), 'k.');
+plot(x_samples_rel, P_T_fit(x_samples_L) + A_T(x_samples_L), 'k-');
+
+plot(x_samples_rel, P_T_fit(x_samples_L) + 0.25*A_T(x_samples_L), 'm-');
+
+plot(x_samples_rel, P_T_fit(x_samples_L), 'r-');
+plot(x_samples_rel, A_T(x_samples_L), 'b-');
+
+xlabel('Relative circumferential length (L-L0)/L0'); ylabel('Tension [N]');
+legend('Passive', 'Maximally active', 'Total (fit)')
+
+figure(2); % pressures
+plot(x_samples_L, (P_T_fit(x_samples_L) + 0.25*A_T(x_samples_L))./x_samples_r, 'm')
 
 %% tests
 
-dx_samples_r = diff(diff(x_samples_r));
-dpass_tension = diff(diff(pass_tension));
-figure(4); plot(x_samples_r(3:end), dpass_tension./dx_samples_r, 'b.-')
+% dx_samples_r = diff(diff(x_samples_r));
+% dpass_tension = diff(diff(pass_tension));
+
+figure(5); 
+% for L0 = 0.014:0.0001:0.015
+    
+clf; hold on; title('Relative vol to pressure')
+ylim([-2000, 8000]);
+
+plot(x_samples_rel, pass_tension./x_samples_r, 'r.');
+
+plot(x_samples_rel, act_tension./x_samples_r, 'b.');
+
+plot(x_samples_rel, (P_T_fit(x_samples_L) + A_T(x_samples_L))./x_samples_r, 'k-');
+
+plot(x_samples_rel, (P_T_fit(x_samples_L) + 0.25*A_T(x_samples_L))./x_samples_r, 'm-');
+
+plot(x_samples_rel, (P_T_fit(x_samples_L))./x_samples_r, 'r-');
+plot(x_samples_rel, (A_T(x_samples_L))./x_samples_r, 'b-');
+
+plot(x_samples_rel, 4*133*ones(100, 1), 'k--');
+
+L0 = 0.0147; a = 7.0545; b = 2.9106e-04;
+T_P_datafit = @(L) a*(L.*(L - L0)./L0.^2)  + b*(exp(11.5*(L - L0)./L0) - 1);
+plot(x_samples_rel, T_P_datafit(x_samples_L)./x_samples_r, 'b-');
+% L0
+% pause(0.5)
+% end
+
+xlabel('Relative volume (V-V0)/V0'); ylabel('Pressure [Pa]');
+legend('Passive', 'Maximally active', 'Total (fit)')
+% plot(x_samples_r(3:end), dpass_tension./dx_samples_r, 'b.-')

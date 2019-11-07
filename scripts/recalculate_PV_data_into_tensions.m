@@ -45,7 +45,7 @@ figure(1);clf;hold on; title('I. Pressure to volume - passive, active and total 
 plot(RestRaw(:, 1), RestRaw(:, 2)*conversion, 'r*', 'LineWidth', 1);xlabel('Volume [m3]');ylabel('pressure Pa');
 plot(ActRaw(:, 1), ActRaw(:, 2)*conversion, 'b*', 'LineWidth', 1);
 
-x_samples_v = linspace(0.05, 0.6, 100)*1e-6;
+x_samples_v = linspace(0.01, 0.6, 100)*1e-6;
 totRes = interp1(RestRaw(:, 1), RestRaw(:, 2)*conversion, x_samples_v, 'pchip');
 actRes = interp1(ActRaw(:, 1), ActRaw(:, 2)*conversion, x_samples_v, 'pchip');
 plot(x_samples_v, totRes, 'r.-');

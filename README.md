@@ -22,3 +22,7 @@ Clear conversion of the ADAN_main_ADAN_86_Heart.cellml. Used as a reference for 
 ### ADAN86.mo
 
 Model based on the translated models, but manually adjusted. Run the ADAN_main.ADAN model for the same results as the CellML version. 
+
+## TODO
+- Grab all models from the CellML repository
+- convert them and compare results
